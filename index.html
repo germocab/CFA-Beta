@@ -5,71 +5,113 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Turnos Predicación</title>
   <style>
+    /* VARIABLES DE COLOR */
     :root {
-      --bg-dark: #121212;
+      /* Modo Oscuro (Default) */
       --bg-body: #1e1e1e;
+      --bg-screen: #121212;
+      --bg-card: #1e1e1e;
+      --bg-card-active: #252525;
+      --text-main: #ffffff;
+      --text-dim: #a0a0a0;
+      --border-color: transparent;
+      --shadow: none;
+      
+      /* Colores fijos */
+      --primary-orange: #f36100;
       --bg-card-blue: #2c2c3e;
       --green: #04c92f;
-      --primary-orange: #f36100;
-      --text-white: #ffffff;
-      --text-gray: #a0a0a0;
       --radius: 24px;
     }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-white); display: flex; justify-content: center; min-height: 100vh; }
+
+    /* MODO CLARO */
+    body.light-mode {
+      --bg-body: #f0f2f5;
+      --bg-screen: #ffffff;
+      --bg-card: #f8f9fa;
+      --bg-card-active: #ffffff;
+      --text-main: #1a1a1a;
+      --text-dim: #65676b;
+      --border-color: #e4e6eb;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
+    
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; }
     
     .app-wrapper { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 1100px; padding: 20px; }
     
-    .screen { background-color: var(--bg-dark); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; }
+    .screen { background-color: var(--bg-screen); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
     .scroll-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
     
-    /* TARJETAS IZQUIERDA */
-    .location-card { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; cursor: pointer; transition: 0.3s; border: 2px solid transparent; background-color: #1e1e1e; display: flex; align-items: center; gap: 15px; }
-    .location-card.active { border-color: var(--primary-orange); background-color: #252525; }
-    .status-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .card-label h2 { margin: 0; font-size: 0.95rem; font-weight: 600; }
-
-    /* DETALLE DERECHA */
-    .hero-img { height: 220px; background-size: cover; background-position: center; position: relative; background-color: #333; }
-    .hero-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(18,18,18,1) 5%, rgba(18,18,18,0) 60%); }
+    /* HEADER CON TOGGLE */
+    .header-list { display: flex; justify-content: space-between; align-items: center; padding: 30px 20px 10px 25px; }
     
-    .back-btn { 
-      position: absolute; top: 15px; left: 15px; 
-      background: rgba(0,0,0,0.7); border: none; color: white; 
-      padding: 10px 18px; border-radius: 20px; cursor: pointer; 
-      z-index: 20; font-weight: bold; display: none; /* Solo se ve en móvil */
+    .theme-toggle {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow);
     }
+
+    /* TARJETAS */
+    .location-card { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; cursor: pointer; border: 2px solid transparent; background-color: var(--bg-card); display: flex; align-items: center; gap: 15px; box-shadow: var(--shadow); }
+    .location-card.active { border-color: var(--primary-orange); background-color: var(--bg-card-active); }
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .card-label h2 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
+
+    /* DETALLE */
+    .hero-img { height: 220px; background-size: cover; background-position: center; position: relative; background-color: #333; }
+    .hero-img::after { 
+        content: ""; position: absolute; inset: 0; 
+        background: linear-gradient(to top, var(--bg-screen) 5%, transparent 60%); 
+    }
+    
+    .back-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: none; color: white; padding: 10px 18px; border-radius: 20px; cursor: pointer; z-index: 20; font-weight: bold; display: none; }
 
     .info-section { padding: 30px 35px; }
     .info-section h2 { margin: 0 0 25px 0; font-size: 1.8rem; font-weight: 700; }
     .days-row { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 10px; }
-    .day-btn { flex: 1; min-width: 55px; text-align: center; color: var(--text-gray); cursor: pointer; font-weight: 700; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; transition: 0.2s; background: rgba(255,255,255,0.05); }
-    .day-btn.active { background: #fff; color: var(--primary-orange); }
+    .day-btn { flex: 1; min-width: 55px; text-align: center; color: var(--text-dim); cursor: pointer; font-weight: 700; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: rgba(128,128,128,0.1); }
+    .day-btn.active { background: var(--text-main); color: var(--bg-screen); }
     
-    .slot { padding: 22px; border-radius: var(--radius); margin-bottom: 15px; }
+    .slot { padding: 22px; border-radius: var(--radius); margin-bottom: 15px; color: white; }
     .turno-M { background-color: var(--primary-orange); }
     .turno-T { background-color: var(--bg-card-blue); }
     .slot h4 { margin: 0 0 10px 0; font-size: 1.1rem; }
     .badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 12px; font-size: 0.85rem; }
 
-    /* RESPONSIVE LÓGICA */
+    /* RESPONSIVE */
     @media (min-width: 768px) { 
       .app-wrapper { grid-template-columns: 350px 1fr; } 
       #detail-screen { display: flex !important; } 
     }
-
     @media (max-width: 767px) { 
       .app-wrapper { padding: 0; } 
-      .screen { height: 100vh; border-radius: 0; } 
-      #detail-screen { display: none; } /* Oculto por defecto en móvil */
-      .back-btn { display: block; } /* Mostrar botón volver en móvil */
+      .screen { height: 100vh; border-radius: 0; border: none; } 
+      #detail-screen { display: none; }
+      .back-btn { display: block; }
     }
   </style>
 </head>
 <body>
   <div class="app-wrapper">
     <section class="screen" id="list-screen">
-      <div style="padding: 30px 20px 10px 25px;"><h1 style="margin:0; font-size: 1.6rem;">Locaciones</h1></div>
+      <div class="header-list">
+        <h1 style="margin:0; font-size: 1.6rem;">Locaciones</h1>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+          <span>🌙</span> Modo
+        </button>
+      </div>
       <div class="scroll-container" id="locationsList"></div>
     </section>
 
@@ -110,6 +152,11 @@
     let currentDay = 'Lunes';
     let currentPointName = "Clínica Cordillera";
 
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light-mode');
+      document.getElementById('themeBtn').innerHTML = isLight ? '<span>☀️</span> Claro' : '<span>🌙</span> Oscuro';
+    }
+
     function init() {
       const listContainer = document.getElementById('locationsList');
       Object.keys(POINT_CONFIG).forEach((name) => {
@@ -145,23 +192,17 @@
       currentPointName = name;
       document.getElementById('currentPointTitle').innerText = name;
       document.getElementById('heroBanner').style.backgroundImage = `url('${POINT_CONFIG[name].img}')`;
-      
-      // Manejo visual de selección
       document.querySelectorAll('.location-card').forEach(c => {
         c.classList.toggle('active', c.innerText.includes(name));
       });
-
-      // LÓGICA MÓVIL: Si la pantalla es pequeña, ocultar lista y mostrar detalle
       if (window.innerWidth < 768) {
         document.getElementById('list-screen').style.display = 'none';
         document.getElementById('detail-screen').style.display = 'flex';
       }
-      
       renderShifts();
     }
 
     function goBack() {
-      // Regresar a la lista en móvil
       document.getElementById('list-screen').style.display = 'flex';
       document.getElementById('detail-screen').style.display = 'none';
     }
@@ -182,7 +223,7 @@
       );
 
       if (filtered.length === 0) {
-        container.innerHTML = `<div style="padding:40px; color:gray; text-align:center;">No hay turnos.</div>`;
+        container.innerHTML = `<div style="padding:40px; color:var(--text-dim); text-align:center;">No hay turnos.</div>`;
         return;
       }
 
