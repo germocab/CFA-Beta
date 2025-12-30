@@ -19,7 +19,7 @@
       --shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    /* VARIABLES PARA MODO OSCURO (Activas al presionar el botón) */
+    /* VARIABLES PARA MODO OSCURO */
     body.dark-mode {
       --bg-body: #1e1e1e;
       --bg-screen: #121212;
@@ -39,7 +39,7 @@
 
     /* HEADER */
     .header-list { display: flex; justify-content: space-between; align-items: center; padding: 30px 25px 10px; }
-    .theme-toggle { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: var(--shadow); }
+    .theme-toggle { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 12px; cursor: pointer; font-weight: bold; }
 
     /* LISTA IZQUIERDA */
     .location-card { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; cursor: pointer; background-color: var(--bg-card); display: flex; align-items: center; gap: 15px; border: 2px solid transparent; box-shadow: var(--shadow); }
@@ -160,7 +160,7 @@
       "Patricia": {
         img: "https://images.unsplash.com/photo-1517021897933-0e0319cfbc28?q=80&w=1000",
         color: "#f36100",
-        guardado: { lugar: "Punto de guardado del carrito", nombre: "Incahuasi 1549", sub: "Casa de la Familia Tobar, tel: "+56992357751" },
+        guardado: { lugar: "Punto de guardado del carrito", nombre: "Incahuasi 1549", sub: "Casa de la Familia Tobar", tel: "+56992357751" },
         encargado: { tit: "Encargado de punto", nombre: "Fernando Aldunate", tel: "+56996377733" }
       }
     };
@@ -217,7 +217,7 @@
               <p>${info.guardado.sub}</p>
             </div>
           </div>
-          <a href="tel:${info.guardado.tel}" class="call-btn orange">Llamar</a>
+          <a href="tel:${info.guardado.tel}" class="call-btn orange">📞 Llamar</a>
         </div>
         <div class="contact-card">
           <div class="contact-header">
@@ -227,7 +227,7 @@
               <span>${info.encargado.nombre}</span>
             </div>
           </div>
-          <a href="tel:${info.encargado.tel}" class="call-btn blue">Llamar</a>
+          <a href="tel:${info.encargado.tel}" class="call-btn blue">📞 Llamar</a>
         </div>
       `;
 
@@ -272,4 +272,3 @@
   </script>
 </body>
 </html>
-
