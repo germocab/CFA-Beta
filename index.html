@@ -5,45 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Turnos Predicación</title>
   <style>
+    /* VARIABLES POR DEFECTO: MODO CLARO */
     :root {
-      --bg-dark: #121212;
-      --bg-body: #1e1e1e;
-      --bg-card: #1e1e1e;
+      --bg-body: #f0f2f5;
+      --bg-screen: #ffffff;
+      --bg-card: #f8f9fa;
+      --text-main: #1a1a1a;
+      --text-gray: #65676b;
       --primary-orange: #f36100;
       --primary-blue: #0056ff;
-      --text-white: #ffffff;
-      --text-gray: #a0a0a0;
       --radius: 24px;
+      --border-color: #e4e6eb;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    body.light-mode {
-      --bg-body: #f0f2f5;
-      --bg-dark: #ffffff;
-      --bg-card: #f8f9fa;
-      --text-white: #1a1a1a;
-      --text-gray: #65676b;
+    /* VARIABLES PARA MODO OSCURO (Activas al presionar el botón) */
+    body.dark-mode {
+      --bg-body: #1e1e1e;
+      --bg-screen: #121212;
+      --bg-card: #1e1e1e;
+      --text-main: #ffffff;
+      --text-gray: #a0a0a0;
+      --border-color: rgba(255,255,255,0.05);
+      --shadow: none;
     }
 
     * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-white); }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); }
     
     .app-wrapper { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 1100px; padding: 20px; margin: auto; }
-    .screen { background-color: var(--bg-dark); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; }
+    .screen { background-color: var(--bg-screen); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
     .scroll-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
 
     /* HEADER */
     .header-list { display: flex; justify-content: space-between; align-items: center; padding: 30px 25px 10px; }
-    .theme-toggle { background: var(--bg-card); border: 1px solid #444; color: var(--text-white); padding: 8px 12px; border-radius: 12px; cursor: pointer; font-weight: bold; }
+    .theme-toggle { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: var(--shadow); }
 
     /* LISTA IZQUIERDA */
-    .location-card { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; cursor: pointer; background-color: var(--bg-card); display: flex; align-items: center; gap: 15px; border: 2px solid transparent; }
-    .location-card.active { border-color: var(--primary-orange); }
+    .location-card { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; cursor: pointer; background-color: var(--bg-card); display: flex; align-items: center; gap: 15px; border: 2px solid transparent; box-shadow: var(--shadow); }
+    .location-card.active { border-color: var(--primary-orange); background-color: var(--bg-screen); }
     .status-dot { width: 12px; height: 12px; border-radius: 50%; }
     .location-card h2 { margin: 0; font-size: 0.95rem; font-weight: 600; }
 
     /* DETALLE DERECHA */
     .hero-img { height: 220px; background-size: cover; background-position: center; position: relative; }
-    .hero-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-dark) 5%, transparent 60%); }
+    .hero-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-screen) 5%, transparent 60%); }
     .back-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: none; color: white; padding: 10px 18px; border-radius: 20px; z-index: 20; display: none; font-weight: bold; }
 
     .info-section { padding: 25px 35px; }
@@ -51,10 +57,9 @@
 
     /* TARJETAS CONTACTO ALINEADAS */
     .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-    .contact-card { background: var(--bg-card); padding: 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; }
+    .contact-card { background: var(--bg-card); padding: 18px; border-radius: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; box-shadow: var(--shadow); }
     .contact-header { display: flex; align-items: flex-start; gap: 12px; flex-grow: 1; }
     .icon-circle { width: 45px; height: 45px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
-    .contact-text { display: flex; flex-direction: column; }
     .contact-text b { display: block; font-size: 0.75rem; color: var(--primary-orange); }
     .contact-text span { font-size: 0.9rem; font-weight: 700; }
     .contact-text p { margin: 2px 0 0; font-size: 0.75rem; color: var(--text-gray); }
@@ -65,19 +70,19 @@
 
     /* PILDORAS DE DÍA */
     .days-row { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 5px; }
-    .day-btn { flex: 1; min-width: 55px; text-align: center; color: var(--text-gray); cursor: pointer; font-weight: 700; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: rgba(255,255,255,0.05); }
-    .day-btn.active { background: #fff; color: var(--primary-orange); }
-    body.light-mode .day-btn.active { background: var(--primary-orange); color: #fff; }
+    .day-btn { flex: 1; min-width: 55px; text-align: center; color: var(--text-gray); cursor: pointer; font-weight: 700; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: rgba(128,128,128,0.1); }
+    .day-btn.active { background: var(--primary-orange); color: #fff; }
+    body.dark-mode .day-btn.active { background: #fff; color: var(--primary-orange); }
 
     /* TURNOS */
     .slot { padding: 22px; border-radius: var(--radius); margin-bottom: 15px; color: white; }
     .turno-M { background-color: var(--primary-orange); }
-    .turno-T { background-color: #2c2c3e; }
+    .turno-T { background-color: var(--primary-blue); }
     .slot h4 { margin: 0 0 10px 0; font-size: 1.1rem; }
     .badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 12px; font-size: 0.85rem; }
 
     @media (min-width: 768px) { .app-wrapper { grid-template-columns: 350px 1fr; } #detail-screen { display: flex !important; } }
-    @media (max-width: 767px) { .app-wrapper { padding: 0; } .screen { height: 100vh; border-radius: 0; } #detail-screen { display: none; } .back-btn { display: block; } .contact-grid { grid-template-columns: 1fr; } .contact-card { min-height: auto; } }
+    @media (max-width: 767px) { .app-wrapper { padding: 0; } .screen { height: 100vh; border-radius: 0; border:none; } #detail-screen { display: none; } .back-btn { display: block; } .contact-grid { grid-template-columns: 1fr; } .contact-card { min-height: auto; } }
   </style>
 </head>
 <body>
@@ -86,7 +91,7 @@
     <section class="screen" id="list-screen">
       <div class="header-list">
         <h1 style="margin:0;">Locaciones</h1>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Modo</button>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Oscuro</button>
       </div>
       <div class="scroll-container" id="locationsList"></div>
     </section>
@@ -165,8 +170,8 @@
     let currentPoint = "Clínica Cordillera";
 
     function toggleTheme() {
-      const isLight = document.body.classList.toggle('light-mode');
-      document.getElementById('themeBtn').innerHTML = isLight ? '☀️ Claro' : '🌙 Oscuro';
+      const isDark = document.body.classList.toggle('dark-mode');
+      document.getElementById('themeBtn').innerHTML = isDark ? '☀️ Claro' : '🌙 Oscuro';
     }
 
     async function init() {
