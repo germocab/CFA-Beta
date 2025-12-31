@@ -91,7 +91,7 @@
     #list-screen { display: flex !important; } 
     
     /* Ocultar detalle por defecto en móvil */
-    #detail-screen { display: none; } 
+    #detail-screen { display: none !important; } 
     
     .back-btn { display: block; }
     .contact-grid { grid-template-columns: 1fr; }
@@ -147,7 +147,7 @@ function handleSearch() {
   
   if (query === "") {
     // Si el buscador está vacío, volvemos a mostrar la lista de locaciones normal
-    init(); 
+    init(false); 
     return;
   }
 
@@ -249,9 +249,19 @@ function handleSearch() {
         listContainer.appendChild(card);
       });
       
+      if (allData.length === 0) {
       await loadExcelData();
-      selectPoint(currentPoint);
     }
+        }
+
+const isMobile = window.innerWidth < 768;
+  if (!isMobile && shouldSelectDefault) {
+    selectPoint(currentPoint);
+  } else {
+    // Si es móvil o no queremos seleccionar, solo refrescamos los turnos internamente
+    renderShifts();
+  }
+
 
     async function loadExcelData() {
       try {
@@ -376,4 +386,3 @@ function handleSearch() {
 </script>
 </body>
 </html>
-
