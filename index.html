@@ -83,7 +83,20 @@
     .badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 12px; font-size: 0.85rem; }
 
     @media (min-width: 768px) { .app-wrapper { grid-template-columns: 350px 1fr; } #detail-screen { display: flex !important; } }
-    @media (max-width: 767px) { .app-wrapper { padding: 0; } .screen { height: 100vh; border-radius: 0; border:none; } #detail-screen { display: none; } .back-btn { display: block; } .contact-grid { grid-template-columns: 1fr; } .contact-card { min-height: auto; } }
+   @media (max-width: 767px) {
+    .app-wrapper { padding: 0; }
+    .screen { height: 100vh; border-radius: 0; border: none; }
+    
+    /* Mostrar lista por defecto en móvil */
+    #list-screen { display: flex !important; } 
+    
+    /* Ocultar detalle por defecto en móvil */
+    #detail-screen { display: none; } 
+    
+    .back-btn { display: block; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .contact-card { min-height: auto; }
+}
   </style>
 </head>
 <body>
@@ -305,3 +318,4 @@
 </script>
 </body>
 </html>
+
