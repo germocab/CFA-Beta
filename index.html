@@ -222,47 +222,51 @@
     }
 
     function selectPoint(name) {
-      currentPoint = name;
-      const info = POINT_DATA[name];
-      if(!info) return;
+  currentPoint = name;
+  const info = POINT_DATA[name];
+  if(!info) return;
 
-      document.getElementById('currentPointTitle').innerText = name;
-      document.getElementById('heroBanner').style.backgroundImage = `url('${info.img}')`;
-      
-      document.getElementById('contactSection').innerHTML = `
-        <div class="contact-card">
-          <div class="contact-header">
-            <div class="icon-circle" style="background: ${info.color}"></div>
-            <div class="contact-text">
-              <b>${info.guardado.lugar}</b>
-              <span>${info.guardado.nombre}</span>
-              <p>${info.guardado.sub}</p>
-            </div>
-          </div>
-          <a href="tel:${info.guardado.tel}" class="call-btn orange">Llamar al Punto</a>
+  // Actualizamos textos e imágenes
+  document.getElementById('currentPointTitle').innerText = name;
+  document.getElementById('heroBanner').style.backgroundImage = `url('${info.img}')`;
+  
+  document.getElementById('contactSection').innerHTML = `
+    <div class="contact-card">
+      <div class="contact-header">
+        <div class="icon-circle" style="background: ${info.color}"></div>
+        <div class="contact-text">
+          <b>${info.guardado.lugar}</b>
+          <span>${info.guardado.nombre}</span>
+          <p>${info.guardado.sub}</p>
         </div>
-        <div class="contact-card">
-          <div class="contact-header">
-            <div class="icon-circle" style="background: var(--primary-blue)"></div>
-            <div class="contact-text">
-              <b style="color:var(--primary-blue)">${info.encargado.tit}</b>
-              <span>${info.encargado.nombre}</span>
-            </div>
-          </div>
-          <a href="tel:${info.encargado.tel}" class="call-btn blue">Llamar al Encargado</a>
+      </div>
+      <a href="tel:${info.guardado.tel}" class="call-btn orange">Llamar al Punto</a>
+    </div>
+    <div class="contact-card">
+      <div class="contact-header">
+        <div class="icon-circle" style="background: var(--primary-blue)"></div>
+        <div class="contact-text">
+          <b style="color:var(--primary-blue)">${info.encargado.tit}</b>
+          <span>${info.encargado.nombre}</span>
         </div>
-      `;
+      </div>
+      <a href="tel:${info.encargado.tel}" class="call-btn blue">Llamar al Encargado</a>
+    </div>
+  `;
 
-      document.querySelectorAll('.location-card').forEach(c => {
-        c.classList.toggle('active', c.querySelector('h2').innerText === name);
-      });
+  // Marcamos como activa la tarjeta en la lista
+  document.querySelectorAll('.location-card').forEach(c => {
+    c.classList.toggle('active', c.querySelector('h2').innerText === name);
+  });
 
-      if (window.innerWidth < 768) {
-        document.getElementById('list-screen').style.display = 'none';
-        document.getElementById('detail-screen').style.display = 'flex';
-      }
-      renderShifts();
-    }
+  // CONTROL DE PANTALLAS PARA MÓVIL
+  if (window.innerWidth < 768) {
+    document.getElementById('list-screen').style.setProperty('display', 'none', 'important');
+    document.getElementById('detail-screen').style.setProperty('display', 'flex', 'important');
+  }
+
+  renderShifts();
+}
 
     function setDay(day, btn) {
       currentDay = day;
@@ -318,4 +322,5 @@
 </script>
 </body>
 </html>
+
 
