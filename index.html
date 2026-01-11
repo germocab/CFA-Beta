@@ -76,7 +76,6 @@
 
     /* DETALLES */
     .info-section { padding: 40px 35px; }
-    @media (max-width: 767px) { .info-section { padding-top: 80px; } }
     
     .info-section h1 { margin: 0 0 10px 0; font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
     .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0 30px; }
@@ -103,8 +102,13 @@
       .screen { height: 100vh; border-radius: 0; border: none; }
       #list-screen { display: flex !important; } 
       #detail-screen { display: none !important; } 
-      .back-btn { display: flex; }
-      .contact-grid { grid-template-columns: 1fr; }
+      .back-btn { display: flex; top: 15px; left: 15px; width: 44px; height: 44px; }
+      .contact-grid { grid-template-columns: 1fr; gap: 12px; margin: 15px 0 20px; }
+      .contact-card { min-height: auto; padding: 15px; }
+      .info-section { padding: 75px 20px 20px; }
+      .info-section h1 { font-size: 1.7rem; text-align: center; }
+      .days-row { gap: 6px; margin-bottom: 20px; justify-content: space-between; overflow-x: hidden; }
+      .day-btn { min-width: 0; flex: 1; padding: 0; font-size: 0.75rem; }
     }
   </style>
 </head>
@@ -141,7 +145,6 @@
   <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT22dGTCsHGc5Qj4EbMxn4XqPoPuUI93UblvVlwu0nPm4FOUzMvLCIv5eTCgjQXS3MiNamBMsBdJ45A/pub?output=csv';
     
-    // Configuración de locaciones y sus días permitidos
     const POINT_DATA = {
       "Clínica Cordillera": { color: "#f36100", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { lugar: "Punto de guardado", nombre: "Av. Alejandro Fleming 7806", sub: "Casa de Eliana Whittaker", tel: "+56982195443" }, encargado: { tit: "Encargado de punto", nombre: "Douglas García", tel: "+56934574675" } },
       "Supermercado Lider": { color: "#0056ff", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { lugar: "Punto de guardado", nombre: "Av. Alejandro Fleming 7806", sub: "Casa de Eliana Whittaker", tel: "+56982195443" }, encargado: { tit: "Encargado de punto", nombre: "Douglas García", tel: "+56934574675" } },
@@ -194,10 +197,9 @@
         <div class="contact-card"><div><b>${info.guardado.lugar}</b><p style="font-size:0.85rem; font-weight:700; margin:5px 0;">${info.guardado.nombre}</p><p style="font-size:0.75rem; color:var(--text-gray); margin:0;">${info.guardado.sub}</p></div><a href="tel:${info.guardado.tel}" class="call-btn orange">Llamar</a></div>
         <div class="contact-card"><div><b style="color:var(--primary-blue)">${info.encargado.tit}</b><p style="font-size:0.85rem; font-weight:700; margin:5px 0;">${info.encargado.nombre}</p></div><a href="tel:${info.encargado.tel}" class="call-btn blue">Llamar</a></div>`;
       
-      // Renderizar días permitidos para este punto
       const daysContainer = document.getElementById('daysRow');
       daysContainer.innerHTML = '';
-      currentDay = info.days[0]; // Seleccionar el primer día disponible por defecto
+      currentDay = info.days[0];
 
       info.days.forEach(day => {
         const btn = document.createElement('div');
