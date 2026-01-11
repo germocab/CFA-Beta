@@ -36,65 +36,75 @@
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); }
     
     .app-wrapper { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 1100px; padding: 20px; margin: auto; }
-    .screen { background-color: var(--bg-screen); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+    .screen { background-color: var(--bg-screen); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; }
     .scroll-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
 
-    /* HEADER LISTA */
+    /* HEADER */
     .header-list { display: flex; justify-content: space-between; align-items: center; padding: 30px 25px 10px; }
-    .theme-toggle { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 12px; cursor: pointer; font-weight: bold; }
+    .theme-toggle { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
 
-    /* TARJETAS IZQUIERDA */
-    .location-card { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; cursor: pointer; background-color: var(--bg-card); display: flex; align-items: center; gap: 15px; border: 2px solid transparent; box-shadow: var(--shadow); }
-    .location-card.active { border-color: var(--primary-orange); background-color: var(--bg-screen); }
-    .status-dot { width: 12px; height: 12px; border-radius: 50%; }
-    .location-card h2 { margin: 0; font-size: 0.95rem; font-weight: 600; }
-
-    /* SECCIÓN DETALLE (SIN IMAGEN) */
-    .info-section { padding: 40px 35px; }
-    .info-section h1 { margin: 0 0 10px 0; font-size: 2.2rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
-    
-    .back-btn { 
-      background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); 
-      padding: 10px 20px; border-radius: 15px; margin: 20px 0 0 35px; cursor: pointer; 
-      display: none; font-weight: bold; width: fit-content;
+    /* CUADRÍCULA HOME (2x2) */
+    .grid-2x2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .location-card { 
+      padding: 20px 10px; border-radius: var(--radius); cursor: pointer; background-color: var(--bg-card); 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      gap: 12px; border: 2px solid transparent; box-shadow: var(--shadow); min-height: 160px;
     }
+    .location-card.active { border-color: var(--primary-orange); background-color: var(--bg-screen); }
+    .status-dot { width: 44px; height: 44px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .location-card h2 { margin: 0; font-size: 0.95rem; font-weight: 700; line-height: 1.2; }
 
-    /* CONTACTO */
-    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; margin-top: 20px; }
-    .contact-card { background: var(--bg-card); padding: 18px; border-radius: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; }
-    .contact-header { display: flex; align-items: flex-start; gap: 12px; }
-    .icon-circle { width: 45px; height: 45px; border-radius: 50%; flex-shrink: 0; }
-    .contact-text b { display: block; font-size: 0.75rem; color: var(--primary-orange); text-transform: uppercase; }
-    .contact-text span { font-size: 0.95rem; font-weight: 700; display: block; margin-top: 2px; }
-    .contact-text p { margin: 4px 0 0; font-size: 0.8rem; color: var(--text-gray); }
+    /* BÚSQUEDA */
+    .search-results-container { display: flex; flex-direction: column; gap: 10px; }
+    .search-item { 
+      background: var(--bg-card); padding: 16px; border-radius: 20px; border: 1px solid var(--border-color);
+      display: flex; align-items: center; gap: 15px; cursor: pointer;
+    }
+    .search-info { flex-grow: 1; }
+    .search-info b { display: block; font-size: 1rem; color: var(--text-main); margin-bottom: 4px; }
+    .search-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; background: rgba(0,0,0,0.05); color: var(--text-gray); text-transform: uppercase; }
+
+    /* BOTÓN VOLVER CIRCULAR */
+    .back-btn { 
+      position: absolute; top: 20px; left: 20px; width: 48px; height: 48px; 
+      border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-color);
+      color: var(--text-main); display: none; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 100; box-shadow: var(--shadow);
+    }
+    .back-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* DETALLES */
+    .info-section { padding: 40px 35px; }
+    @media (max-width: 767px) { .info-section { padding-top: 80px; } }
     
-    .call-btn { width: 100%; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; margin-top: 15px; }
+    .info-section h1 { margin: 0 0 10px 0; font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0 30px; }
+    .contact-card { background: var(--bg-card); padding: 18px; border-radius: 20px; border: 1px solid var(--border-color); min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; }
+    .call-btn { width: 100%; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; text-decoration: none; text-align: center; font-size: 0.85rem; color: white; margin-top: 10px; }
     .call-btn.orange { background: var(--primary-orange); }
     .call-btn.blue { background: var(--primary-blue); }
 
-    /* DÍAS Y TURNOS */
-    .days-row { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 5px; }
-    .day-btn { flex: 1; min-width: 55px; text-align: center; color: var(--text-gray); cursor: pointer; font-weight: 700; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: rgba(128,128,128,0.1); }
+    /* DÍAS DINÁMICOS */
+    .days-row { display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
+    .day-btn { min-width: 50px; padding: 0 15px; text-align: center; color: var(--text-gray); cursor: pointer; font-weight: 700; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: rgba(128,128,128,0.1); font-size: 0.8rem; }
     .day-btn.active { background: var(--primary-orange); color: #fff; }
 
-    .slot { padding: 22px; border-radius: var(--radius); margin-bottom: 15px; color: white; }
+    .slot { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; color: white; display: flex; flex-direction: column; gap: 10px; }
     .turno-M { background-color: var(--primary-orange); }
     .turno-T { background-color: var(--primary-blue); }
     .turno-TD { background-color: #28a745; }
-    .slot h4 { margin: 0 0 10px 0; font-size: 1.1rem; }
-    .badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 12px; font-size: 0.85rem; }
+    .badge { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
+    .pill-hora { background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 999px; width: fit-content; font-size: 0.9rem; font-weight: 700; border: 1px solid rgba(255,255,255,0.3); }
 
-    /* RESPONSIVE */
-    @media (min-width: 768px) { .app-wrapper { grid-template-columns: 350px 1fr; } #detail-screen { display: flex !important; } }
+    @media (min-width: 768px) { .app-wrapper { grid-template-columns: 400px 1fr; } #detail-screen { display: flex !important; } }
     @media (max-width: 767px) {
       .app-wrapper { padding: 0; }
       .screen { height: 100vh; border-radius: 0; border: none; }
       #list-screen { display: flex !important; } 
       #detail-screen { display: none !important; } 
-      .back-btn { display: block; }
+      .back-btn { display: flex; }
       .contact-grid { grid-template-columns: 1fr; }
-      .info-section { padding: 25px; }
-      .info-section h1 { font-size: 1.8rem; }
     }
   </style>
 </head>
@@ -103,101 +113,61 @@
   <div class="app-wrapper">
     <section class="screen" id="list-screen">
       <div class="header-list">
-        <h1 style="margin:0; font-size: 1.5rem;">Locaciones</h1>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Oscuro</button>
+        <h1 style="margin:0; font-size: 2rem;">Locaciones</h1>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
       </div>
-
       <div style="padding: 0 20px 15px;">
-        <input type="text" id="searchInput" placeholder="Buscar voluntario o turno..." 
-               oninput="handleSearch()" 
-               style="width: 100%; padding: 12px 15px; border-radius: 15px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); outline: none;">
+        <input type="text" id="searchInput" placeholder="Buscar voluntario..." oninput="handleSearch()" 
+               style="width: 100%; padding: 14px 18px; border-radius: 18px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); outline: none; font-size: 1rem;">
       </div>
-
       <div class="scroll-container" id="locationsList"></div>
     </section>
 
     <section class="screen" id="detail-screen">
-      <button class="back-btn" id="mobileBackBtn" onclick="goBack()">← Volver</button>
-      
-      <div class="info-section">
-        <h1 id="currentPointTitle">Selecciona un punto</h1>
-        
-        <div class="contact-grid" id="contactSection"></div>
-
-        <div class="days-row">
-          <div class="day-btn active" onclick="setDay('Lunes', this)">Lun</div>
-          <div class="day-btn" onclick="setDay('Martes', this)">Mar</div>
-          <div class="day-btn" onclick="setDay('Miercoles', this)">Mie</div>
-          <div class="day-btn" onclick="setDay('Jueves', this)">Jue</div>
-          <div class="day-btn" onclick="setDay('Viernes', this)">Vie</div>
-          <div class="day-btn" onclick="setDay('Sabado', this)">Sab</div>
-          <div class="day-btn" onclick="setDay('Domingo', this)">Dom</div>
+      <div class="back-btn" id="mobileBackBtn" onclick="goBack()">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M5 12L12 19M5 12L12 5" /></svg>
+      </div>
+      <div class="scroll-container">
+        <div class="info-section">
+          <h1 id="currentPointTitle">Selecciona un punto</h1>
+          <div class="contact-grid" id="contactSection"></div>
+          <div id="daysRow" class="days-row"></div>
+          <div id="slotsContainer"></div>
         </div>
-
-        <div id="slotsContainer"></div>
       </div>
     </section>
   </div>
 
   <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT22dGTCsHGc5Qj4EbMxn4XqPoPuUI93UblvVlwu0nPm4FOUzMvLCIv5eTCgjQXS3MiNamBMsBdJ45A/pub?output=csv';
-
+    
+    // Configuración de locaciones y sus días permitidos
     const POINT_DATA = {
-      "Clínica Cordillera": {
-        color: "#f36100",
-        guardado: { lugar: "Punto de guardado", nombre: "Av. Alejandro Fleming 7806", sub: "Casa de Eliana Whittaker", tel: "+56982195443" },
-        encargado: { tit: "Encargado de punto", nombre: "Douglas García", tel: "+56934574675" }
-      },
-      "Supermercado Lider": {
-        color: "#0056ff",
-        guardado: { lugar: "Punto de guardado", nombre: "Av. Alejandro Fleming 7806", sub: "Casa de Eliana Whittaker", tel: "+56982195443" },
-        encargado: { tit: "Encargado de punto", nombre: "Douglas García", tel: "+56934574675" }
-      },
-      "Santa Zita": {
-        color: "#04c92f",
-        guardado: { lugar: "Punto de guardado", nombre: "Incahuasi 1549", sub: "Casa de la Familia Tobar", tel: "+56992357751" },
-        encargado: { tit: "Encargado de punto", nombre: "Fernando Aldunate", tel: "+56996377733" }
-      },
-      "Visviri/Supermercado Santa Isabel": {
-        color: "#f36100",
-        guardado: { lugar: "Punto de guardado", nombre: "Espigas 1625", sub: "Casa de la Familia Muñoz", tel: "+56987274609" },
-        encargado: { tit: "Encargado de punto", nombre: "Fernando Aldunate", tel: "+56996377733" }
-      },
-      "Feria de Francisco Bilbao (Curaco)": {
-        color: "#0056ff",
-        guardado: { lugar: "Punto de guardado", nombre: "Duqueco 1965 - Dpto 116 T4", sub: "Departamento de Ingrid Arnold", tel: "+56977081786" },
-        encargado: { tit: "Encargado de punto", nombre: "Germán Cabezas", tel: "+56967883164" }
-      },
-      "Parque Intercomunal": {
-        color: "#04c92f",
-        guardado: { lugar: "Punto de guardado", nombre: "Duqueco 1965 - Dpto 116 T4", sub: "Departamento de Ingrid Arnold", tel: "+56977081786" },
-        encargado: { tit: "Encargado de punto", nombre: "Germán Cabezas", tel: "+56967883164" }
-      },
-      "Patricia": {
-        color: "#f36100",
-        guardado: { lugar: "Punto de guardado", nombre: "Incahuasi 1549", sub: "Casa de la Familia Tobar", tel: "+56992357751" },
-        encargado: { tit: "Encargado de punto", nombre: "Fernando Aldunate", tel: "+56996377733" }
-      }
+      "Clínica Cordillera": { color: "#f36100", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { lugar: "Punto de guardado", nombre: "Av. Alejandro Fleming 7806", sub: "Casa de Eliana Whittaker", tel: "+56982195443" }, encargado: { tit: "Encargado de punto", nombre: "Douglas García", tel: "+56934574675" } },
+      "Supermercado Lider": { color: "#0056ff", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { lugar: "Punto de guardado", nombre: "Av. Alejandro Fleming 7806", sub: "Casa de Eliana Whittaker", tel: "+56982195443" }, encargado: { tit: "Encargado de punto", nombre: "Douglas García", tel: "+56934574675" } },
+      "Santa Zita": { color: "#04c92f", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { lugar: "Punto de guardado", nombre: "Incahuasi 1549", sub: "Casa de la Familia Tobar", tel: "+56992357751" }, encargado: { tit: "Encargado de punto", nombre: "Fernando Aldunate", tel: "+56996377733" } },
+      "Visviri/Santa Isabel": { color: "#f36100", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { lugar: "Punto de guardado", nombre: "Espigas 1625", sub: "Casa de la Familia Muñoz", tel: "+56987274609" }, encargado: { tit: "Encargado de punto", nombre: "Fernando Aldunate", tel: "+56996377733" } },
+      "Feria Bilbao (Curaco)": { color: "#0056ff", days: ['Sabado'], guardado: { lugar: "Punto de guardado", nombre: "Duqueco 1965 - Dpto 116 T4", sub: "Departamento de Ingrid Arnold", tel: "+56977081786" }, encargado: { tit: "Encargado de punto", nombre: "Germán Cabezas", tel: "+56967883164" } },
+      "Parque Intercomunal": { color: "#04c92f", days: ['Domingo'], guardado: { lugar: "Punto de guardado", nombre: "Duqueco 1965 - Dpto 116 T4", sub: "Departamento de Ingrid Arnold", tel: "+56977081786" }, encargado: { tit: "Encargado de punto", nombre: "Germán Cabezas", tel: "+56967883164" } },
+      "Patricia": { color: "#f36100", days: ['Domingo'], guardado: { lugar: "Punto de guardado", nombre: "Incahuasi 1549", sub: "Casa de la Familia Tobar", tel: "+56992357751" }, encargado: { tit: "Encargado de punto", nombre: "Fernando Aldunate", tel: "+56996377733" } }
     };
 
     let allData = [];
-    let currentDay = 'Lunes';
+    let currentDay = '';
     let currentPoint = "Clínica Cordillera";
 
     async function init() {
       const listContainer = document.getElementById('locationsList');
-      listContainer.innerHTML = '';
-      
+      listContainer.innerHTML = '<div class="grid-2x2" id="homeGrid"></div>';
+      const homeGrid = document.getElementById('homeGrid');
       Object.keys(POINT_DATA).forEach(name => {
         const card = document.createElement('div');
         card.className = `location-card ${name === currentPoint ? 'active' : ''}`;
         card.onclick = () => selectPoint(name);
         card.innerHTML = `<div class="status-dot" style="background-color: ${POINT_DATA[name].color}"></div><h2>${name}</h2>`;
-        listContainer.appendChild(card);
+        homeGrid.appendChild(card);
       });
-      
       await loadExcelData();
-      if (window.innerWidth >= 768) selectPoint(currentPoint);
     }
 
     async function loadExcelData() {
@@ -211,7 +181,7 @@
           return { dia: c[0]?.trim(), nombres: c[2]?.trim(), hora: c[3]?.trim(), punto: c[4]?.trim() };
         });
         renderShifts();
-      } catch (e) { console.error("Error cargando CSV:", e); }
+      } catch (e) {}
     }
 
     function selectPoint(name) {
@@ -220,95 +190,50 @@
       if(!info) return;
 
       document.getElementById('currentPointTitle').innerText = name;
-      
       document.getElementById('contactSection').innerHTML = `
-        <div class="contact-card">
-          <div class="contact-header">
-            <div class="icon-circle" style="background: ${info.color}"></div>
-            <div class="contact-text">
-              <b>${info.guardado.lugar}</b>
-              <span>${info.guardado.nombre}</span>
-              <p>${info.guardado.sub}</p>
-            </div>
-          </div>
-          <a href="tel:${info.guardado.tel}" class="call-btn orange">Llamar al Punto</a>
-        </div>
-        <div class="contact-card">
-          <div class="contact-header">
-            <div class="icon-circle" style="background: var(--primary-blue)"></div>
-            <div class="contact-text">
-              <b style="color:var(--primary-blue)">${info.encargado.tit}</b>
-              <span>${info.encargado.nombre}</span>
-            </div>
-          </div>
-          <a href="tel:${info.encargado.tel}" class="call-btn blue">Llamar al Encargado</a>
-        </div>
-      `;
+        <div class="contact-card"><div><b>${info.guardado.lugar}</b><p style="font-size:0.85rem; font-weight:700; margin:5px 0;">${info.guardado.nombre}</p><p style="font-size:0.75rem; color:var(--text-gray); margin:0;">${info.guardado.sub}</p></div><a href="tel:${info.guardado.tel}" class="call-btn orange">Llamar</a></div>
+        <div class="contact-card"><div><b style="color:var(--primary-blue)">${info.encargado.tit}</b><p style="font-size:0.85rem; font-weight:700; margin:5px 0;">${info.encargado.nombre}</p></div><a href="tel:${info.encargado.tel}" class="call-btn blue">Llamar</a></div>`;
+      
+      // Renderizar días permitidos para este punto
+      const daysContainer = document.getElementById('daysRow');
+      daysContainer.innerHTML = '';
+      currentDay = info.days[0]; // Seleccionar el primer día disponible por defecto
 
-      document.querySelectorAll('.location-card').forEach(c => {
-        c.classList.toggle('active', c.querySelector('h2').innerText === name);
+      info.days.forEach(day => {
+        const btn = document.createElement('div');
+        btn.className = `day-btn ${day === currentDay ? 'active' : ''}`;
+        btn.innerText = day.substring(0,3);
+        btn.onclick = (e) => setDay(day, e.target);
+        daysContainer.appendChild(btn);
       });
 
+      document.querySelectorAll('.location-card').forEach(c => c.classList.toggle('active', c.querySelector('h2').innerText === name));
+      
       if (window.innerWidth < 768) {
         document.getElementById('list-screen').style.setProperty('display', 'none', 'important');
         document.getElementById('detail-screen').style.setProperty('display', 'flex', 'important');
-        document.getElementById('mobileBackBtn').style.display = 'block';
       }
       renderShifts();
     }
 
     function renderShifts() {
       const cont = document.getElementById('slotsContainer');
-      const filtered = allData.filter(r => {
-        return r.punto === currentPoint && r.dia?.toLowerCase().startsWith(currentDay.toLowerCase().substring(0,2));
-      });
+      const filtered = allData.filter(r => r.punto === currentPoint && r.dia?.toLowerCase().startsWith(currentDay.toLowerCase().substring(0,2)));
       
       if(filtered.length === 0) {
-        cont.innerHTML = '<p style="text-align:center; color:gray; margin-top:30px;">No hay turnos para este día.</p>';
+        cont.innerHTML = '<p style="text-align:center; color:gray; margin-top:30px;">Sin turnos programados.</p>';
         return;
       }
 
       cont.innerHTML = filtered.map((s, i) => {
-        let claseTurno = s.nombres?.toLowerCase().includes("disponible") ? "turno-TD" : (i % 2 === 0 ? "turno-M" : "turno-T");
-        return `
-          <div class="slot ${claseTurno}">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h4>${s.hora}</h4>
-              <span class="badge">${s.nombres?.toLowerCase().includes("disponible") ? "Libre" : "Ocupado"}</span>
-            </div>
-            <p style="margin:10px 0 0; font-weight:bold; font-size:1.1rem;">${s.nombres}</p>
+        const esDisp = s.nombres?.toLowerCase().includes("disponible");
+        return `<div class="slot ${esDisp ? "turno-TD" : (i % 2 === 0 ? "turno-M" : "turno-T")}">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <p style="margin:0; font-weight:bold; font-size:1.1rem;">${s.nombres}</p>
           </div>
-        `;
+          <div class="pill-hora">${s.hora}</div>
+        </div>`;
       }).join('');
-    }
-
-    function handleSearch() {
-      const query = document.getElementById('searchInput').value.toLowerCase().trim();
-      const listContainer = document.getElementById('locationsList');
-      if (query === "") { init(); return; }
-
-      const results = allData.filter(r => r.nombres?.toLowerCase().includes(query));
-      listContainer.innerHTML = `<h3 style="padding:10px; font-size:0.9rem; color:var(--text-gray);">Resultados: "${query}"</h3>`;
-
-      results.forEach(res => {
-        const card = document.createElement('div');
-        card.className = `location-card`;
-        card.style.flexDirection = "column";
-        card.style.alignItems = "flex-start";
-        card.onclick = () => {
-          document.getElementById('searchInput').value = "";
-          selectPoint(res.punto);
-        };
-        card.innerHTML = `
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
-            <div class="status-dot" style="background-color: ${POINT_DATA[res.punto]?.color || '#ccc'}"></div>
-            <strong style="font-size:0.8rem;">${res.punto}</strong>
-          </div>
-          <div style="font-size:0.9rem; font-weight:bold;">${res.dia} - ${res.hora}</div>
-          <div style="font-size:0.85rem; color:var(--primary-orange);">${res.nombres}</div>
-        `;
-        listContainer.appendChild(card);
-      });
     }
 
     function setDay(day, btn) {
@@ -318,15 +243,33 @@
       renderShifts();
     }
 
+    function handleSearch() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const listContainer = document.getElementById('locationsList');
+      if (query === "") { init(); return; }
+      const results = allData.filter(r => r.nombres?.toLowerCase().includes(query));
+      listContainer.innerHTML = `<h3 style="font-size:0.9rem; color:var(--text-gray); margin-bottom:15px;">Resultados para: "${query}"</h3><div class="search-results-container" id="searchList"></div>`;
+      const searchList = document.getElementById('searchList');
+      results.forEach(res => {
+        const item = document.createElement('div');
+        item.className = 'search-item';
+        item.onclick = () => { document.getElementById('searchInput').value = ""; selectPoint(res.punto); };
+        item.innerHTML = `
+          <div class="status-dot" style="width:12px; height:12px; background:${POINT_DATA[res.punto]?.color || '#ccc'}"></div>
+          <div class="search-info"><b>${res.nombres}</b><div class="search-tags"><span class="tag">${res.punto}</span><span class="tag">${res.dia}</span><span class="tag">${res.hora}</span></div></div>
+          <span style="color:var(--text-gray); font-size:1.2rem;">›</span>`;
+        searchList.appendChild(item);
+      });
+    }
+
     function goBack() {
       document.getElementById('list-screen').style.setProperty('display', 'flex', 'important');
-      document.getElementById('detail-screen').style.setProperty('display', 'none', 'important');
+      document.getElementById('detail-screen').style.display = 'none';
     }
 
     function toggleTheme() {
       document.body.classList.toggle('dark-mode');
-      const isDark = document.body.classList.contains('dark-mode');
-      document.getElementById('themeBtn').innerText = isDark ? '☀️ Claro' : '🌙 Oscuro';
+      document.getElementById('themeBtn').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
     }
 
     init();
