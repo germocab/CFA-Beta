@@ -233,6 +233,7 @@
     }
 
     async function init() {
+      await loadExcelData();
       const listContainer = document.getElementById('locationsList');
       listContainer.innerHTML = '<div class="grid-2x2" id="homeGrid"></div>';
       const homeGrid = document.getElementById('homeGrid');
@@ -243,7 +244,7 @@
         card.innerHTML = `<div class="status-dot" style="background-color: ${POINT_DATA[name].color}"></div><h2>${name}</h2>`;
         homeGrid.appendChild(card);
       });
-      await loadExcelData();
+      selectPoint(currentPoint);
     }
 
     async function loadExcelData() {
@@ -403,5 +404,4 @@
       init();
     }
 
-    function toggleTheme() {
-      document.body.clas
+    function toggleT
