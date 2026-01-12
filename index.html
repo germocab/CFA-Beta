@@ -117,7 +117,7 @@
   <div class="app-wrapper">
     <section class="screen" id="list-screen">
       <div class="header-list">
-        <h1 style="margin:0; font-size: 2rem;">Locaciones</h1>
+        <h1 style="margin:0; font-size: 2rem; cursor: pointer;" onclick="goToHome()">Locaciones</h1>
         <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
       </div>
       <div style="padding: 0 20px 15px;">
@@ -309,6 +309,11 @@
     function goBack() {
       document.getElementById('list-screen').style.setProperty('display', 'flex', 'important');
       document.getElementById('detail-screen').style.display = 'none';
+    }
+
+    function goToHome() {
+      document.getElementById('searchInput').value = "";
+      init();
     }
 
     function toggleTheme() {
