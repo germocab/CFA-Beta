@@ -54,46 +54,7 @@
     .status-dot { width: 44px; height: 44px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .location-card h2 { margin: 0; font-size: 0.95rem; font-weight: 700; line-height: 1.2; }
 
-    /* BÚSQUEDA Y FILTROS */
-    .search-container { padding: 0 20px 15px; }
-    .search-input { 
-      width: 100%; padding: 14px 18px; border-radius: 18px; border: 1px solid var(--border-color); 
-      background: var(--bg-card); color: var(--text-main); outline: none; font-size: 1rem;
-    }
-    
-    .filter-bar {
-      display: none;
-      gap: 8px;
-      margin-top: 12px;
-      padding: 0;
-    }
-    
-    .filter-bar.active {
-      display: flex;
-    }
-    
-    .filter-btn {
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 1.5px solid var(--border-color);
-      background: var(--bg-card);
-      color: var(--text-gray);
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .filter-btn:hover {
-      border-color: var(--primary-orange);
-    }
-    
-    .filter-btn.active {
-      background: var(--primary-orange);
-      color: white;
-      border-color: var(--primary-orange);
-    }
-
+    /* BÚSQUEDA */
     .search-results-container { display: flex; flex-direction: column; gap: 10px; }
     .search-item { 
       background: var(--bg-card); padding: 16px; border-radius: 20px; border: 1px solid var(--border-color);
@@ -159,16 +120,9 @@
         <h1 style="margin:0; font-size: 2rem; cursor: pointer;" onclick="goToHome()">Locaciones</h1>
         <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
       </div>
-      <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Buscar turno" 
-               class="search-input"
-               onclick="showFilters()" 
-               oninput="handleSearch()">
-        <div class="filter-bar" id="filterBar">
-          <button class="filter-btn active" onclick="setFilter('todos')" data-filter="todos">Todos</button>
-          <button class="filter-btn" onclick="setFilter('asignados')" data-filter="asignados">Ya asignados</button>
-          <button class="filter-btn" onclick="setFilter('disponibles')" data-filter="disponibles">Turno Disponible</button>
-        </div>
+      <div style="padding: 0 20px 15px;">
+        <input type="text" id="searchInput" placeholder="Buscar turno" oninput="handleSearch()" 
+               style="width: 100%; padding: 14px 18px; border-radius: 18px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); outline: none; font-size: 1rem;">
       </div>
       <div class="scroll-container" id="locationsList"></div>
     </section>
@@ -204,8 +158,8 @@
     let allData = [];
     let currentDay = '';
     let currentPoint = "Clínica Cordillera";
-    let currentFilter = 'todos';
 
+    // ⭐ FUNCIÓN CRÍTICA: Normaliza nombres (copiada de la versión estable)
     function norm(str) {
       return (str ?? "")
         .toString()
@@ -216,24 +170,7 @@
         .toLowerCase();
     }
 
-    function showFilters() {
-      document.getElementById('filterBar').classList.add('active');
-    }
-
-    function setFilter(filter) {
-      currentFilter = filter;
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.filter === filter);
-      });
-      handleSearch();
-    }
-
-    function isTurnoDisponible(nombre) {
-      return norm(nombre).includes('turno disponible');
-    }
-
     async function init() {
-      await loadExcelData();
       const listContainer = document.getElementById('locationsList');
       listContainer.innerHTML = '<div class="grid-2x2" id="homeGrid"></div>';
       const homeGrid = document.getElementById('homeGrid');
@@ -244,7 +181,7 @@
         card.innerHTML = `<div class="status-dot" style="background-color: ${POINT_DATA[name].color}"></div><h2>${name}</h2>`;
         homeGrid.appendChild(card);
       });
-      selectPoint(currentPoint);
+      await loadExcelData();
     }
 
     async function loadExcelData() {
@@ -302,9 +239,11 @@
       renderShifts();
     }
 
+    // ⭐ FUNCIÓN CORREGIDA (copiada de la versión estable)
     function renderShifts() {
       const cont = document.getElementById('slotsContainer');
       
+      // Filtro correcto: día completo + normalización de punto
       const filtered = allData.filter(d =>
         d.dia.toLowerCase() === currentDay.toLowerCase() &&
         d.puntoNorm === norm(currentPoint)
@@ -316,6 +255,7 @@
       }
 
       cont.innerHTML = filtered.map((s) => {
+        // Normalizar el tipo de turno
         const tipoRaw = (s.tipo ?? '').toString();
         const tipo = tipoRaw
           .replace(/\u00A0/g, ' ')
@@ -325,6 +265,7 @@
 
         const tipoNorm = tipo.replace('/', '');
 
+        // Asignar clase según el tipo
         let clase = 'turno-M';
         if (tipoNorm.includes('TD')) clase = 'turno-TD';
         else if (tipoNorm.startsWith('T')) clase = 'turno-T';
@@ -349,38 +290,14 @@
     function handleSearch() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
       const listContainer = document.getElementById('locationsList');
-      
-      if (query === "") { 
-        document.getElementById('filterBar').classList.remove('active');
-        init(); 
-        return; 
-      }
-      
-      let results = allData.filter(r => r.nombres?.toLowerCase().includes(query));
-      
-      // Aplicar filtro
-      if (currentFilter === 'asignados') {
-        results = results.filter(r => !isTurnoDisponible(r.nombres));
-      } else if (currentFilter === 'disponibles') {
-        results = results.filter(r => isTurnoDisponible(r.nombres));
-      }
-      
+      if (query === "") { init(); return; }
+      const results = allData.filter(r => r.nombres?.toLowerCase().includes(query));
       listContainer.innerHTML = `<h3 style="font-size:0.9rem; color:var(--text-gray); margin-bottom:15px;">Resultados para: "${query}"</h3><div class="search-results-container" id="searchList"></div>`;
       const searchList = document.getElementById('searchList');
-      
-      if (results.length === 0) {
-        searchList.innerHTML = '<p style="text-align:center; color:var(--text-gray); padding:20px;">No se encontraron resultados</p>';
-        return;
-      }
-      
       results.forEach(res => {
         const item = document.createElement('div');
         item.className = 'search-item';
-        item.onclick = () => { 
-          document.getElementById('searchInput').value = ""; 
-          document.getElementById('filterBar').classList.remove('active');
-          selectPoint(res.punto); 
-        };
+        item.onclick = () => { document.getElementById('searchInput').value = ""; selectPoint(res.punto); };
         item.innerHTML = `
           <div class="status-dot" style="width:12px; height:12px; background:${POINT_DATA[res.punto]?.color || '#ccc'}"></div>
           <div class="search-info"><b>${res.nombres}</b><div class="search-tags"><span class="tag">${res.punto}</span><span class="tag">${res.dia}</span><span class="tag">${res.hora}</span></div></div>
@@ -396,11 +313,6 @@
 
     function goToHome() {
       document.getElementById('searchInput').value = "";
-      document.getElementById('filterBar').classList.remove('active');
-      currentFilter = 'todos';
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.filter === 'todos');
-      });
       init();
     }
 
