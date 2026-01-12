@@ -194,6 +194,7 @@
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           return {
             dia: cols[0] ? cols[0].trim() : "",
+            tipo: cols[1] ? cols[1].trim().replace(/"/g, "").toUpperCase() : "",
             nombres: cols[2] ? cols[2].trim().replace(/"/g, "") : "",
             hora: cols[3] ? cols[3].trim().replace(/"/g, "") : "",
             punto: cols[4] ? cols[4].trim().replace(/"/g, "") : "",
@@ -253,9 +254,24 @@
         return;
       }
 
-      cont.innerHTML = filtered.map((s, i) => {
-        const esDisp = s.nombres?.toLowerCase().includes("disponible");
-        return `<div class="slot ${esDisp ? "turno-TD" : (i % 2 === 0 ? "turno-M" : "turno-T")}">
+      cont.innerHTML = filtered.map((s) => {
+        // Normalizar el tipo de turno
+        const tipoRaw = (s.tipo ?? '').toString();
+        const tipo = tipoRaw
+          .replace(/\u00A0/g, ' ')
+          .replace(/\s+/g, '')
+          .replace(/"/g, '')
+          .toUpperCase();
+
+        const tipoNorm = tipo.replace('/', '');
+
+        // Asignar clase según el tipo
+        let clase = 'turno-M';
+        if (tipoNorm.includes('TD')) clase = 'turno-TD';
+        else if (tipoNorm.startsWith('T')) clase = 'turno-T';
+        else if (tipoNorm.startsWith('M')) clase = 'turno-M';
+
+        return `<div class="slot ${clase}">
           <div style="display:flex; justify-content:space-between; align-items:flex-start;">
             <p style="margin:0; font-weight:bold; font-size:1.1rem;">${s.nombres}</p>
           </div>
