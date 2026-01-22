@@ -248,25 +248,48 @@
       }).join('') || '<p style="text-align:center; opacity:0.5; margin-top:20px;">No hay turnos hoy.</p>';
     }
 
-    function openTurnDetail(id) {
-      const s = allData.find(x => x.id === id);
-      const p = POINT_DATA[s.punto] || POINT_DATA["Clínica Cordillera"];
-      const isTD = s.tipo.includes('TD');
-      document.getElementById('turnDetailBody').innerHTML = `
-        <div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:15px;">
-           <span style="font-size:0.75rem; font-weight:800; color:${isTD?'var(--primary-green)':'var(--primary-blue)'}; border:1px solid; padding:4px 10px; border-radius:8px; text-transform:uppercase;">${isTD?'Disponible':'Ocupado'}</span>
-           <h1 style="margin:12px 0 0; font-size:2.2rem; line-height:1.1;">${s.nombres}</h1>
-        </div>
-        <div style="padding:0 10px;">
-          <div class="logistics-box"><h4>Horario</h4><p>${s.dia} • ${s.hora}</p></div>
-          <div class="logistics-box"><h4>Punto de Retiro</h4><p>${p.guardado.nombre}</p><small>${p.guardado.sub}</small></div>
-        </div>
-      `;
-      let btns = `<a href="http://maps.google.com/?q=${encodeURIComponent(s.punto + " Las Condes")}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold;">📍 Cómo llegar al punto</a>`;
-      if(isTD) btns += `<a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none;">Solicitar este Turno</a>`;
-      document.getElementById('turnActionBar').innerHTML = btns;
-      document.getElementById('turnDetailScreen').classList.add('active');
-    }
+function openTurnDetail(id) {
+  const s = allData.find(x => x.id === id);
+  const p = POINT_DATA[s.punto] || POINT_DATA["Clínica Cordillera"];
+  const isTD = s.tipo.includes('TD');
+
+  document.getElementById('turnDetailBody').innerHTML = `
+    <div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:15px;">
+      <span style="font-size:0.75rem; font-weight:800; color:${isTD?'var(--primary-green)':'var(--primary-blue)'}; border:1px solid; padding:4px 10px; border-radius:8px;">
+        ${isTD ? 'Disponible' : 'Ocupado'}
+      </span>
+      <h1 style="margin:12px 0 0;">${s.nombres}</h1>
+    </div>
+  `;
+
+  let btns = `
+    <a href="http://maps.google.com/?q=${encodeURIComponent(s.punto + " Las Condes")}"
+       target="_blank"
+       style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color);
+              margin-bottom:12px; display:flex; padding:15px; border-radius:15px;
+              justify-content:center; text-decoration:none; font-weight:bold;">
+      📍 Cómo llegar al punto
+    </a>
+  `;
+
+  if (isTD) {
+    const message = `Hola! Quiero inscribirme para el turno del día ${s.dia} a las ${s.hora} en ${s.punto}.`;
+    const waLink = `https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent(message)}`;
+
+    btns += `
+      <a href="${waLink}" target="_blank"
+         style="background:#25D366; color:white; padding:18px; border-radius:16px;
+                font-weight:800; width:100%; display:flex; justify-content:center;
+                text-decoration:none;">
+        Solicitar este Turno
+      </a>
+    `;
+  }
+
+  document.getElementById('turnActionBar').innerHTML = btns;
+  document.getElementById('turnDetailScreen').classList.add('active');
+}
+
 
     function handleSearch() {
       const q = document.getElementById('searchInput').value.toLowerCase().trim();
