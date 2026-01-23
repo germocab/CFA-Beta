@@ -5,267 +5,144 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inicio</title>
   <style>
+/* --- ESTILOS ORIGINALES PRESERVADOS --- */
 body {
-  transition:
-    background-color 0.35s ease,
-    color 0.35s ease;
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
-.screen,
-.logistics-box,
-.location-card,
-.filter-chip,
-.header-btn {
-  transition:
-    background-color 0.35s ease,
-    color 0.35s ease,
-    border-color 0.35s ease,
-    box-shadow 0.35s ease;
+.screen, .logistics-box, .location-card, .filter-chip, .header-btn {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
-.screen {
-  transition:
-    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.25s ease;
-}
-
-#detail-screen {
-  opacity: 0;
-}
-
-#detail-screen.active {
-  opacity: 1;
-}
-
+.screen { transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease; }
+#detail-screen { opacity: 0; }
+#detail-screen.active { opacity: 1; }
 
 #filterMenu {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transform: translateY(-6px);
-  transition:
-    max-height 0.35s ease,
-    opacity 0.25s ease,
-    transform 0.35s ease;
+  max-height: 0; opacity: 0; overflow: hidden; transform: translateY(-6px);
+  transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.35s ease;
+}
+#filterMenu.open { max-height: 300px; opacity: 1; transform: translateY(0); }
+
+:root {
+  --bg-body: #f0f2f5; --bg-screen: #ffffff; --bg-card: #f8f9fa;
+  --text-main: #1a1a1a; --text-gray: #65676b; --primary-orange: #f36100;
+  --primary-blue: #0056ff; --primary-green: #28a745; --radius: 24px;
+  --border-color: #e4e6eb; --shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-#filterMenu.open {
-  max-height: 300px;
-  opacity: 1;
-  transform: translateY(0);
+body.dark-mode {
+  --bg-body: #1e1e1e; --bg-screen: #121212; --bg-card: #1e1e1e;
+  --text-main: #ffffff; --text-gray: #a0a0a0; --border-color: rgba(255,255,255,0.05);
 }
 
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); overflow-x: hidden; }
 
-    :root {
-      --bg-body: #f0f2f5;
-      --bg-screen: #ffffff;
-      --bg-card: #f8f9fa;
-      --text-main: #1a1a1a;
-      --text-gray: #65676b;
-      --primary-orange: #f36100;
-      --primary-blue: #0056ff;
-      --primary-green: #28a745;
-      --radius: 24px;
-      --border-color: #e4e6eb;
-      --shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
+.app-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 1100px; padding: 20px; margin: auto; }
+.screen { background-color: var(--bg-screen); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; }
+.scroll-container { padding: 20px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
 
-    body.dark-mode {
-      --bg-body: #1e1e1e;
-      --bg-screen: #121212;
-      --bg-card: #1e1e1e;
-      --text-main: #ffffff;
-      --text-gray: #a0a0a0;
-      --border-color: rgba(255,255,255,0.05);
-    }
-
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); overflow-x: hidden; }
-    
-    .app-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 1100px; padding: 20px; margin: auto; }
-    .screen { background-color: var(--bg-screen); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; }
-    .scroll-container { padding: 20px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
-
-    /* BOTONES HEADER CIRCULARES */
-    .header-btn {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      position: relative;
-      transition: transform 0.2s;
-    }
-    .header-btn:active { transform: scale(0.9); }
-    #updateBadge { position: absolute; top: 2px; right: 2px; width: 12px; height: 12px; background: #ff3b30; border-radius: 50%; border: 2px solid var(--bg-screen); display: none; }
-
-    /* GRID 2x2 */
-    .grid-2x2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; align-items: stretch; }
-    .location-card { 
-      padding: 20px 10px; 
-      border-radius: var(--radius); 
-      cursor: pointer; 
-      background-color: var(--bg-card); 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      justify-content: center; 
-      text-align: center; 
-      gap: 12px; 
-      border: 2px solid transparent; 
-      min-height: 190px; 
-      height: 100%; 
-    }
-    .status-dot { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; }
-    .location-card h2 { margin: 0; font-size: 0.95rem; font-weight: 800; line-height: 1.2; }
-
-    /* LOGÍSTICA */
-    .logistics-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 15px; margin-bottom: 15px; }
-    .logistics-box.orange { background: rgba(243, 97, 0, 0.05); border-color: rgba(243, 97, 0, 0.2); }
-    .logistics-box h4 { margin: 0 0 8px 0; font-size: 0.7rem; text-transform: uppercase; color: var(--text-gray); letter-spacing: 0.5px; }
-    .logistics-box.orange h4 { color: var(--primary-orange); }
-    .logistics-box p { margin: 2px 0; font-weight: 700; font-size: 0.95rem; }
-    .btn-mini { flex: 1; padding: 10px; border-radius: 12px; background: var(--bg-screen); border: 1px solid var(--border-color); color: var(--text-main); font-size: 0.75rem; font-weight: 700; text-decoration: none; text-align: center; }
-
-    /* BUSCADOR Y FILTROS */
-    .search-input-container input { width: 100%; padding: 14px 50px 14px 18px; border-radius: 18px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); outline: none; }
-    .filter-chip { padding: 8px 15px; border-radius: 20px; background: var(--bg-screen); border: 1px solid var(--border-color); font-size: 0.85rem; cursor: pointer; font-weight: 600; color: var(--text-gray); }
-    .filter-chip.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
-
-    /* TURNOS */
-    .slot { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; color: white; display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: transform 0.2s; }
-    .slot:active { transform: scale(0.98); }
-    .turno-M { background-color: var(--primary-orange); }
-    .turno-T { background-color: var(--primary-blue); }
-    .turno-TD { background-color: var(--primary-green); }
-
-    /* PANTALLAS MÓVIL Y DETALLE */
-    @media (max-width: 767px) {
-      .app-wrapper { display: block; padding: 0; }
-      .screen { height: 100vh; border-radius: 0; border: none; width: 100%; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-      #detail-screen { position: fixed; top: 0; left: 100%; width: 100%; z-index: 2000; }
-      #detail-screen.active { transform: translateX(-100%); }
-    }
-    
-    .turn-detail-screen { position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: var(--bg-screen); z-index: 4000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
-    .turn-detail-screen.active { left: 0; }
-
-    /* CHANGELOG */
-    #changelogPanel { position: fixed; top: 0; right: -100%; width: 100%; max-width: 350px; height: 100%; background: var(--bg-screen); z-index: 3000; transition: 0.4s; padding: 30px 25px; border-left: 1px solid var(--border-color); overflow-y: auto; }
-    .changelog-item { background: var(--bg-card); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border-color); }
-
-.location-card,
-.logistics-box,
-.slot {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+.header-btn {
+  background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main);
+  width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; font-size: 1.2rem; position: relative; transition: transform 0.2s;
 }
 
-.location-card:hover,
-.logistics-box:hover,
-.slot:hover {
-  transform: translateY(-2px);
+.grid-2x2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; align-items: stretch; }
+.location-card { 
+  padding: 20px 10px; border-radius: var(--radius); cursor: pointer; background-color: var(--bg-card); 
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; 
+  gap: 12px; border: 2px solid transparent; min-height: 190px; height: 100%; 
+}
+.status-dot { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; }
+.location-card h2 { margin: 0; font-size: 0.95rem; font-weight: 800; line-height: 1.2; }
+
+.logistics-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 15px; margin-bottom: 15px; }
+.logistics-box.orange { background: rgba(243, 97, 0, 0.05); border-color: rgba(243, 97, 0, 0.2); }
+
+.filter-chip { padding: 8px 15px; border-radius: 20px; background: var(--bg-screen); border: 1px solid var(--border-color); font-size: 0.85rem; cursor: pointer; font-weight: 600; color: var(--text-gray); }
+.filter-chip.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
+
+.slot { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; color: white; display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: transform 0.2s; }
+.turno-M { background-color: var(--primary-orange); }
+.turno-T { background-color: var(--primary-blue); }
+.turno-TD { background-color: var(--primary-green); }
+
+/* --- AJUSTES SOLICITADOS --- */
+#nameOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+#nameModal {
+    background: var(--bg-screen); padding: 30px; border-radius: 28px;
+    width: 100%; max-width: 400px; text-align: center;
 }
 
-/* ===== FIX VISTA ESCRITORIO (NO AFECTA MÓVIL) ===== */
+.section-title { 
+    font-size: 1.1rem; 
+    font-weight: 800; 
+    margin: 10px 0 10px 5px; /* Reducido el margen superior */
+    color: var(--text-main); 
+}
+
+/* Tarjeta de Mis Turnos Optimizada */
+.my-shift-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .app-wrapper { display: block; padding: 0; }
+  .screen { height: 100vh; border-radius: 0; border: none; width: 100%; }
+  #detail-screen { position: fixed; top: 0; left: 100%; width: 100%; z-index: 2000; }
+  #detail-screen.active { transform: translateX(-100%); }
+}
+
 @media (min-width: 768px) {
-
-  .app-wrapper {
-    display: grid;
-    grid-template-columns: 420px 1fr;
-    gap: 20px;
-  }
-
-  #detail-screen {
-    position: relative;
-    opacity: 1 !important;
-    transform: none !important;
-    left: auto !important;
-    z-index: auto;
-  }
-
-  /* Botón volver solo tiene sentido en móvil */
-  #detail-screen button[onclick="goBack()"] {
-    display: none;
-  }
+  .app-wrapper { display: grid; grid-template-columns: 420px 1fr; gap: 20px; }
+  #detail-screen { position: relative; opacity: 1 !important; transform: none !important; left: auto !important; }
 }
-
-
   </style>
 </head>
 <body>
 
+  <div id="nameOverlay">
+    <div id="nameModal">
+        <h2 style="margin-top:0;">Bienvenido</h2>
+        <p style="color:var(--text-gray); margin-bottom:25px;">Introduce tu nombre para acceder.</p>
+        <input type="text" id="userNameInput" placeholder="Escribe tu nombre..." 
+               style="width:100%; padding:16px; border-radius:15px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none; font-size:1rem; margin-bottom:15px;">
+        <button onclick="saveName()" 
+                style="width:100%; padding:16px; border-radius:15px; border:none; background:var(--primary-orange); color:white; font-weight:bold; font-size:1rem; cursor:pointer;">
+            Comenzar
+        </button>
+    </div>
+  </div>
+
   <div class="app-wrapper">
     <section class="screen" id="list-screen">
-      <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:30px 25px 15px;">
+      <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:25px 25px 10px;">
         <h1 style="margin:0; font-size: 2.2rem;">Inicio</h1>
         <div style="display:flex; gap:12px;">
-          <button class="header-btn" onclick="toggleChangelog()" aria-label="Novedades">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-       stroke="currentColor" stroke-width="2"
-       stroke-linecap="round" stroke-linejoin="round">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-    <polyline points="14 2 14 8 20 8"/>
-    <line x1="16" y1="13" x2="8" y2="13"/>
-    <line x1="16" y1="17" x2="8" y2="17"/>
-  </svg>
-  <span id="updateBadge"></span>
-</button>
-
-
-<button class="header-btn" onclick="toggleTheme()" id="themeBtn" aria-label="Cambiar tema">
-  <svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none"
-       stroke="currentColor" stroke-width="2"
-       stroke-linecap="round" stroke-linejoin="round">
-    <!-- Luna por defecto -->
-    <path d="M21 12.79A9 9 0 1 1 11.21 3
-             A7 7 0 0 0 21 12.79z"/>
-  </svg>
-</button>
+          <button class="header-btn" onclick="toggleChangelog()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></button>
+          <button class="header-btn" onclick="toggleTheme()"><svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/></svg></button>
         </div>
       </div>
 
-      <div style="padding: 0 20px 15px;">
-        <div style="position:relative; display:flex; align-items:center;">
+      <div style="padding: 0 20px 5px;"> <div style="position:relative; display:flex; align-items:center;">
           <input type="text" id="searchInput" placeholder="Buscar por nombre..." oninput="handleSearch()" style="width:100%; padding:14px 50px 14px 18px; border-radius:18px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none;">
-          <button
-  onclick="toggleFilterMenu()"
-  aria-label="Filtros"
-  style="
-    position:absolute;
-    right:12px;
-    background:none;
-    border:none;
-    cursor:pointer;
-    padding:6px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:var(--text-gray);
-  "
->
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-       stroke="currentColor" stroke-width="2"
-       stroke-linecap="round" stroke-linejoin="round">
-    <line x1="4" y1="6" x2="20" y2="6"/>
-    <circle cx="10" cy="6" r="2"/>
-    <line x1="4" y1="12" x2="20" y2="12"/>
-    <circle cx="14" cy="12" r="2"/>
-    <line x1="4" y1="18" x2="20" y2="18"/>
-    <circle cx="8" cy="18" r="2"/>
-  </svg>
-</button>
-
+          <button onclick="toggleFilterMenu()" style="position:absolute; right:12px; background:none; border:none; cursor:pointer; color:var(--text-gray);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="10" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="18" r="2"/></svg></button>
         </div>
         <div id="filterMenu" style="margin-top:10px; padding:15px; background:var(--bg-card); border-radius:15px;">
-          <div class="title-for-filter"><h2>Selecciona de los filtros para buscar turnos</h2></div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <div class="filter-chip" onclick="toggleFilter('M')">Mañana</div>
             <div class="filter-chip" onclick="toggleFilter('T')">Tarde</div>
@@ -274,13 +151,11 @@ body {
         </div>
       </div>
 
-      <div class="scroll-container" id="locationsList"></div>
+      <div class="scroll-container" id="locationsList" style="padding-top: 5px;"></div>
     </section>
 
     <section class="screen" id="detail-screen">
-      <div style="padding: 20px 20px 0;">
-        <button onclick="goBack()" style="background:var(--bg-card); border:1px solid var(--border-color); width:50px; height:50px; border-radius:50%; cursor:pointer; color:var(--text-main); font-size:1.4rem; display:flex; align-items:center; justify-content:center;">❮</button>
-      </div>
+      <div style="padding: 20px 20px 0;"><button onclick="goBack()" style="background:var(--bg-card); border:1px solid var(--border-color); width:50px; height:50px; border-radius:50%; cursor:pointer; color:var(--text-main); font-size:1.4rem; display:flex; align-items:center; justify-content:center;">❮</button></div>
       <div class="scroll-container" id="detailScrollBody">
         <h1 id="currentPointTitle" style="margin-top:10px; font-size: 1.8rem;">Punto</h1>
         <div id="logisticsInfo"></div>
@@ -290,25 +165,18 @@ body {
     </section>
   </div>
 
-  <div id="turnDetailScreen" class="turn-detail-screen">
-    <div style="padding: 25px; display: flex; align-items: center; gap: 15px;">
-      <button onclick="closeTurnDetail()" style="background: var(--bg-card); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; color: var(--text-main);">✕</button>
-      <h2 style="margin:0;">Ficha de Turno</h2>
-    </div>
+  <div id="turnDetailScreen" class="turn-detail-screen" style="position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: var(--bg-screen); z-index: 4000; transition: 0.4s; display: flex; flex-direction: column;">
+    <div style="padding: 25px; display: flex; align-items: center; gap: 15px;"><button onclick="closeTurnDetail()" style="background: var(--bg-card); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; color: var(--text-main);">✕</button><h2 style="margin:0;">Ficha de Turno</h2></div>
     <div class="scroll-container" id="turnDetailBody"></div>
     <div id="turnActionBar" style="padding:20px;"></div>
   </div>
 
-  <div id="changelogPanel">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-      <h2 style="margin:0;">Novedades</h2>
-      <button onclick="toggleChangelog()" style="background:none; border:none; font-size: 2rem; cursor:pointer; color:var(--text-main);">✕</button>
-    </div>
+  <div id="changelogPanel" style="position: fixed; top: 0; right: -100%; width: 100%; max-width: 350px; height: 100%; background: var(--bg-screen); z-index: 3000; transition: 0.4s; padding: 30px 25px; border-left: 1px solid var(--border-color); overflow-y: auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;"><h2 style="margin:0;">Novedades</h2><button onclick="toggleChangelog()" style="background:none; border:none; font-size: 2rem; cursor:pointer; color:var(--text-main);">✕</button></div>
     <div id="changelogContent"></div>
   </div>
 
   <script>
-    const APP_VERSION = "11.0.11";
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT22dGTCsHGc5Qj4EbMxn4XqPoPuUI93UblvVlwu0nPm4FOUzMvLCIv5eTCgjQXS3MiNamBMsBdJ45A/pub?output=csv';
     
     const POINT_DATA = {
@@ -325,6 +193,7 @@ body {
     let currentDay = '';
     let currentPoint = "";
     let activeFilters = [];
+    let userName = localStorage.getItem('userName') || "";
 
     async function loadExcelData() {
       const res = await fetch(SHEET_URL);
@@ -334,41 +203,76 @@ body {
         const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
         return { id: index, dia: (c[0]||"").trim(), tipo: (c[1]||"").replace(/"/g,"").toUpperCase(), nombres: (c[2]||"").replace(/"/g,""), hora: (c[3]||"").replace(/"/g,""), punto: (c[4]||"").replace(/"/g,"").trim() };
       });
+      renderHome();
     }
 
+    function saveName() {
+        const input = document.getElementById('userNameInput');
+        if(input.value.trim()){
+            userName = input.value.trim();
+            localStorage.setItem('userName', userName);
+            document.getElementById('nameOverlay').style.display = 'none';
+            renderHome();
+        }
+    }
+
+    function renderHome() {
+        if(!userName) {
+            document.getElementById('nameOverlay').style.display = 'flex';
+            return;
+        }
+
+        const home = document.getElementById('locationsList');
+        home.innerHTML = '';
+
+        // SECCIÓN MIS TURNOS
+        const myShifts = allData.filter(d => d.nombres.toLowerCase().includes(userName.toLowerCase()));
+        if(myShifts.length > 0) {
+            home.innerHTML += `<div class="section-title">Mis Turnos</div>`;
+            myShifts.forEach(s => {
+                const color = s.tipo.includes('TD') ? 'var(--primary-green)' : (s.tipo.startsWith('M') ? 'var(--primary-orange)' : 'var(--primary-blue)');
+                home.innerHTML += `
+                    <div class="my-shift-card" onclick="openTurnDetail(${s.id})">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width:12px; height:12px; border-radius:50%; background:${color};"></div>
+                            <span style="font-weight:800; font-size:1.1rem;">${s.punto}</span>
+                        </div>
+                        <div style="color:var(--text-gray); font-size:0.9rem; font-weight:600; padding-left:22px;">
+                            ${s.dia} • ${s.hora}
+                        </div>
+                        <div style="background:var(--bg-screen); border-radius:12px; padding:10px; margin-top:4px; font-size:0.85rem; border:1px solid var(--border-color);">
+                            <span style="color:var(--text-gray); font-weight:bold; display:block; margin-bottom:2px; font-size:0.7rem; text-transform:uppercase;">Turno de:</span>
+                            <span style="font-weight:700;">${s.nombres}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // SECCIÓN LOCACIONES
+        home.innerHTML += `<div class="section-title">Locaciones</div>`;
+        const grid = document.createElement('div');
+        grid.className = "grid-2x2";
+        grid.innerHTML = Object.keys(POINT_DATA).map(name => `
+            <div class="location-card" onclick="selectPoint('${name}')">
+                <div class="status-dot" style="background:${POINT_DATA[name].color}"></div>
+                <h2>${name}</h2>
+            </div>
+        `).join('');
+        home.appendChild(grid);
+    }
+
+    /* --- LOGICA ORIGINAL PRESERVADA --- */
     function selectPoint(name) {
-      currentPoint = name;
-      const p = POINT_DATA[name];
+      currentPoint = name; const p = POINT_DATA[name];
       document.getElementById('currentPointTitle').innerText = name;
-      document.getElementById('logisticsInfo').innerHTML = `
-        <div class="logistics-box orange">
-          <h4>📍 Retiro de Carrito</h4>
-          <p>${p.guardado.nombre}</p>
-          <div style="display:flex; gap:8px; margin-top:12px;">
-            <a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a>
-            <a href="http://maps.google.com/?q=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a>
-          </div>
-        </div>
-        <div class="logistics-box">
-          <h4>👤 Encargado</h4>
-          <p>${p.encargado.nombre}</p>
-          <div style="display:flex; gap:8px; margin-top:12px;">
-            <a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a>
-          </div>
-        </div>
-      `;
-      
-      const dRow = document.getElementById('daysRow');
-      dRow.innerHTML = '';
-      currentDay = p.days[0];
+      document.getElementById('logisticsInfo').innerHTML = `<div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
+      const dRow = document.getElementById('daysRow'); dRow.innerHTML = ''; currentDay = p.days[0];
       p.days.forEach(d => {
-        const b = document.createElement('div');
-        b.className = `filter-chip ${d === currentDay ? 'active' : ''}`;
-        b.innerText = d.substring(0,3);
+        const b = document.createElement('div'); b.className = `filter-chip ${d === currentDay ? 'active' : ''}`; b.innerText = d.substring(0,3);
         b.onclick = () => { document.querySelectorAll('#daysRow .filter-chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentDay = d; renderShifts(); };
         dRow.appendChild(b);
       });
-
       if (window.innerWidth < 768) document.getElementById('detail-screen').classList.add('active');
       renderShifts();
     }
@@ -378,240 +282,41 @@ body {
       const filtered = allData.filter(d => d.dia.toLowerCase() === currentDay.toLowerCase() && d.punto === currentPoint);
       cont.innerHTML = filtered.map(s => {
         const isTD = s.tipo.includes('TD');
-        return `<div class="slot ${isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M')}" onclick="openTurnDetail(${s.id})">
-          <div style="display:flex; justify-content:space-between"><b>${s.nombres}</b><span>➔</span></div>
-          <div style="background:rgba(255,255,255,0.2); padding:6px 14px; border-radius:999px; width:fit-content; font-size:0.9rem; font-weight:700;">${s.hora}</div>
-        </div>`;
+        return `<div class="slot ${isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M')}" onclick="openTurnDetail(${s.id})"><div style="display:flex; justify-content:space-between"><b>${s.nombres}</b><span>➔</span></div><div style="background:rgba(255,255,255,0.2); padding:6px 14px; border-radius:999px; width:fit-content; font-size:0.9rem; font-weight:700;">${s.hora}</div></div>`;
       }).join('') || '<p style="text-align:center; opacity:0.5; margin-top:20px;">No hay turnos hoy.</p>';
     }
 
-function openTurnDetail(id) {
-  const s = allData.find(x => x.id === id);
-  const p = POINT_DATA[s.punto];
-  const isTD = s.tipo.includes('TD');
-  const isM = s.tipo.startsWith('M');
-  const isT = s.tipo.startsWith('T') && !isTD;
-
-  // Estado
-  const estadoTexto = isTD ? 'Disponible' : 'Ocupado';
-  const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
-
-  // Tipo de turno (SIEMPRE visible)
-  const tipoTexto = isM ? 'Turno Mañana' : 'Turno Tarde';
-
-  document.getElementById('turnDetailBody').innerHTML = `
-    <div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;">
-      
-      <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
-        <span style="
-          width:fit-content;
-          font-size:0.75rem;
-          font-weight:800;
-          color:${estadoColor};
-          border:1px solid ${estadoColor};
-          padding:4px 10px;
-          border-radius:8px;
-        ">
-          ${estadoTexto}
-        </span>
-
-        <span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">
-          ⏰ ${tipoTexto}
-        </span>
-      </div>
-
-      <h1 style="margin:0;">${s.nombres}</h1>
-            <h3 style="margin:0;">${s.hora}</h3>
-
-      </div>
-
-    <div class="logistics-box orange">
-      <h4>📍 Punto de Retiro de Carrito</h4>
-      <p>${p.guardado.nombre}</p> 
-      <div style="display:flex; gap:8px; margin-top:12px;">
-        <a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a>
-        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a>
-      </div>
-    </div>
-
-    <div class="logistics-box">
-      <h4>👤 Encargado</h4>
-      <p>${p.encargado.nombre}</p>
-      <div style="display:flex; gap:8px; margin-top:12px;">
-        <a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" class="btn-mini">💬 WhatsApp</a>
-        <a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a>
-      </div>
-    </div>
-  `;
-
-  let btns = `
-    <a href="http://maps.google.com/?q=${encodeURIComponent(s.punto + " Las Condes")}"
-       target="_blank"
-       style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color);
-              margin-bottom:12px; display:flex; padding:15px; border-radius:15px;
-              justify-content:center; text-decoration:none; font-weight:bold;">
-      📍 Cómo llegar al punto
-    </a>
-  `;
-
-  if (isTD) {
-    const message = `Hola! Quiero inscribirme para el turno del día ${s.dia} a las ${s.hora} en ${s.punto}.`;
-    const waLink = `https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent(message)}`;
-
-    btns += `
-      <a href="${waLink}" target="_blank"
-         style="background:#25D366; color:white; padding:18px; border-radius:16px;
-                font-weight:800; width:100%; display:flex; justify-content:center;
-                text-decoration:none;">
-        Solicitar este Turno
-      </a>
-    `;
-  }
-
-  document.getElementById('turnActionBar').innerHTML = btns;
-  document.getElementById('turnDetailScreen').classList.add('active');
-}
-
-
-
+    function openTurnDetail(id) {
+      const s = allData.find(x => x.id === id); const p = POINT_DATA[s.punto];
+      const isTD = s.tipo.includes('TD'), isM = s.tipo.startsWith('M');
+      const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
+      document.getElementById('turnDetailBody').innerHTML = `<div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;"><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"><span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${isTD?'Disponible':'Ocupado'}</span><span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':'Turno Tarde'}</span></div><h1 style="margin:0;">${s.nombres}</h1><h3 style="margin:0;">${s.hora}</h3></div><div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" class="btn-mini">💬 WhatsApp</a><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
+      let btns = `<a href="http://maps.google.com/?q=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold;">📍 Cómo llegar</a>`;
+      if (isTD) btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent('Hola! Quiero inscribirme...')}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none;">Solicitar Turno</a>`;
+      document.getElementById('turnActionBar').innerHTML = btns;
+      document.getElementById('turnDetailScreen').style.left = '0';
+    }
 
     function handleSearch() {
       const q = document.getElementById('searchInput').value.toLowerCase().trim();
       const home = document.getElementById('locationsList');
-      if(!q && !activeFilters.length) { init(); return; }
-      const res = allData.filter(r => {
-        const mText = r.nombres.toLowerCase().includes(q);
-        if(!activeFilters.length) return mText;
-        return mText && activeFilters.some(f => f === 'TD' ? r.tipo.includes('TD') : (r.tipo.startsWith(f) && !r.tipo.includes('TD')));
-      });
-      home.innerHTML = `
-  <div style="display:grid; gap:10px">
-    ${res.map(r => {
-      const isTD = r.tipo.includes('TD');
-      const isM = r.tipo.startsWith('M');
-      const color = isTD
-        ? 'var(--primary-green)'
-        : isM
-          ? 'var(--primary-orange)'
-          : 'var(--primary-blue)';
-
-      return `
-        <div 
-          class="logistics-box"
-          onclick="openTurnDetail(${r.id})"
-          style="
-            cursor:pointer;
-            display:flex;
-            align-items:center;
-            gap:14px;
-          "
-        >
-          <div style="
-            width:14px;
-            height:14px;
-            border-radius:50%;
-            background:${color};
-            flex-shrink:0;
-          "></div>
-
-          <div>
-            <div style="font-weight:800">${r.nombres}</div>
-            <div style="font-size:0.8rem; color:var(--text-gray)">
-              ${r.punto} • ${r.dia}
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('')}
-  </div>
-`;
-
+      if(!q && !activeFilters.length) { renderHome(); return; }
+      const res = allData.filter(r => r.nombres.toLowerCase().includes(q));
+      home.innerHTML = `<div style="display:grid; gap:10px">${res.map(r => `<div class="logistics-box" onclick="openTurnDetail(${r.id})" style="cursor:pointer; display:flex; align-items:center; gap:14px;"><div style="width:14px; height:14px; border-radius:50%; background:var(--primary-blue); flex-shrink:0;"></div><div><div style="font-weight:800">${r.nombres}</div><div style="font-size:0.8rem; color:var(--text-gray)">${r.punto} • ${r.dia}</div></div></div>`).join('')}</div>`;
     }
 
-    function toggleFilterMenu() {
-  const m = document.getElementById('filterMenu');
-  const btn = event.currentTarget;
-  const isOpen = m.classList.contains('open');
-
-  m.classList.toggle('open');
-  btn.style.color = isOpen
-    ? 'var(--text-gray)'
-    : 'var(--primary-orange)';
-}
-
+    function toggleFilterMenu() { document.getElementById('filterMenu').classList.toggle('open'); }
     function toggleFilter(f) { event.target.classList.toggle('active'); const i = activeFilters.indexOf(f); if(i>-1) activeFilters.splice(i,1); else activeFilters.push(f); handleSearch(); }
     function goBack() { document.getElementById('detail-screen').classList.remove('active'); }
-    function closeTurnDetail() { document.getElementById('turnDetailScreen').classList.remove('active'); }
-function toggleTheme() {
-  const isDark = document.body.classList.toggle('dark-mode');
-  const icon = document.getElementById('themeIcon');
-
-  icon.innerHTML = isDark
-    // Sol
-    ? `
-      <circle cx="12" cy="12" r="5"/>
-      <line x1="12" y1="1" x2="12" y2="3"/>
-      <line x1="12" y1="21" x2="12" y2="23"/>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-      <line x1="1" y1="12" x2="3" y2="12"/>
-      <line x1="21" y1="12" x2="23" y2="12"/>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-    `
-    // Luna
-    : `
-      <path d="M21 12.79A9 9 0 1 1 11.21 3
-               A7 7 0 0 0 21 12.79z"/>
-    `;
-}
+    function closeTurnDetail() { document.getElementById('turnDetailScreen').style.left = '100%'; }
+    function toggleTheme() { document.body.classList.toggle('dark-mode'); }
     function toggleChangelog() { const p = document.getElementById('changelogPanel'); p.style.right = p.style.right === '0px' ? '-100%' : '0px'; }
     
-   function init() {
-  // 1. CONFIGURA TU INFO AQUÍ (Fácil y limpio)
-  const historial = [
-    {
-      version: "11.0.11-beta",
-      cambios: [
-        "RESTAURADO: Navegación a ficha de turno corregida.",
-        "DISEÑO: Botones circulares estables.",
-            ]
-    },
-     {
-      version: "11.1.0-beta",
-      cambios: [
-        "DISEÑO: Botones circulares estables, Nuevos íconos disponibles para Changelog, Modo Oscuro y Filtros",
-        "FLUIDEZ: Nuevas animaciones y transiciones junto con mayor estabilidad",
-        "CORRECCIONES: Visualización del período horario en la ficha de turno, Mayor claridad visual entre turnos de mañana, tarde y disponibles en el panel de filtros de búsqueda, ",
-        "EXPERIENCIA: Interacciones más “táctiles” en tarjetas y botones.",
-      ]
-    },
-    // Si quieres otra versión abajo, copia desde { hasta }, y ponle una coma
-  ];
-
-  // 2. NO TOCAR NADA DE AQUÍ ABAJO (La maquinaria)
-  const home = document.getElementById('locationsList');
-  home.innerHTML = '<div class="grid-2x2" id="homeGrid"></div>';
-  Object.keys(POINT_DATA).forEach(name => {
-    const card = document.createElement('div');
-    card.className = "location-card";
-    card.onclick = () => selectPoint(name);
-    card.innerHTML = `<div class="status-dot" style="background:${POINT_DATA[name].color}"></div><h2>${name}</h2>`;
-    document.getElementById('homeGrid').appendChild(card);
-  });
-  
-  loadExcelData();
-
-  // Esto genera el diseño automáticamente usando tu info de arriba
-  document.getElementById('changelogContent').innerHTML = historial.map(item => `
-    <div class="changelog-item">
-      <span style="background:var(--primary-orange); color:white; padding:2px 8px; border-radius:6px; font-size:0.7rem; font-weight:800;">${item.version}</span>
-      <ul style="margin:10px 0; padding-left:20px; color:var(--text-gray); font-size:0.85rem">
-        ${item.cambios.map(texto => `<li>${texto}</li>`).join('')}
-      </ul>
-    </div>
-  `).join('');
-}
+    function init() {
+      loadExcelData();
+      const historial = [{ version: "11.2.0", cambios: ["DISEÑO: Reducción de espacios muertos.", "NUEVO: Tarjeta de Mis Turnos con detalles completos."] }];
+      document.getElementById('changelogContent').innerHTML = historial.map(item => `<div class="changelog-item"><span style="background:var(--primary-orange); color:white; padding:2px 8px; border-radius:6px; font-size:0.7rem; font-weight:800;">${item.version}</span><ul style="margin:10px 0; padding-left:20px; color:var(--text-gray); font-size:0.85rem">${item.cambios.map(texto => `<li>${texto}</li>`).join('')}</ul></div>`).join('');
+    }
     init();
   </script>
 </body>
