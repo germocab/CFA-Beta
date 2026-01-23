@@ -197,11 +197,6 @@ body {
   }
 }
 
-.slot.my-turn {
-  border: 3px solid gold;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-  transform: scale(1.02);
-}
 
   </style>
 </head>
@@ -312,22 +307,6 @@ body {
     <div id="changelogContent"></div>
   </div>
 
-<div id="welcomeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
-  <div style="background:var(--bg-screen); width:90%; max-width:400px; padding:35px 25px; border-radius:var(--radius); text-align:center; box-shadow:var(--shadow); border:1px solid var(--border-color);">
-    <div style="font-size:3rem; margin-bottom:15px;">👋</div>
-    <h2 style="margin:0 0 10px 0;">¡Bienvenido/a!</h2>
-    <p style="color:var(--text-gray); font-size:0.9rem; margin-bottom:25px;">Escribe tu nombre y apellido para destacar tus turnos automáticamente.</p>
-    
-    <input type="text" id="userNameInput" placeholder="Nombre y Apellido" 
-      style="width:100%; padding:15px; border-radius:15px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none; font-size:1rem; margin-bottom:20px; text-align:center;">
-    
-    <button onclick="saveUserIdentity()" 
-      style="width:100%; padding:16px; border-radius:15px; border:none; background:var(--primary-orange); color:white; font-weight:800; font-size:1rem; cursor:pointer;">
-      Empezar a usar
-    </button>
-  </div>
-</div>
-
   <script>
     const APP_VERSION = "11.0.11";
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT22dGTCsHGc5Qj4EbMxn4XqPoPuUI93UblvVlwu0nPm4FOUzMvLCIv5eTCgjQXS3MiNamBMsBdJ45A/pub?output=csv';
@@ -395,30 +374,16 @@ body {
     }
 
     function renderShifts() {
-  const cont = document.getElementById('slotsContainer');
-  const filtered = allData.filter(d => d.dia.toLowerCase() === currentDay.toLowerCase() && d.punto === currentPoint);
-  
-  cont.innerHTML = filtered.map(s => {
-    const isTD = s.tipo.includes('TD');
-    
-    // --- NUEVA LÓGICA DE USUARIO ---
-    // Comparamos el nombre del turno con el nombre guardado en el teléfono
-    // Usamos toLowerCase() para que no importe si escriben con mayúsculas o minúsculas
-    const isMyTurn = userName && s.nombres.toLowerCase().trim() === userName.toLowerCase().trim();
-    
-    // Si es mi turno, le añadimos la clase 'my-turn' (que definimos en el CSS)
-    const extraClass = isMyTurn ? 'my-turn' : '';
-    // -------------------------------
-
-    return `<div class="slot ${extraClass} ${isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M')}" onclick="openTurnDetail(${s.id})">
-      <div style="display:flex; justify-content:space-between">
-        <b>${isMyTurn ? '⭐ ' + s.nombres : s.nombres}</b>
-        <span>➔</span>
-      </div>
-      <div style="background:rgba(255,255,255,0.2); padding:6px 14px; border-radius:999px; width:fit-content; font-size:0.9rem; font-weight:700;">${s.hora}</div>
-    </div>`;
-  }).join('') || '<p style="text-align:center; opacity:0.5; margin-top:20px;">No hay turnos hoy.</p>';
-}
+      const cont = document.getElementById('slotsContainer');
+      const filtered = allData.filter(d => d.dia.toLowerCase() === currentDay.toLowerCase() && d.punto === currentPoint);
+      cont.innerHTML = filtered.map(s => {
+        const isTD = s.tipo.includes('TD');
+        return `<div class="slot ${isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M')}" onclick="openTurnDetail(${s.id})">
+          <div style="display:flex; justify-content:space-between"><b>${s.nombres}</b><span>➔</span></div>
+          <div style="background:rgba(255,255,255,0.2); padding:6px 14px; border-radius:999px; width:fit-content; font-size:0.9rem; font-weight:700;">${s.hora}</div>
+        </div>`;
+      }).join('') || '<p style="text-align:center; opacity:0.5; margin-top:20px;">No hay turnos hoy.</p>';
+    }
 
 function openTurnDetail(id) {
   const s = allData.find(x => x.id === id);
@@ -637,10 +602,6 @@ function toggleTheme() {
   
   loadExcelData();
 
-  // LLAMADA FINAL
-    checkUserIdentity(); 
-
-
   // Esto genera el diseño automáticamente usando tu info de arriba
   document.getElementById('changelogContent').innerHTML = historial.map(item => `
     <div class="changelog-item">
@@ -652,44 +613,6 @@ function toggleTheme() {
   `).join('');
 }
     init();
-
- // 1. Variables globales
-let userName = localStorage.getItem('app_user_name') || "";
-
-// 2. Función para guardar (Debe estar fuera para que el botón la encuentre)
-function saveUserIdentity() {
-    const input = document.getElementById('userNameInput');
-    if (!input) return;
-    
-    const name = input.value.trim();
-    if (name) {
-        userName = name;
-        localStorage.setItem('app_user_name', userName);
-        document.getElementById('welcomeModal').style.display = 'none';
-        
-        // Si ya hay un punto seleccionado, refresca la lista de turnos
-        if (currentPoint) {
-            renderShifts();
-        } else {
-            // Si está en el inicio, recarga para que los cambios surtan efecto
-            location.reload(); 
-        }
-    } else {
-        alert("Por favor, ingresa tu nombre.");
-    }
-}
-
-// 3. Función para verificar identidad
-function checkUserIdentity() {
-    const modal = document.getElementById('welcomeModal');
-    if (modal && !userName) {
-        modal.style.display = 'flex';
-    }
-}
-
-// Llamar a la función al cargar
-checkUserIdentity();
-
   </script>
 </body>
 </html>
