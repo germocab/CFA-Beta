@@ -427,10 +427,10 @@ function openTurnDetail(id) {
 
     <div class="logistics-box orange">
       <h4>📍 Punto de Retiro de Carrito</h4>
-      <p>${s.punto}</p>
+      <p>${p.guardado.nombre}</p> 
       <div style="display:flex; gap:8px; margin-top:12px;">
         <a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a>
-        <a href="http://maps.google.com/?q=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a>
+        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a>
       </div>
     </div>
 
@@ -584,6 +584,12 @@ function toggleTheme() {
         "FLUIDEZ: Nuevas animaciones y transiciones junto con mayor estabilidad",
         "CORRECCIONES: Visualización del período horario en la ficha de turno, Mayor claridad visual entre turnos de mañana, tarde y disponibles en el panel de filtros de búsqueda, ",
         "EXPERIENCIA: Interacciones más “táctiles” en tarjetas y botones.",
+      ]
+    },
+    {
+      version: "11.1.2-beta",
+      cambios: [
+        "CORRECCIONES: En la fecha de turno, el campo de "Punto de Retiro del Carrito" mostraba la variable de Locación, más no la dirección del punto de retiro. Ya está corregido.",
       ]
     },
     // Si quieres otra versión abajo, copia desde { hasta }, y ponle una coma
