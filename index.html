@@ -5,6 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inicio</title>
   <style>
+body {
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+
+.screen,
+.logistics-box,
+.location-card,
+.filter-chip,
+.header-btn {
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.screen {
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s ease;
+}
+
+#detail-screen {
+  opacity: 0;
+}
+
+#detail-screen.active {
+  opacity: 1;
+}
+
+
+#filterMenu {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(-6px);
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease,
+    transform 0.35s ease;
+}
+
+#filterMenu.open {
+  max-height: 300px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
     :root {
       --bg-body: #f0f2f5;
       --bg-screen: #ffffff;
@@ -108,6 +159,22 @@
     /* CHANGELOG */
     #changelogPanel { position: fixed; top: 0; right: -100%; width: 100%; max-width: 350px; height: 100%; background: var(--bg-screen); z-index: 3000; transition: 0.4s; padding: 30px 25px; border-left: 1px solid var(--border-color); overflow-y: auto; }
     .changelog-item { background: var(--bg-card); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border-color); }
+
+.location-card,
+.logistics-box,
+.slot {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.location-card:hover,
+.logistics-box:hover,
+.slot:hover {
+  transform: translateY(-2px);
+}
+
+
   </style>
 </head>
 <body>
@@ -117,17 +184,64 @@
       <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:30px 25px 15px;">
         <h1 style="margin:0; font-size: 2.2rem;">Inicio</h1>
         <div style="display:flex; gap:12px;">
-          <button class="header-btn" onclick="toggleChangelog()">🚀<span id="updateBadge"></span></button>
-          <button class="header-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+          <button class="header-btn" onclick="toggleChangelog()" aria-label="Novedades">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+  </svg>
+  <span id="updateBadge"></span>
+</button>
+
+
+<button class="header-btn" onclick="toggleTheme()" id="themeBtn" aria-label="Cambiar tema">
+  <svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round">
+    <!-- Luna por defecto -->
+    <path d="M21 12.79A9 9 0 1 1 11.21 3
+             A7 7 0 0 0 21 12.79z"/>
+  </svg>
+</button>
         </div>
       </div>
 
       <div style="padding: 0 20px 15px;">
         <div style="position:relative; display:flex; align-items:center;">
           <input type="text" id="searchInput" placeholder="Buscar por nombre..." oninput="handleSearch()" style="width:100%; padding:14px 50px 14px 18px; border-radius:18px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none;">
-          <button onclick="toggleFilterMenu()" style="position:absolute; right:10px; background:none; border:none; cursor:pointer; font-size:1.2rem;">O</button>
+          <button
+  onclick="toggleFilterMenu()"
+  aria-label="Filtros"
+  style="
+    position:absolute;
+    right:12px;
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--text-gray);
+  "
+>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round">
+    <line x1="4" y1="6" x2="20" y2="6"/>
+    <circle cx="10" cy="6" r="2"/>
+    <line x1="4" y1="12" x2="20" y2="12"/>
+    <circle cx="14" cy="12" r="2"/>
+    <line x1="4" y1="18" x2="20" y2="18"/>
+    <circle cx="8" cy="18" r="2"/>
+  </svg>
+</button>
+
         </div>
-        <div id="filterMenu" style="display:none; margin-top:10px; padding:15px; background:var(--bg-card); border-radius:15px;">
+        <div id="filterMenu" style="margin-top:10px; padding:15px; background:var(--bg-card); border-radius:15px;">
           <div class="title-for-filter"><h2>Selecciona de los filtros para buscar turnos</h2></div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <div class="filter-chip" onclick="toggleFilter('M')">Mañana</div>
@@ -250,15 +364,60 @@
 
 function openTurnDetail(id) {
   const s = allData.find(x => x.id === id);
-  const p = POINT_DATA[s.punto] || POINT_DATA["Clínica Cordillera"];
+  const p = POINT_DATA[s.punto];
   const isTD = s.tipo.includes('TD');
+  const isM = s.tipo.startsWith('M');
+  const isT = s.tipo.startsWith('T') && !isTD;
+
+  // Estado
+  const estadoTexto = isTD ? 'Disponible' : 'Ocupado';
+  const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
+
+  // Tipo de turno (SIEMPRE visible)
+  const tipoTexto = isM ? 'Turno Mañana' : 'Turno Tarde';
 
   document.getElementById('turnDetailBody').innerHTML = `
-    <div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:15px;">
-      <span style="font-size:0.75rem; font-weight:800; color:${isTD?'var(--primary-green)':'var(--primary-blue)'}; border:1px solid; padding:4px 10px; border-radius:8px;">
-        ${isTD ? 'Disponible' : 'Ocupado'}
-      </span>
-      <h1 style="margin:12px 0 0;">${s.nombres}</h1>
+    <div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;">
+      
+      <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+        <span style="
+          width:fit-content;
+          font-size:0.75rem;
+          font-weight:800;
+          color:${estadoColor};
+          border:1px solid ${estadoColor};
+          padding:4px 10px;
+          border-radius:8px;
+        ">
+          ${estadoTexto}
+        </span>
+
+        <span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">
+          ⏰ ${tipoTexto}
+        </span>
+      </div>
+
+      <h1 style="margin:0;">${s.nombres}</h1>
+            <h3 style="margin:0;">${s.hora}</h3>
+
+      </div>
+
+    <div class="logistics-box orange">
+      <h4>📍 Punto de Retiro de Carrito</h4>
+      <p>${s.punto}</p>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a>
+        <a href="http://maps.google.com/?q=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a>
+      </div>
+    </div>
+
+    <div class="logistics-box">
+      <h4>👤 Encargado</h4>
+      <p>${p.encargado.nombre}</p>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" class="btn-mini">💬 WhatsApp</a>
+        <a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a>
+      </div>
     </div>
   `;
 
@@ -291,6 +450,8 @@ function openTurnDetail(id) {
 }
 
 
+
+
     function handleSearch() {
       const q = document.getElementById('searchInput').value.toLowerCase().trim();
       const home = document.getElementById('locationsList');
@@ -300,14 +461,87 @@ function openTurnDetail(id) {
         if(!activeFilters.length) return mText;
         return mText && activeFilters.some(f => f === 'TD' ? r.tipo.includes('TD') : (r.tipo.startsWith(f) && !r.tipo.includes('TD')));
       });
-      home.innerHTML = `<div style="display:grid; gap:10px">${res.map(r => `<div class="logistics-box" onclick="openTurnDetail(${r.id})" style="cursor:pointer"><b>${r.nombres}</b><br><small>${r.punto} • ${r.dia}</small></div>`).join('')}</div>`;
+      home.innerHTML = `
+  <div style="display:grid; gap:10px">
+    ${res.map(r => {
+      const isTD = r.tipo.includes('TD');
+      const isM = r.tipo.startsWith('M');
+      const color = isTD
+        ? 'var(--primary-green)'
+        : isM
+          ? 'var(--primary-orange)'
+          : 'var(--primary-blue)';
+
+      return `
+        <div 
+          class="logistics-box"
+          onclick="openTurnDetail(${r.id})"
+          style="
+            cursor:pointer;
+            display:flex;
+            align-items:center;
+            gap:14px;
+          "
+        >
+          <div style="
+            width:14px;
+            height:14px;
+            border-radius:50%;
+            background:${color};
+            flex-shrink:0;
+          "></div>
+
+          <div>
+            <div style="font-weight:800">${r.nombres}</div>
+            <div style="font-size:0.8rem; color:var(--text-gray)">
+              ${r.punto} • ${r.dia}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('')}
+  </div>
+`;
+
     }
 
-    function toggleFilterMenu() { const m = document.getElementById('filterMenu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+    function toggleFilterMenu() {
+  const m = document.getElementById('filterMenu');
+  const btn = event.currentTarget;
+  const isOpen = m.classList.contains('open');
+
+  m.classList.toggle('open');
+  btn.style.color = isOpen
+    ? 'var(--text-gray)'
+    : 'var(--primary-orange)';
+}
+
     function toggleFilter(f) { event.target.classList.toggle('active'); const i = activeFilters.indexOf(f); if(i>-1) activeFilters.splice(i,1); else activeFilters.push(f); handleSearch(); }
     function goBack() { document.getElementById('detail-screen').classList.remove('active'); }
     function closeTurnDetail() { document.getElementById('turnDetailScreen').classList.remove('active'); }
-    function toggleTheme() { document.body.classList.toggle('dark-mode'); document.getElementById('themeBtn').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙'; }
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark-mode');
+  const icon = document.getElementById('themeIcon');
+
+  icon.innerHTML = isDark
+    // Sol
+    ? `
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1" x2="12" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/>
+      <line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    `
+    // Luna
+    : `
+      <path d="M21 12.79A9 9 0 1 1 11.21 3
+               A7 7 0 0 0 21 12.79z"/>
+    `;
+}
     function toggleChangelog() { const p = document.getElementById('changelogPanel'); p.style.right = p.style.right === '0px' ? '-100%' : '0px'; }
     
    function init() {
@@ -318,8 +552,15 @@ function openTurnDetail(id) {
       cambios: [
         "RESTAURADO: Navegación a ficha de turno corregida.",
         "DISEÑO: Botones circulares estables.",
-        "INFO: Aquí puedes añadir lo que tú quieras jajaja",
-        "OTRO: Solo añade comas al final de cada frase"
+            ]
+    },
+     {
+      version: "11.1.1-beta",
+      cambios: [
+        "DISEÑO: Botones circulares estables, Nuevos íconos disponibles para Changelog, Modo Oscuro y Filtros",
+        "FLUIDEZ: Nuevas animaciones y transiciones junto con mayor estabilidad",
+        "CORRECCIONES: Visualización del período horario en la ficha de turno, Mayor claridad visual entre turnos de mañana, tarde y disponibles en el panel de filtros de búsqueda, ",
+        "EXPERIENCIA: Interacciones más “táctiles” en tarjetas y botones.",
       ]
     },
     // Si quieres otra versión abajo, copia desde { hasta }, y ponle una coma
