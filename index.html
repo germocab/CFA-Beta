@@ -174,6 +174,29 @@ body {
   transform: translateY(-2px);
 }
 
+/* ===== FIX VISTA ESCRITORIO (NO AFECTA MÓVIL) ===== */
+@media (min-width: 768px) {
+
+  .app-wrapper {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 20px;
+  }
+
+  #detail-screen {
+    position: relative;
+    opacity: 1 !important;
+    transform: none !important;
+    left: auto !important;
+    z-index: auto;
+  }
+
+  /* Botón volver solo tiene sentido en móvil */
+  #detail-screen button[onclick="goBack()"] {
+    display: none;
+  }
+}
+
 
   </style>
 </head>
@@ -555,7 +578,7 @@ function toggleTheme() {
             ]
     },
      {
-      version: "11.1.1-beta",
+      version: "11.1.0-beta",
       cambios: [
         "DISEÑO: Botones circulares estables, Nuevos íconos disponibles para Changelog, Modo Oscuro y Filtros",
         "FLUIDEZ: Nuevas animaciones y transiciones junto con mayor estabilidad",
