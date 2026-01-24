@@ -3,11 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Carritos Fleming (Beta)</title>
-  <link rel="apple-touch-icon" sizes="180x180" href="favicon_io2/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon_io2/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon_io2/favicon-16x16.png">
-<link rel="manifest" href="favicon_io2/site.webmanifest">
+  <title>Inicio</title>
   <style>
 /* --- ESTILOS ORIGINALES PRESERVADOS --- */
 body {
@@ -115,45 +111,6 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
   .app-wrapper { display: grid; grid-template-columns: 420px 1fr; gap: 20px; }
   #detail-screen { position: relative; opacity: 1 !important; transform: none !important; left: auto !important; }
 }
-
-/* --- NUEVO ESTILO PARA BOTONES DE LOGÍSTICA --- */
-.btn-mini {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 12px;
-  background: var(--bg-screen);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 700;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.btn-mini:active {
-  transform: scale(0.95);
-  background: var(--border-color);
-}
-
-/* Variación para destacar acciones como WhatsApp o Mapas */
-.btn-mini.primary {
-  background: var(--primary-orange);
-  color: white;
-  border-color: var(--primary-orange);
-}
-
-.logistics-box h4 {
-  margin: 0 0 10px 0;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
   </style>
 </head>
 <body>
@@ -171,6 +128,25 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
     </div>
   </div>
 
+<div id="logoutOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: var(--bg-screen); padding: 30px; border-radius: 28px; width: 100%; max-width: 350px; text-align: center; box-shadow: var(--shadow);">
+      <div style="background: rgba(243, 97, 0, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: var(--primary-orange);">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
+      <h2 style="margin-top:0; font-size: 1.4rem;">¿Cerrar sesión?</h2>
+      <p style="color:var(--text-gray); margin-bottom:25px; font-size: 0.95rem;">Tendrás que ingresar tu nombre nuevamente para entrar.</p>
+      
+      <div style="display:flex; gap:12px;">
+        <button onclick="closeLogoutModal()" style="flex:1; padding:14px; border-radius:15px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:bold; cursor:pointer;">
+            Cancelar
+        </button>
+        <button onclick="confirmLogout()" style="flex:1; padding:14px; border-radius:15px; border:none; background:var(--primary-orange); color:white; font-weight:bold; cursor:pointer;">
+            Sí, salir
+        </button>
+      </div>
+  </div>
+</div>
+
   <div class="app-wrapper">
     <section class="screen" id="list-screen">
       <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:25px 25px 10px;">
@@ -178,6 +154,15 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
         <div style="display:flex; gap:12px;">
           <button class="header-btn" onclick="toggleChangelog()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></button>
           <button class="header-btn" onclick="toggleTheme()"><svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/></svg></button>
+          <div style="display:flex; gap:12px;">
+
+<button class="header-btn" onclick="openLogoutModal()" title="Cerrar Sesión">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+    </svg>
+  </button>
+    
+</div>
         </div>
       </div>
 
@@ -307,37 +292,18 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
 
     /* --- LOGICA ORIGINAL PRESERVADA --- */
     function selectPoint(name) {
-  currentPoint = name; const p = POINT_DATA[name];
-  document.getElementById('currentPointTitle').innerText = name;
-  
-  // HTML ACTUALIZADO CON BOTONES MEJORADOS
-  document.getElementById('logisticsInfo').innerHTML = `
-    <div class="logistics-box orange">
-      <h4>📍 Retiro</h4>
-      <p style="margin:5px 0; font-size:0.95rem;">${p.guardado.nombre}</p>
-      <div style="display:flex; gap:8px; margin-top:12px;">
-        <a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a>
-        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a>
-      </div>
-    </div>
-    <div class="logistics-box">
-      <h4>👤 Encargado</h4>
-      <p style="margin:5px 0; font-size:0.95rem;">${p.encargado.nombre}</p>
-      <div style="display:flex; gap:8px; margin-top:12px;">
-        <a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a>
-        <a href="https://wa.me/${p.encargado.tel.replace(/\+/g,'')}" target="_blank" class="btn-mini">💬 WhatsApp</a>
-      </div>
-    </div>`;
-
-  const dRow = document.getElementById('daysRow'); dRow.innerHTML = ''; currentDay = p.days[0];
-  p.days.forEach(d => {
-    const b = document.createElement('div'); b.className = `filter-chip ${d === currentDay ? 'active' : ''}`; b.innerText = d.substring(0,3);
-    b.onclick = () => { document.querySelectorAll('#daysRow .filter-chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentDay = d; renderShifts(); };
-    dRow.appendChild(b);
-  });
-  if (window.innerWidth < 768) document.getElementById('detail-screen').classList.add('active');
-  renderShifts();
-}
+      currentPoint = name; const p = POINT_DATA[name];
+      document.getElementById('currentPointTitle').innerText = name;
+      document.getElementById('logisticsInfo').innerHTML = `<div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
+      const dRow = document.getElementById('daysRow'); dRow.innerHTML = ''; currentDay = p.days[0];
+      p.days.forEach(d => {
+        const b = document.createElement('div'); b.className = `filter-chip ${d === currentDay ? 'active' : ''}`; b.innerText = d.substring(0,3);
+        b.onclick = () => { document.querySelectorAll('#daysRow .filter-chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentDay = d; renderShifts(); };
+        dRow.appendChild(b);
+      });
+      if (window.innerWidth < 768) document.getElementById('detail-screen').classList.add('active');
+      renderShifts();
+    }
 
     function renderShifts() {
       const cont = document.getElementById('slotsContainer');
@@ -349,45 +315,15 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
     }
 
     function openTurnDetail(id) {
-  const s = allData.find(x => x.id === id); const p = POINT_DATA[s.punto];
-  const isTD = s.tipo.includes('TD'), isM = s.tipo.startsWith('M');
-  const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
-
-  // HTML ACTUALIZADO PARA LA FICHA DE TURNO
-  document.getElementById('turnDetailBody').innerHTML = `
-    <div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;">
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
-            <span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${isTD?'Disponible':'Ocupado'}</span>
-            <span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':'Turno Tarde'}</span>
-        </div>
-        <h1 style="margin:0;">${s.nombres}</h1>
-        <h3 style="margin:0; color:var(--text-gray);">${s.hora}</h3>
-    </div>
-    
-    <div class="logistics-box orange">
-      <h4>📍 Retiro del Carrito</h4>
-      <p style="margin:5px 0;">${p.guardado.nombre}</p>
-      <div style="display:flex; gap:10px; margin-top:12px;">
-        <a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a>
-        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Ver Mapa</a>
-      </div>
-    </div>
-
-    <div class="logistics-box">
-      <h4>👤 Encargado de Punto</h4>
-      <p style="margin:5px 0;">${p.encargado.nombre}</p>
-      <div style="display:flex; gap:10px; margin-top:12px;">
-        <a href="https://wa.me/${p.encargado.tel.replace(/\+/g,'')}" target="_blank" class="btn-mini">💬 WhatsApp</a>
-        <a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a>
-      </div>
-    </div>`;
-
-  let btns = `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold; align-items:center; gap:8px;">📍 Ubicación del Punto</a>`;
-  if (isTD) btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent('Hola! Quiero inscribirme en el turno de ' + s.punto + ' el día ' + s.dia + ' a las ' + s.hora)}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);">Solicitar este Turno</a>`;
-  
-  document.getElementById('turnActionBar').innerHTML = btns;
-  document.getElementById('turnDetailScreen').style.left = '0';
-}
+      const s = allData.find(x => x.id === id); const p = POINT_DATA[s.punto];
+      const isTD = s.tipo.includes('TD'), isM = s.tipo.startsWith('M');
+      const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
+      document.getElementById('turnDetailBody').innerHTML = `<div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;"><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"><span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${isTD?'Disponible':'Ocupado'}</span><span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':'Turno Tarde'}</span></div><h1 style="margin:0;">${s.nombres}</h1><h3 style="margin:0;">${s.hora}</h3></div><div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" class="btn-mini">💬 WhatsApp</a><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
+      let btns = `<a href="http://maps.google.com/?q=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold;">📍 Cómo llegar</a>`;
+      if (isTD) btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent('Hola! Quiero inscribirme...')}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none;">Solicitar Turno</a>`;
+      document.getElementById('turnActionBar').innerHTML = btns;
+      document.getElementById('turnDetailScreen').style.left = '0';
+    }
 
     function handleSearch() {
       const q = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -429,6 +365,20 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
       document.getElementById('changelogContent').innerHTML = historial.map(item => `<div class="changelog-item"><span style="background:var(--primary-orange); color:white; padding:2px 8px; border-radius:6px; font-size:0.7rem; font-weight:800;">${item.version}</span><ul style="margin:10px 0; padding-left:20px; color:var(--text-gray); font-size:0.85rem">${item.cambios.map(texto => `<li>${texto}</li>`).join('')}</ul></div>`).join('');
     }
     init();
+
+function openLogoutModal() {
+    document.getElementById('logoutOverlay').style.display = 'flex';
+}
+
+function closeLogoutModal() {
+    document.getElementById('logoutOverlay').style.display = 'none';
+}
+
+function confirmLogout() {
+    localStorage.removeItem('userName');
+    location.reload();
+}
+
   </script>
 </body>
 </html>
