@@ -63,6 +63,7 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
 .location-card h2 { margin: 0; font-size: 0.95rem; font-weight: 800; line-height: 1.2; }
 
 .logistics-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 15px; margin-bottom: 15px; }
+.logistics-box.orange { background: rgba(243, 97, 0, 0.05); border-color: rgba(243, 97, 0, 0.2); }
 
 .filter-chip { padding: 8px 15px; border-radius: 20px; background: var(--bg-screen); border: 1px solid var(--border-color); font-size: 0.85rem; cursor: pointer; font-weight: 600; color: var(--text-gray); }
 .filter-chip.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
@@ -72,6 +73,7 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
 .turno-T { background-color: var(--primary-blue); }
 .turno-TD { background-color: var(--primary-green); }
 
+/* --- AJUSTES SOLICITADOS --- */
 #nameOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
@@ -85,10 +87,11 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
 .section-title { 
     font-size: 1.1rem; 
     font-weight: 800; 
-    margin: 10px 0 10px 5px; 
+    margin: 10px 0 10px 5px; /* Reducido el margen superior */
     color: var(--text-main); 
 }
 
+/* Tarjeta de Mis Turnos Optimizada */
 .my-shift-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -112,6 +115,45 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
   .app-wrapper { display: grid; grid-template-columns: 420px 1fr; gap: 20px; }
   #detail-screen { position: relative; opacity: 1 !important; transform: none !important; left: auto !important; }
 }
+
+/* --- NUEVO ESTILO PARA BOTONES DE LOGÍSTICA --- */
+.btn-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--bg-screen);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-mini:active {
+  transform: scale(0.95);
+  background: var(--border-color);
+}
+
+/* Variación para destacar acciones como WhatsApp o Mapas */
+.btn-mini.primary {
+  background: var(--primary-orange);
+  color: white;
+  border-color: var(--primary-orange);
+}
+
+.logistics-box h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
   </style>
 </head>
 <body>
@@ -139,8 +181,7 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
         </div>
       </div>
 
-      <div style="padding: 0 20px 5px;">
-        <div style="position:relative; display:flex; align-items:center;">
+      <div style="padding: 0 20px 5px;"> <div style="position:relative; display:flex; align-items:center;">
           <input type="text" id="searchInput" placeholder="Buscar por nombre..." oninput="handleSearch()" style="width:100%; padding:14px 50px 14px 18px; border-radius:18px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none;">
           <button onclick="toggleFilterMenu()" style="position:absolute; right:12px; background:none; border:none; cursor:pointer; color:var(--text-gray);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="10" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="18" r="2"/></svg></button>
         </div>
@@ -181,9 +222,6 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
   <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT22dGTCsHGc5Qj4EbMxn4XqPoPuUI93UblvVlwu0nPm4FOUzMvLCIv5eTCgjQXS3MiNamBMsBdJ45A/pub?output=csv';
     
-    // Lista de orden de días para el ordenamiento cronológico
-    const DIAS_ORDEN = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
-
     const POINT_DATA = {
       "Clínica Cordillera": { color: "#f36100", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { nombre: "Av. Alejandro Fleming 7806", sub: "Casa Eliana Whittaker", tel: "+56982195443" }, encargado: { nombre: "Douglas García", tel: "+56934574675" } },
       "Supermercado Lider": { color: "#0056ff", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { nombre: "Av. Alejandro Fleming 7806", sub: "Casa Eliana Whittaker", tel: "+56982195443" }, encargado: { nombre: "Douglas García", tel: "+56934574675" } },
@@ -230,14 +268,8 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
         const home = document.getElementById('locationsList');
         home.innerHTML = '';
 
-        // SECCIÓN MIS TURNOS CON ORDENAMIENTO
-        const myShifts = allData
-            .filter(d => d.nombres.toLowerCase().includes(userName.toLowerCase()))
-            .sort((a, b) => {
-                // Ordenamos comparando el índice en nuestra lista DIAS_ORDEN
-                return DIAS_ORDEN.indexOf(a.dia) - DIAS_ORDEN.indexOf(b.dia);
-            });
-
+        // SECCIÓN MIS TURNOS
+        const myShifts = allData.filter(d => d.nombres.toLowerCase().includes(userName.toLowerCase()));
         if(myShifts.length > 0) {
             home.innerHTML += `<div class="section-title">Mis Turnos</div>`;
             myShifts.forEach(s => {
@@ -252,7 +284,7 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
                             ${s.dia} • ${s.hora}
                         </div>
                         <div style="background:var(--bg-screen); border-radius:12px; padding:10px; margin-top:4px; font-size:0.85rem; border:1px solid var(--border-color);">
-                            <span style="color:var(--text-gray); font-weight:bold; display:block; margin-bottom:2px; font-size:0.7rem; text-transform:uppercase;">Compañeros:</span>
+                            <span style="color:var(--text-gray); font-weight:bold; display:block; margin-bottom:2px; font-size:0.7rem; text-transform:uppercase;">Turno de:</span>
                             <span style="font-weight:700;">${s.nombres}</span>
                         </div>
                     </div>
@@ -273,19 +305,39 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
         home.appendChild(grid);
     }
 
+    /* --- LOGICA ORIGINAL PRESERVADA --- */
     function selectPoint(name) {
-      currentPoint = name; const p = POINT_DATA[name];
-      document.getElementById('currentPointTitle').innerText = name;
-      document.getElementById('logisticsInfo').innerHTML = `<div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
-      const dRow = document.getElementById('daysRow'); dRow.innerHTML = ''; currentDay = p.days[0];
-      p.days.forEach(d => {
-        const b = document.createElement('div'); b.className = `filter-chip ${d === currentDay ? 'active' : ''}`; b.innerText = d.substring(0,3);
-        b.onclick = () => { document.querySelectorAll('#daysRow .filter-chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentDay = d; renderShifts(); };
-        dRow.appendChild(b);
-      });
-      if (window.innerWidth < 768) document.getElementById('detail-screen').classList.add('active');
-      renderShifts();
-    }
+  currentPoint = name; const p = POINT_DATA[name];
+  document.getElementById('currentPointTitle').innerText = name;
+  
+  // HTML ACTUALIZADO CON BOTONES MEJORADOS
+  document.getElementById('logisticsInfo').innerHTML = `
+    <div class="logistics-box orange">
+      <h4>📍 Retiro</h4>
+      <p style="margin:5px 0; font-size:0.95rem;">${p.guardado.nombre}</p>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a>
+        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a>
+      </div>
+    </div>
+    <div class="logistics-box">
+      <h4>👤 Encargado</h4>
+      <p style="margin:5px 0; font-size:0.95rem;">${p.encargado.nombre}</p>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a>
+        <a href="https://wa.me/${p.encargado.tel.replace(/\+/g,'')}" target="_blank" class="btn-mini">💬 WhatsApp</a>
+      </div>
+    </div>`;
+
+  const dRow = document.getElementById('daysRow'); dRow.innerHTML = ''; currentDay = p.days[0];
+  p.days.forEach(d => {
+    const b = document.createElement('div'); b.className = `filter-chip ${d === currentDay ? 'active' : ''}`; b.innerText = d.substring(0,3);
+    b.onclick = () => { document.querySelectorAll('#daysRow .filter-chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentDay = d; renderShifts(); };
+    dRow.appendChild(b);
+  });
+  if (window.innerWidth < 768) document.getElementById('detail-screen').classList.add('active');
+  renderShifts();
+}
 
     function renderShifts() {
       const cont = document.getElementById('slotsContainer');
@@ -297,22 +349,71 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
     }
 
     function openTurnDetail(id) {
-      const s = allData.find(x => x.id === id); const p = POINT_DATA[s.punto];
-      const isTD = s.tipo.includes('TD'), isM = s.tipo.startsWith('M');
-      const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
-      document.getElementById('turnDetailBody').innerHTML = `<div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;"><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"><span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${isTD?'Disponible':'Ocupado'}</span><span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':'Turno Tarde'}</span></div><h1 style="margin:0;">${s.nombres}</h1><h3 style="margin:0;">${s.hora}</h3></div><div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" class="btn-mini">💬 WhatsApp</a><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
-      let btns = `<a href="http://maps.google.com/?q=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold;">📍 Cómo llegar</a>`;
-      if (isTD) btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent('Hola! Quiero inscribirme...')}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none;">Solicitar Turno</a>`;
-      document.getElementById('turnActionBar').innerHTML = btns;
-      document.getElementById('turnDetailScreen').style.left = '0';
-    }
+  const s = allData.find(x => x.id === id); const p = POINT_DATA[s.punto];
+  const isTD = s.tipo.includes('TD'), isM = s.tipo.startsWith('M');
+  const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
+
+  // HTML ACTUALIZADO PARA LA FICHA DE TURNO
+  document.getElementById('turnDetailBody').innerHTML = `
+    <div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;">
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+            <span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${isTD?'Disponible':'Ocupado'}</span>
+            <span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':'Turno Tarde'}</span>
+        </div>
+        <h1 style="margin:0;">${s.nombres}</h1>
+        <h3 style="margin:0; color:var(--text-gray);">${s.hora}</h3>
+    </div>
+    
+    <div class="logistics-box orange">
+      <h4>📍 Retiro del Carrito</h4>
+      <p style="margin:5px 0;">${p.guardado.nombre}</p>
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a>
+        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Ver Mapa</a>
+      </div>
+    </div>
+
+    <div class="logistics-box">
+      <h4>👤 Encargado de Punto</h4>
+      <p style="margin:5px 0;">${p.encargado.nombre}</p>
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <a href="https://wa.me/${p.encargado.tel.replace(/\+/g,'')}" target="_blank" class="btn-mini">💬 WhatsApp</a>
+        <a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a>
+      </div>
+    </div>`;
+
+  let btns = `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold; align-items:center; gap:8px;">📍 Ubicación del Punto</a>`;
+  if (isTD) btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent('Hola! Quiero inscribirme en el turno de ' + s.punto + ' el día ' + s.dia + ' a las ' + s.hora)}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);">Solicitar este Turno</a>`;
+  
+  document.getElementById('turnActionBar').innerHTML = btns;
+  document.getElementById('turnDetailScreen').style.left = '0';
+}
 
     function handleSearch() {
       const q = document.getElementById('searchInput').value.toLowerCase().trim();
       const home = document.getElementById('locationsList');
       if(!q && !activeFilters.length) { renderHome(); return; }
-      const res = allData.filter(r => r.nombres.toLowerCase().includes(q));
-      home.innerHTML = `<div style="display:grid; gap:10px">${res.map(r => `<div class="logistics-box" onclick="openTurnDetail(${r.id})" style="cursor:pointer; display:flex; align-items:center; gap:14px;"><div style="width:14px; height:14px; border-radius:50%; background:var(--primary-blue); flex-shrink:0;"></div><div><div style="font-weight:800">${r.nombres}</div><div style="font-size:0.8rem; color:var(--text-gray)">${r.punto} • ${r.dia}</div></div></div>`).join('')}</div>`;
+      
+      let res = allData.filter(r => r.nombres.toLowerCase().includes(q));
+      
+      // Aplicar filtros activos
+      if(activeFilters.length > 0) {
+        res = res.filter(r => {
+          return activeFilters.some(filter => {
+            if(filter === 'M') return r.tipo.startsWith('M');
+            if(filter === 'T') return r.tipo.startsWith('T') && !r.tipo.includes('TD');
+            if(filter === 'TD') return r.tipo.includes('TD');
+            return false;
+          });
+        });
+      }
+      
+      home.innerHTML = `<div style="display:grid; gap:10px">${res.map(r => {
+        const isTD = r.tipo.includes('TD');
+        const isM = r.tipo.startsWith('M');
+        const color = isTD ? 'var(--primary-green)' : (isM ? 'var(--primary-orange)' : 'var(--primary-blue)');
+        return `<div class="logistics-box" onclick="openTurnDetail(${r.id})" style="cursor:pointer; display:flex; align-items:center; gap:14px;"><div style="width:14px; height:14px; border-radius:50%; background:${color}; flex-shrink:0;"></div><div><div style="font-weight:800">${r.nombres}</div><div style="font-size:0.8rem; color:var(--text-gray)">${r.punto} • ${r.dia}</div></div></div>`;
+      }).join('')}</div>`;
     }
 
     function toggleFilterMenu() { document.getElementById('filterMenu').classList.toggle('open'); }
@@ -324,12 +425,10 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
     
     function init() {
       loadExcelData();
-      const historial = [{ version: "11.2.1", cambios: ["CRONOLOGÍA: Ahora los turnos personales se ordenan de Lunes a Domingo.", "OPTIMIZACIÓN: Mejorado el sistema de renderizado de tarjetas."] }];
+      const historial = [{ version: "11.2.0", cambios: ["DISEÑO: Reducción de espacios muertos.", "NUEVO: Tarjeta de Mis Turnos con detalles completos."] }];
       document.getElementById('changelogContent').innerHTML = historial.map(item => `<div class="changelog-item"><span style="background:var(--primary-orange); color:white; padding:2px 8px; border-radius:6px; font-size:0.7rem; font-weight:800;">${item.version}</span><ul style="margin:10px 0; padding-left:20px; color:var(--text-gray); font-size:0.85rem">${item.cambios.map(texto => `<li>${texto}</li>`).join('')}</ul></div>`).join('');
     }
     init();
   </script>
 </body>
 </html>
-
-
