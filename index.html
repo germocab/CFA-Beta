@@ -402,8 +402,15 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
       const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
       document.getElementById('turnDetailBody').innerHTML = `<div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;"><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"><span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${isTD?'Disponible':'Ocupado'}</span><span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':'Turno Tarde'}</span></div><h1 style="margin:0;">${s.nombres}</h1><h3 style="margin:0;">${s.hora}</h3></div><div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" class="btn-mini">💬 WhatsApp</a><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
       let btns = `<a href="http://maps.google.com/?q=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold;">📍 Cómo llegar</a>`;
-      if (isTD) btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent('Hola! Quiero inscribirme...')}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none;">Solicitar Turno</a>`;
-      document.getElementById('turnActionBar').innerHTML = btns;
+if (isTD) {
+  const mensaje = `Hola! Quiero inscribirme en el turno disponible:
+📍 Punto: ${s.punto}
+📅 Día: ${s.dia}
+⏰ Hora: ${s.hora}
+👤 Nombre: ${userName}`;
+  
+  btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent(mensaje)}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none;">Solicitar Turno</a>`;
+}      document.getElementById('turnActionBar').innerHTML = btns;
       document.getElementById('turnDetailScreen').style.left = '0';
     }
 
