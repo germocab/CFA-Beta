@@ -194,6 +194,191 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
     border: none !important;
 }
 
+/* ============================= */
+/* ✨ LIQUID GLASS UPGRADE */
+/* ============================= */
+
+:root {
+  --glass-blur: blur(18px);
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-dark: rgba(30, 30, 30, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-border-dark: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+/* Fondo más moderno */
+body {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(243,97,0,0.10), transparent),
+    radial-gradient(900px 500px at 90% 110%, rgba(0,86,255,0.10), transparent),
+    var(--bg-body);
+}
+
+/* ============================= */
+/* 🧊 SUPERFICIES GLASS */
+/* ============================= */
+
+.screen,
+.location-card,
+.logistics-box,
+.my-shift-card,
+#filterMenu,
+#nameModal,
+#logoutOverlay > div {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Dark mode glass */
+body.dark-mode .screen,
+body.dark-mode .location-card,
+body.dark-mode .logistics-box,
+body.dark-mode .my-shift-card,
+body.dark-mode #filterMenu,
+body.dark-mode #nameModal,
+body.dark-mode #logoutOverlay > div {
+  background: var(--glass-bg-dark);
+  border: 1px solid var(--glass-border-dark);
+}
+
+/* ============================= */
+/* 🎯 HOVER MICROINTERACTIONS */
+/* ============================= */
+
+.location-card,
+.my-shift-card,
+.slot,
+.header-btn,
+.btn-mini {
+  transition:
+    transform 0.25s cubic-bezier(.22,1,.36,1),
+    box-shadow 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+/* Lift elegante */
+.location-card:hover,
+.my-shift-card:hover,
+.slot:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.14);
+}
+
+/* Botones */
+.header-btn:hover,
+.btn-mini:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+}
+
+/* Click feel */
+.header-btn:active,
+.btn-mini:active,
+.location-card:active {
+  transform: scale(0.96);
+}
+
+/* ============================= */
+/* 🔘 CHIPS MÁS MODERNOS */
+/* ============================= */
+
+.filter-chip {
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.5);
+}
+
+body.dark-mode .filter-chip {
+  background: rgba(255,255,255,0.06);
+}
+
+.filter-chip.active {
+  box-shadow: 0 6px 18px rgba(243,97,0,0.35);
+}
+
+/* ============================= */
+/* 🔍 SEARCH BAR PREMIUM */
+/* ============================= */
+
+#searchInput {
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.4);
+  transition: all 0.25s ease;
+}
+
+body.dark-mode #searchInput {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+#searchInput:focus {
+  box-shadow: 0 0 0 3px rgba(243,97,0,0.18);
+  transform: translateY(-1px);
+}
+
+/* ============================= */
+/* ✨ STATUS DOT GLOW */
+/* ============================= */
+
+.status-dot {
+  box-shadow: 0 0 0 6px rgba(255,255,255,0.25),
+              0 8px 18px rgba(0,0,0,0.18);
+}
+
+/* ============================= */
+/* 📱 MODAL GLASS IMPROVED */
+/* ============================= */
+
+#nameOverlay,
+#logoutOverlay {
+  backdrop-filter: blur(14px);
+}
+
+/* ============================= */
+/* 🚀 SCREEN TRANSITIONS SMOOTHER */
+/* ============================= */
+
+.screen {
+  transition:
+    transform 0.55s cubic-bezier(.22,1,.36,1),
+    opacity 0.3s ease,
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+/* ============================= */
+/* 💎 TURN CARDS PREMIUM LOOK */
+/* ============================= */
+
+.slot {
+  position: relative;
+  overflow: hidden;
+}
+
+.slot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    rgba(255,255,255,0.18),
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.slot:hover::after {
+  opacity: 1;
+}
+    
   </style>
 </head>
 <body>
@@ -488,5 +673,6 @@ function confirmLogout() {
   </script>
 </body>
 </html>
+
 
 
