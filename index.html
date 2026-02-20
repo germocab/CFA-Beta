@@ -394,6 +394,18 @@ body.dark-mode #searchInput {
 .screen.swiping {
   transition: none !important;
 }
+
+/* --- PERMITIR EDGE SWIPE INTERNO --- */
+html, body {
+  overscroll-behavior-x: contain;
+}
+
+.screen,
+#detail-screen,
+#turnDetailScreen {
+  touch-action: pan-y;
+}
+    
     
   </style>
 </head>
@@ -799,6 +811,7 @@ window.addEventListener('pointerup', handlePointerUp);
   </script>
 </body>
 </html>
+
 
 
 
