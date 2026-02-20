@@ -378,6 +378,22 @@ body.dark-mode #searchInput {
 .slot:hover::after {
   opacity: 1;
 }
+
+/* --- EDGE SWIPE BACK (iOS feel) --- */
+.edge-swipe-area {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 24px; /* zona sensible */
+  height: 100%;
+  z-index: 5000;
+  background: transparent;
+}
+
+/* feedback visual opcional */
+.screen.swiping {
+  transition: none !important;
+}
     
   </style>
 </head>
@@ -473,6 +489,7 @@ body.dark-mode #searchInput {
     <div id="turnActionBar" style="padding:20px;"></div>
   </div>
 
+  <div id="edgeSwipeZone" class="edge-swipe-area"></div>
 
   <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT22dGTCsHGc5Qj4EbMxn4XqPoPuUI93UblvVlwu0nPm4FOUzMvLCIv5eTCgjQXS3MiNamBMsBdJ45A/pub?output=csv';
@@ -670,9 +687,119 @@ function confirmLogout() {
     location.reload();
 }
 
+/* ================================
+   EDGE SWIPE BACK — NATIVE FEEL
+================================ */
+
+let swipeStartX = 0;
+let swipeStartY = 0;
+let isSwiping = false;
+let activeScreen = null;
+
+const EDGE_SIZE = 28;      // zona desde el borde
+const TRIGGER_DISTANCE = 80; // distancia para activar back
+const MAX_VERTICAL_DRIFT = 60;
+
+function getActiveDetailScreen() {
+  const detail = document.getElementById('detail-screen');
+  const turn = document.getElementById('turnDetailScreen');
+
+  if (turn && turn.style.left === '0px') return turn;
+  if (detail && detail.classList.contains('active')) return detail;
+
+  return null;
+}
+
+function handlePointerDown(e) {
+  const x = e.touches ? e.touches[0].clientX : e.clientX;
+  const y = e.touches ? e.touches[0].clientY : e.clientY;
+
+  // solo desde el borde izquierdo
+  if (x > EDGE_SIZE) return;
+
+  const screen = getActiveDetailScreen();
+  if (!screen) return;
+
+  swipeStartX = x;
+  swipeStartY = y;
+  isSwiping = true;
+  activeScreen = screen;
+
+  activeScreen.classList.add('swiping');
+}
+
+function handlePointerMove(e) {
+  if (!isSwiping || !activeScreen) return;
+
+  const x = e.touches ? e.touches[0].clientX : e.clientX;
+  const y = e.touches ? e.touches[0].clientY : e.clientY;
+
+  const dx = x - swipeStartX;
+  const dy = Math.abs(y - swipeStartY);
+
+  // evitar conflicto con scroll vertical
+  if (dy > MAX_VERTICAL_DRIFT) {
+    cancelSwipe();
+    return;
+  }
+
+  if (dx > 0) {
+    activeScreen.style.transform = `translateX(${dx}px)`;
+  }
+}
+
+function handlePointerUp(e) {
+  if (!isSwiping || !activeScreen) return;
+
+  const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+  const dx = x - swipeStartX;
+
+  activeScreen.classList.remove('swiping');
+
+  if (dx > TRIGGER_DISTANCE) {
+    // ✅ BACK real usando tu lógica
+    if (activeScreen.id === 'turnDetailScreen') {
+      closeTurnDetail();
+    } else {
+      goBack();
+    }
+  } else {
+    // volver a posición
+    activeScreen.style.transform = '';
+  }
+
+  resetSwipe();
+}
+
+function cancelSwipe() {
+  if (activeScreen) {
+    activeScreen.style.transform = '';
+    activeScreen.classList.remove('swiping');
+  }
+  resetSwipe();
+}
+
+function resetSwipe() {
+  isSwiping = false;
+  activeScreen = null;
+}
+
+/* ===== listeners ===== */
+
+const zone = document.getElementById('edgeSwipeZone');
+
+zone.addEventListener('touchstart', handlePointerDown, { passive: true });
+window.addEventListener('touchmove', handlePointerMove, { passive: true });
+window.addEventListener('touchend', handlePointerUp);
+
+zone.addEventListener('pointerdown', handlePointerDown);
+window.addEventListener('pointermove', handlePointerMove);
+window.addEventListener('pointerup', handlePointerUp);
+    
   </script>
 </body>
 </html>
+
 
 
 
