@@ -1,679 +1,655 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Inicio</title>
-<link rel="icon" href="favicon_io2/favicon.ico">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inicio</title>
+  <link rel="icon" href="favicon_io2/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon_io2/favicon-32x32.png">
 <link rel="apple-touch-icon" href="favicon_io2/apple-touch-icon.png">
-<style>
-/* ─── CSS VARIABLES ──────────────────────────────────────────── */
+  <style>
+/* --- ESTILOS ORIGINALES PRESERVADOS --- */
+body {
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+.screen, .logistics-box, .location-card, .filter-chip, .header-btn {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.screen { transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease; }
+#detail-screen { opacity: 0; }
+#detail-screen.active { opacity: 1; }
+
+#filterMenu {
+  max-height: 0; opacity: 0; overflow: hidden; transform: translateY(-6px);
+  transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.35s ease;
+}
+#filterMenu.open { max-height: 300px; opacity: 1; transform: translateY(0); }
+
 :root {
-  --bg-body:#f0f2f5; --bg-screen:#fff; --bg-card:#f8f9fa;
-  --text-main:#1a1a1a; --text-gray:#65676b;
-  --primary-orange:#f36100; --primary-blue:#0056ff; --primary-green:#28a745;
-  --radius:24px; --border-color:#e4e6eb; --shadow:0 4px 12px rgba(0,0,0,.08);
-  --glass-blur:blur(18px);
-  --glass-bg:rgba(255,255,255,.55); --glass-bg-dark:rgba(30,30,30,.55);
-  --glass-border:rgba(255,255,255,.35); --glass-border-dark:rgba(255,255,255,.08);
-  --glass-shadow:0 10px 30px rgba(0,0,0,.12);
-  --ease-spring:cubic-bezier(.22,1,.36,1);
+  --bg-body: #f0f2f5; --bg-screen: #ffffff; --bg-card: #f8f9fa;
+  --text-main: #1a1a1a; --text-gray: #65676b; --primary-orange: #f36100;
+  --primary-blue: #0056ff; --primary-green: #28a745; --radius: 24px;
+  --border-color: #e4e6eb; --shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
+
 body.dark-mode {
-  --bg-body:#1e1e1e; --bg-screen:#121212; --bg-card:#1e1e1e;
-  --text-main:#fff; --text-gray:#a0a0a0;
-  --border-color:rgba(255,255,255,.05);
+  --bg-body: #1e1e1e; --bg-screen: #121212; --bg-card: #1e1e1e;
+  --text-main: #ffffff; --text-gray: #a0a0a0; --border-color: rgba(255,255,255,0.05);
 }
 
-/* ─── RESET & BASE ───────────────────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{overscroll-behavior-x:contain}
-body{
-  font-family:'Segoe UI',sans-serif;
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); overflow-x: hidden; }
+
+.app-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 1100px; padding: 20px; margin: auto; }
+.screen { background-color: var(--bg-screen); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; }
+.scroll-container { padding: 20px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
+
+.header-btn {
+  background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main);
+  width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; font-size: 1.2rem; position: relative; transition: transform 0.2s;
+}
+
+.grid-2x2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; align-items: stretch; }
+.location-card { 
+  padding: 20px 10px; border-radius: var(--radius); cursor: pointer; background-color: var(--bg-card); 
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; 
+  gap: 12px; border: 2px solid transparent; min-height: 190px; height: 100%; 
+}
+.status-dot { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; }
+.location-card h2 { margin: 0; font-size: 0.95rem; font-weight: 800; line-height: 1.2; }
+
+.logistics-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 15px; margin-bottom: 15px; }
+.logistics-box.orange { background: rgba(243, 97, 0, 0.05); border-color: rgba(243, 97, 0, 0.2); }
+
+.filter-chip { padding: 8px 15px; border-radius: 20px; background: var(--bg-screen); border: 1px solid var(--border-color); font-size: 0.85rem; cursor: pointer; font-weight: 600; color: var(--text-gray); }
+.filter-chip.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
+
+.slot { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; color: white; display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: transform 0.2s; }
+.turno-M { background-color: var(--primary-orange); }
+.turno-T { background-color: var(--primary-blue); }
+.turno-TD { background-color: var(--primary-green); }
+
+/* --- AJUSTES SOLICITADOS --- */
+#nameOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+#nameModal {
+    background: var(--bg-screen); padding: 30px; border-radius: 28px;
+    width: 100%; max-width: 400px; text-align: center;
+}
+
+.section-title { 
+    font-size: 1.1rem; 
+    font-weight: 800; 
+    margin: 10px 0 10px 5px; 
+    color: var(--text-main); 
+}
+
+/* Tarjeta de Mis Turnos Optimizada */
+.my-shift-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .app-wrapper { display: block; padding: 0; }
+  .screen { height: 100vh; border-radius: 0; border: none; width: 100%; }
+  #detail-screen { position: fixed; top: 0; left: 100%; width: 100%; z-index: 2000; }
+  #detail-screen.active { transform: translateX(-100%); }
+}
+
+@media (min-width: 768px) {
+  .app-wrapper { display: grid; grid-template-columns: 420px 1fr; gap: 20px; }
+  #detail-screen { position: relative; opacity: 1 !important; transform: none !important; left: auto !important; }
+}
+
+#locationsList {
+    flex: 1; 
+    padding-bottom: 20px; 
+    display: block;          
+}
+
+/* --- MEJORA DE TARJETAS Y BOTONES --- */
+.logistics-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.logistics-box.orange {
+    background: linear-gradient(145deg, rgba(243, 97, 0, 0.08), rgba(243, 97, 0, 0.02));
+    border-color: rgba(243, 97, 0, 0.15);
+}
+
+.logistics-box h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-gray);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.logistics-box p {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+
+.btn-mini {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color);
+    background: var(--bg-screen);
+    color: var(--text-main);
+}
+
+.btn-mini:active {
+    transform: scale(0.96);
+}
+
+.logistics-box.orange .btn-mini {
+    border-color: rgba(243, 97, 0, 0.2);
+    color: var(--primary-orange);
+}
+
+.btn-whatsapp {
+    background: #25D366 !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* ============================= */
+/* ✨ LIQUID GLASS UPGRADE */
+/* ============================= */
+
+:root {
+  --glass-blur: blur(18px);
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-dark: rgba(30, 30, 30, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-border-dark: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+body {
   background:
-    radial-gradient(1200px 600px at 10% -10%,rgba(243,97,0,.10),transparent),
-    radial-gradient(900px 500px at 90% 110%,rgba(0,86,255,.10),transparent),
+    radial-gradient(1200px 600px at 10% -10%, rgba(243,97,0,0.10), transparent),
+    radial-gradient(900px 500px at 90% 110%, rgba(0,86,255,0.10), transparent),
     var(--bg-body);
-  color:var(--text-main);
-  overflow-x:hidden;
-  /* single transition declaration — one repaint pass */
-  transition:background-color .35s ease,color .35s ease;
 }
 
-/* ─── LAYOUT ─────────────────────────────────────────────────── */
-.app-wrapper{
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:20px; max-width:1100px; padding:20px; margin:auto;
+.screen,
+.location-card,
+.logistics-box,
+.my-shift-card,
+#filterMenu,
+#nameModal,
+#logoutOverlay > div {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
-.screen{
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border); border-radius:var(--radius);
-  box-shadow:var(--glass-shadow); overflow:hidden;
-  height:850px; display:flex; flex-direction:column; position:relative;
+
+body.dark-mode .screen,
+body.dark-mode .location-card,
+body.dark-mode .logistics-box,
+body.dark-mode .my-shift-card,
+body.dark-mode #filterMenu,
+body.dark-mode #nameModal,
+body.dark-mode #logoutOverlay > div {
+  background: var(--glass-bg-dark);
+  border: 1px solid var(--glass-border-dark);
+}
+
+.location-card,
+.my-shift-card,
+.slot,
+.header-btn,
+.btn-mini {
   transition:
-    transform .55s var(--ease-spring),
-    opacity .3s ease,
-    background-color .35s ease,
-    border-color .35s ease,
-    box-shadow .35s ease;
-}
-body.dark-mode .screen{background:var(--glass-bg-dark);border-color:var(--glass-border-dark)}
-
-#detail-screen{opacity:0}
-#detail-screen.active{opacity:1}
-
-.scroll-container{padding:20px;overflow-y:auto;flex-grow:1;scroll-behavior:smooth}
-
-/* ─── HEADER BUTTONS ─────────────────────────────────────────── */
-.header-btn{
-  background:var(--bg-card); border:1px solid var(--border-color);
-  color:var(--text-main); width:48px; height:48px; border-radius:50%;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  font-size:1.2rem;
-  transition:transform .25s var(--ease-spring),box-shadow .25s ease,background .25s ease,border-color .25s ease;
-}
-.header-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
-
-/* ─── GRID & CARDS ───────────────────────────────────────────── */
-.grid-2x2{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;align-items:stretch}
-.location-card{
-  padding:20px 10px; border-radius:var(--radius); cursor:pointer;
-  background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  text-align:center; gap:12px; min-height:190px; height:100%;
-  transition:transform .25s var(--ease-spring),box-shadow .25s ease,background .25s ease,border-color .25s ease;
-}
-body.dark-mode .location-card{background:var(--glass-bg-dark);border-color:var(--glass-border-dark)}
-.location-card:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 18px 40px rgba(0,0,0,.14)}
-.location-card h2{font-size:.95rem;font-weight:800;line-height:1.2}
-
-.status-dot{
-  width:44px;height:44px;border-radius:50%;flex-shrink:0;
-  box-shadow:0 0 0 6px rgba(255,255,255,.25),0 8px 18px rgba(0,0,0,.18);
+    transform 0.25s cubic-bezier(.22,1,.36,1),
+    box-shadow 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease;
 }
 
-/* ─── MY SHIFT CARD ──────────────────────────────────────────── */
-.my-shift-card{
-  background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border); border-radius:20px;
-  padding:16px; margin-bottom:12px;
-  display:flex; flex-direction:column; gap:8px; cursor:pointer;
-  transition:transform .25s var(--ease-spring),box-shadow .25s ease,background .25s ease;
+.location-card:hover,
+.my-shift-card:hover,
+.slot:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.14);
 }
-body.dark-mode .my-shift-card{background:var(--glass-bg-dark);border-color:var(--glass-border-dark)}
-.my-shift-card:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 18px 40px rgba(0,0,0,.14)}
 
-/* ─── LOGISTICS BOX ──────────────────────────────────────────── */
-.logistics-box{
-  background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border); border-radius:20px;
-  padding:18px; margin-bottom:15px;
-  box-shadow:0 2px 8px rgba(0,0,0,.04);
-  transition:background .35s ease,border-color .35s ease,box-shadow .35s ease;
+.header-btn:hover,
+.btn-mini:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.18);
 }
-body.dark-mode .logistics-box{background:var(--glass-bg-dark);border-color:var(--glass-border-dark)}
-.logistics-box.orange{
-  background:linear-gradient(145deg,rgba(243,97,0,.08),rgba(243,97,0,.02));
-  border-color:rgba(243,97,0,.15);
-}
-.logistics-box h4{
-  font-size:.75rem;text-transform:uppercase;letter-spacing:1px;
-  color:var(--text-gray);display:flex;align-items:center;gap:6px;margin-bottom:8px;
-}
-.logistics-box p{font-weight:700;font-size:1rem;color:var(--text-main)}
 
-/* ─── FILTER CHIPS ───────────────────────────────────────────── */
-.filter-chip{
-  padding:8px 15px;border-radius:20px;
-  backdrop-filter:blur(10px);
-  background:rgba(255,255,255,.5);
-  border:1px solid var(--border-color);
-  font-size:.85rem;cursor:pointer;font-weight:600;color:var(--text-gray);
-  transition:background .2s ease,color .2s ease,border-color .2s ease,box-shadow .2s ease;
-  white-space:nowrap;
+.filter-chip {
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.5);
 }
-body.dark-mode .filter-chip{background:rgba(255,255,255,.06)}
-.filter-chip.active{background:var(--primary-orange);color:#fff;border-color:var(--primary-orange);box-shadow:0 6px 18px rgba(243,97,0,.35)}
 
-/* ─── FILTER MENU ────────────────────────────────────────────── */
-#filterMenu{
-  max-height:0;opacity:0;overflow:hidden;transform:translateY(-6px);
-  background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border); border-radius:15px;
-  transition:max-height .35s ease,opacity .25s ease,transform .35s ease;
+body.dark-mode .filter-chip {
+  background: rgba(255,255,255,0.06);
 }
-body.dark-mode #filterMenu{background:var(--glass-bg-dark);border-color:var(--glass-border-dark)}
-#filterMenu.open{max-height:300px;opacity:1;transform:translateY(0)}
 
-/* ─── SEARCH ─────────────────────────────────────────────────── */
-#searchInput{
-  width:100%;padding:14px 50px 14px 18px;border-radius:18px;
-  border:1px solid var(--border-color);outline:none;
-  backdrop-filter:blur(12px);
-  background:rgba(255,255,255,.6);
-  color:var(--text-main);
-  transition:all .25s ease;
+.filter-chip.active {
+  box-shadow: 0 6px 18px rgba(243,97,0,0.35);
 }
-body.dark-mode #searchInput{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08)}
-#searchInput:focus{box-shadow:0 0 0 3px rgba(243,97,0,.18);transform:translateY(-1px)}
 
-/* ─── SLOTS ──────────────────────────────────────────────────── */
-.slot{
-  padding:20px;border-radius:var(--radius);margin-bottom:12px;
-  color:#fff;display:flex;flex-direction:column;gap:10px;cursor:pointer;
-  position:relative;overflow:hidden;
-  transition:transform .25s var(--ease-spring),box-shadow .25s ease;
+#searchInput {
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.4);
+  transition: all 0.25s ease;
 }
-.slot::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,.18),transparent 80%);
-  opacity:0;transition:opacity .25s ease;pointer-events:none;
-}
-.slot:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 18px 40px rgba(0,0,0,.14)}
-.slot:hover::after{opacity:1}
-.turno-M{background-color:var(--primary-orange)}
-.turno-T{background-color:var(--primary-blue)}
-.turno-TD{background-color:var(--primary-green)}
 
-/* ─── BUTTONS ────────────────────────────────────────────────── */
-.btn-mini{
-  flex:1;display:flex;align-items:center;justify-content:center;
-  gap:8px;padding:10px 14px;border-radius:12px;text-decoration:none;
-  font-size:.85rem;font-weight:700;
-  transition:transform .2s ease,box-shadow .2s ease;
-  border:1px solid var(--border-color);background:var(--bg-screen);color:var(--text-main);
+body.dark-mode #searchInput {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
 }
-.btn-mini:active{transform:scale(.96)}
-.btn-mini:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
-.logistics-box.orange .btn-mini{border-color:rgba(243,97,0,.2);color:var(--primary-orange)}
-.btn-whatsapp{background:#25D366!important;color:#fff!important;border:none!important}
 
-/* ─── CLEAR FILTERS ──────────────────────────────────────────── */
-.clear-filters-btn{
-  width:32px;height:32px;border-radius:50%;
-  background:rgba(243,97,0,.1);color:var(--primary-orange);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;font-weight:bold;font-size:1.2rem;
-  transition:background .2s ease,transform .2s ease;
-  border:1px solid rgba(243,97,0,.2);margin-left:5px;flex-shrink:0;
+#searchInput:focus {
+  box-shadow: 0 0 0 3px rgba(243,97,0,0.18);
+  transform: translateY(-1px);
 }
-.clear-filters-btn:hover{background:var(--primary-orange);color:#fff;transform:rotate(90deg)}
 
-/* ─── OVERLAYS ───────────────────────────────────────────────── */
-.overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.7);
-  backdrop-filter:blur(14px);z-index:9999;
-  display:none;align-items:center;justify-content:center;padding:20px;
+.status-dot {
+  box-shadow: 0 0 0 6px rgba(255,255,255,0.25),
+              0 8px 18px rgba(0,0,0,0.18);
 }
-.modal-box{
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  padding:30px;border-radius:28px;width:100%;max-width:400px;
-  text-align:center;box-shadow:var(--glass-shadow);
-}
-body.dark-mode .modal-box{background:var(--glass-bg-dark);border-color:var(--glass-border-dark)}
 
-/* ─── TURN DETAIL SCREEN ─────────────────────────────────────── */
-#turnDetailScreen{
-  position:fixed;top:0;left:100%;width:100%;height:100%;
-  background:var(--bg-screen);z-index:4000;
-  display:flex;flex-direction:column;
-  transition:left .4s var(--ease-spring);
+#nameOverlay,
+#logoutOverlay {
+  backdrop-filter: blur(14px);
 }
-#turnDetailScreen.open{left:0}
 
-/* ─── SECTION TITLE ──────────────────────────────────────────── */
-.section-title{font-size:1.1rem;font-weight:800;margin:10px 0 10px 5px;color:var(--text-main)}
-
-/* ─── EDGE SWIPE ─────────────────────────────────────────────── */
-.edge-swipe-area{position:fixed;left:0;top:0;width:24px;height:100%;z-index:5000;background:transparent}
-
-/* ─── RESPONSIVE ─────────────────────────────────────────────── */
-@media(max-width:767px){
-  .app-wrapper{display:block;padding:0}
-  .screen{height:100vh;border-radius:0;border:none;width:100%}
-  #detail-screen{position:fixed;top:0;left:100%;width:100%;z-index:2000}
-  #detail-screen.active{transform:translateX(-100%)}
+.screen {
+  transition:
+    transform 0.55s cubic-bezier(.22,1,.36,1),
+    opacity 0.3s ease,
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
 }
-@media(min-width:768px){
-  .app-wrapper{display:grid;grid-template-columns:420px 1fr;gap:20px}
-  #detail-screen{position:relative;opacity:1!important;transform:none!important;left:auto!important}
+
+.slot {
+  position: relative;
+  overflow: hidden;
 }
-</style>
+
+.slot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    rgba(255,255,255,0.18),
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.slot:hover::after {
+  opacity: 1;
+}
+
+.edge-swipe-area {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 100%;
+  z-index: 5000;
+  background: transparent;
+}
+
+html, body {
+  overscroll-behavior-x: contain;
+}
+
+.screen,
+#detail-screen,
+#turnDetailScreen {
+  touch-action: pan-y;
+}
+
+/* ESTILO DEL NUEVO BOTÓN QUITAR FILTROS */
+.clear-filters-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(243, 97, 0, 0.1);
+  color: var(--primary-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(243, 97, 0, 0.2);
+  margin-left: 5px;
+}
+
+.clear-filters-btn:hover {
+  background: var(--primary-orange);
+  color: white;
+  transform: rotate(90deg);
+}
+    
+  </style>
 </head>
 <body>
 
-<!-- ── NAME OVERLAY ──────────────────────────────────────────── -->
-<div id="nameOverlay" class="overlay">
-  <div class="modal-box">
-    <h2 style="margin-bottom:8px">Bienvenido</h2>
-    <p style="color:var(--text-gray);margin-bottom:25px">Introduce tu nombre para acceder.</p>
-    <input id="userNameInput" type="text" placeholder="Escribe tu nombre…"
-           style="width:100%;padding:16px;border-radius:15px;border:1px solid var(--border-color);
-                  background:var(--bg-card);color:var(--text-main);outline:none;font-size:1rem;margin-bottom:15px;">
-    <button onclick="saveName()"
-            style="width:100%;padding:16px;border-radius:15px;border:none;
-                   background:var(--primary-orange);color:#fff;font-weight:bold;font-size:1rem;cursor:pointer">
-      Comenzar
-    </button>
+  <div id="nameOverlay">
+    <div id="nameModal">
+        <h2 style="margin-top:0;">Bienvenido</h2>
+        <p style="color:var(--text-gray); margin-bottom:25px;">Introduce tu nombre para acceder.</p>
+        <input type="text" id="userNameInput" placeholder="Escribe tu nombre..." 
+               style="width:100%; padding:16px; border-radius:15px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none; font-size:1rem; margin-bottom:15px;">
+        <button onclick="saveName()" 
+                style="width:100%; padding:16px; border-radius:15px; border:none; background:var(--primary-orange); color:white; font-weight:bold; font-size:1rem; cursor:pointer;">
+            Comenzar
+        </button>
+    </div>
+  </div>
+
+<div id="logoutOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: var(--bg-screen); padding: 30px; border-radius: 28px; width: 100%; max-width: 350px; text-align: center; box-shadow: var(--shadow);">
+      <div style="background: rgba(243, 97, 0, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: var(--primary-orange);">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
+      <h2 style="margin-top:0; font-size: 1.4rem;">¿Cerrar sesión?</h2>
+      <p style="color:var(--text-gray); margin-bottom:25px; font-size: 0.95rem;">Tendrás que ingresar tu nombre nuevamente para entrar.</p>
+      
+      <div style="display:flex; gap:12px;">
+        <button onclick="closeLogoutModal()" style="flex:1; padding:14px; border-radius:15px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:bold; cursor:pointer;">
+            Cancelar
+        </button>
+        <button onclick="confirmLogout()" style="flex:1; padding:14px; border-radius:15px; border:none; background:var(--primary-orange); color:white; font-weight:bold; cursor:pointer;">
+            Sí, salir
+        </button>
+      </div>
   </div>
 </div>
 
-<!-- ── LOGOUT OVERLAY ─────────────────────────────────────────── -->
-<div id="logoutOverlay" class="overlay">
-  <div class="modal-box" style="max-width:350px">
-    <div style="background:rgba(243,97,0,.1);width:60px;height:60px;border-radius:50%;
-                display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:var(--primary-orange)">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-           stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-    </div>
-    <h2 style="font-size:1.4rem;margin-bottom:10px">¿Cerrar sesión?</h2>
-    <p style="color:var(--text-gray);margin-bottom:25px;font-size:.95rem">Tendrás que ingresar tu nombre nuevamente.</p>
-    <div style="display:flex;gap:12px">
-      <button onclick="closeLogoutModal()"
-              style="flex:1;padding:14px;border-radius:15px;border:1px solid var(--border-color);
-                     background:var(--bg-card);color:var(--text-main);font-weight:bold;cursor:pointer">Cancelar</button>
-      <button onclick="confirmLogout()"
-              style="flex:1;padding:14px;border-radius:15px;border:none;
-                     background:var(--primary-orange);color:#fff;font-weight:bold;cursor:pointer">Sí, salir</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── APP ────────────────────────────────────────────────────── -->
-<div class="app-wrapper">
-
-  <!-- LIST SCREEN -->
-  <section class="screen" id="list-screen">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:25px 25px 10px">
-      <h1 style="font-size:2.2rem">Inicio</h1>
-      <div style="display:flex;gap:12px">
-        <button class="header-btn" onclick="toggleTheme()" title="Tema">
-          <svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/>
-          </svg>
-        </button>
-        <button class="header-btn" onclick="openLogoutModal()" title="Cerrar Sesión">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-        </button>
+  <div class="app-wrapper">
+    <section class="screen" id="list-screen">
+      <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:25px 25px 10px;">
+        <h1 style="margin:0; font-size: 2.2rem;">Inicio</h1>
+        <div style="display:flex; gap:12px;">
+          <button class="header-btn" onclick="toggleTheme()"><svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/></svg></button>
+<button class="header-btn" onclick="openLogoutModal()" title="Cerrar Sesión">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+    </svg>         </div>
       </div>
-    </div>
 
-    <div style="padding:0 20px 5px">
-      <div style="position:relative;display:flex;align-items:center">
-        <input id="searchInput" type="text" placeholder="Buscar por nombre…" oninput="handleSearch()">
-        <button onclick="toggleFilterMenu()"
-                style="position:absolute;right:12px;background:none;border:none;cursor:pointer;color:var(--text-gray)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="4" y1="6" x2="20" y2="6"/><circle cx="10" cy="6" r="2"/>
-            <line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2"/>
-            <line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="18" r="2"/>
-          </svg>
-        </button>
-      </div>
-      <div id="filterMenu" style="margin-top:10px;padding:15px">
-        <div style="display:flex;gap:8px;flex-wrap:nowrap;align-items:center;overflow-x:auto">
-          <div class="filter-chip" data-filter="M" onclick="toggleFilter('M',this)">Mañana</div>
-          <div class="filter-chip" data-filter="T" onclick="toggleFilter('T',this)">Tarde</div>
-          <div class="filter-chip" data-filter="TD" onclick="toggleFilter('TD',this)">Disponibles</div>
-          <div class="clear-filters-btn" onclick="clearFilters()" title="Quitar filtros">✕</div>
+      <div style="padding: 0 20px 5px;"> <div style="position:relative; display:flex; align-items:center;">
+          <input type="text" id="searchInput" placeholder="Buscar por nombre..." oninput="handleSearch()" style="width:100%; padding:14px 50px 14px 18px; border-radius:18px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none;">
+          <button onclick="toggleFilterMenu()" style="position:absolute; right:12px; background:none; border:none; cursor:pointer; color:var(--text-gray);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="10" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="18" r="2"/></svg></button>
         </div>
-      </div>
+        <div id="filterMenu" style="margin-top:10px; padding:15px; background:var(--bg-card); border-radius:15px;">
+  <div style="display:flex; gap:8px; flex-wrap:nowrap; align-items:center; overflow-x: auto;">
+    <div class="filter-chip" onclick="toggleFilter('M')">Mañana</div>
+    <div class="filter-chip" onclick="toggleFilter('T')">Tarde</div>
+    <div class="filter-chip" onclick="toggleFilter('TD')">Disponibles</div>
+    
+    <div class="clear-filters-btn" onclick="clearFilters()" title="Quitar filtros">
+        ✕
     </div>
-
-    <div class="scroll-container" id="locationsList" style="padding-top:5px"></div>
-  </section>
-
-  <!-- DETAIL SCREEN -->
-  <section class="screen" id="detail-screen">
-    <div style="padding:20px 20px 0">
-      <button onclick="goBack()" class="header-btn">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-      </button>
-    </div>
-    <div class="scroll-container" id="detailScrollBody">
-      <h1 id="currentPointTitle" style="margin-top:10px;font-size:1.8rem">Punto</h1>
-      <div id="logisticsInfo"></div>
-      <div id="daysRow" style="display:flex;gap:8px;margin:20px 0;overflow-x:auto"></div>
-      <div id="slotsContainer"></div>
-    </div>
-  </section>
-</div>
-
-<!-- TURN DETAIL SCREEN -->
-<div id="turnDetailScreen">
-  <div style="padding:25px;display:flex;align-items:center;gap:15px">
-    <button onclick="closeTurnDetail()"
-            style="background:var(--bg-card);border:none;width:44px;height:44px;border-radius:50%;
-                   cursor:pointer;color:var(--text-main);font-size:1.2rem">✕</button>
-    <h2>Ficha de Turno</h2>
   </div>
-  <div class="scroll-container" id="turnDetailBody"></div>
-  <div id="turnActionBar" style="padding:20px"></div>
+</div>
 </div>
 
-<div id="edgeSwipeZone" class="edge-swipe-area"></div>
+<div class="scroll-container" id="locationsList" style="padding-top: 5px;"></div>
 
-<script>
-/* ─── CONFIG ──────────────────────────────────────────────────── */
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT22dGTCsHGc5Qj4EbMxn4XqPoPuUI93UblvVlwu0nPm4FOUzMvLCIv5eTCgjQXS3MiNamBMsBdJ45A/pub?output=csv';
+    </section>
 
-const POINT_DATA = {
-  "Clínica Cordillera":               { color:"#f36100", days:['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado:{nombre:"Av. Alejandro Fleming 7806",sub:"Casa Eliana Whittaker",tel:"+56982195443"}, encargado:{nombre:"Douglas García",tel:"+56934574675"} },
-  "Supermercado Lider":               { color:"#0056ff", days:['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado:{nombre:"Av. Alejandro Fleming 7806",sub:"Casa Eliana Whittaker",tel:"+56982195443"}, encargado:{nombre:"Douglas García",tel:"+56934574675"} },
-  "Santa Zita":                       { color:"#04c92f", days:['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado:{nombre:"Incahuasi 1549",sub:"Familia Tobar",tel:"+56992357751"},               encargado:{nombre:"Fernando Aldunate",tel:"+56996377733"} },
-  "Visviri/Supermercado Santa Isabel":{ color:"#f36100", days:['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado:{nombre:"Espigas 1625",sub:"Familia Muñoz",tel:"+56987274609"},                  encargado:{nombre:"Fernando Aldunate",tel:"+56996377733"} },
-  "Feria de Francisco Bilbao (Curaco)":{ color:"#0056ff", days:['Sabado'],  guardado:{nombre:"Duqueco 1965",sub:"Ingrid Arnold",tel:"+56977081786"},                                                       encargado:{nombre:"Germán Cabezas",tel:"+56967883164"} },
-  "Parque Intercomunal":              { color:"#04c92f", days:['Domingo'], guardado:{nombre:"Duqueco 1965",sub:"Ingrid Arnold",tel:"+56977081786"},                                                        encargado:{nombre:"Germán Cabezas",tel:"+56967883164"} },
-  "Patricia":                         { color:"#f36100", days:['Domingo'], guardado:{nombre:"Incahuasi 1549",sub:"Familia Tobar",tel:"+56992357751"},                                                      encargado:{nombre:"Fernando Aldunate",tel:"+56996377733"} }
-};
-
-/* ─── STATE ───────────────────────────────────────────────────── */
-let allData = [], currentDay = '', currentPoint = '';
-let activeFilters = [];
-let userName = localStorage.getItem('userName') || '';
-let searchDebounce = null;
-
-/* ─── HELPERS ─────────────────────────────────────────────────── */
-const $ = id => document.getElementById(id);
-
-function shiftColor(tipo) {
-  if (tipo.includes('TD')) return 'var(--primary-green)';
-  return tipo.startsWith('M') ? 'var(--primary-orange)' : 'var(--primary-blue)';
-}
-
-function mapQ(str) { return encodeURIComponent(str); }
-
-function logisticsHTML(p) {
-  return `
-    <div class="logistics-box orange">
-      <h4>📍 Retiro</h4>
-      <p>${p.guardado.nombre}</p>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a>
-        <a href="https://www.google.com/maps/search/?api=1&query=${mapQ(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a>
+    <section class="screen" id="detail-screen">
+      <div style="padding: 20px 20px 0;">
+        <button onclick="goBack()" class="header-btn">
+  <svg width="22" height="22" viewBox="0 0 24 24"
+       fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+</button>
       </div>
-    </div>
-    <div class="logistics-box">
-      <h4>👤 Encargado</h4>
-      <p>${p.encargado.nombre}</p>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a>
+      <div class="scroll-container" id="detailScrollBody">
+        <h1 id="currentPointTitle" style="margin-top:10px; font-size: 1.8rem;">Punto</h1>
+        <div id="logisticsInfo"></div>
+        <div id="daysRow" style="display:flex; gap:8px; margin: 20px 0; overflow-x:auto;"></div>
+        <div id="slotsContainer"></div>
       </div>
-    </div>`;
-}
+    </section>
+  </div>
 
-/* ─── DATA LOAD ───────────────────────────────────────────────── */
-async function loadExcelData() {
-  try {
-    const res  = await fetch(SHEET_URL);
-    const text = await res.text();
-    allData = text.split(/\r?\n/).slice(1)
-      .filter(r => r.trim())
-      .map((r, i) => {
-        const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-        return {
-          id:      i,
-          dia:     (c[0]||'').trim(),
-          tipo:    (c[1]||'').replace(/"/g,'').toUpperCase(),
-          nombres: (c[2]||'').replace(/"/g,''),
-          hora:    (c[3]||'').replace(/"/g,''),
-          punto:   (c[4]||'').replace(/"/g,'').trim()
-        };
-      });
-    renderHome();
-  } catch(e) { console.error('Error cargando datos', e); }
-}
+  <div id="turnDetailScreen" class="turn-detail-screen" style="position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: var(--bg-screen); z-index: 4000; transition: 0.4s; display: flex; flex-direction: column;">
+    <div style="padding: 25px; display: flex; align-items: center; gap: 15px;"><button onclick="closeTurnDetail()" style="background: var(--bg-card); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; color: var(--text-main);">✕</button><h2 style="margin:0;">Ficha de Turno</h2></div>
+    <div class="scroll-container" id="turnDetailBody"></div>
+    <div id="turnActionBar" style="padding:20px;"></div>
+  </div>
 
-/* ─── AUTH ────────────────────────────────────────────────────── */
-function saveName() {
-  const v = $('userNameInput').value.trim();
-  if (!v) return;
-  userName = v;
-  localStorage.setItem('userName', userName);
-  $('nameOverlay').style.display = 'none';
-  renderHome();
-}
+  <div id="edgeSwipeZone" class="edge-swipe-area"></div>
 
-function openLogoutModal()  { $('logoutOverlay').style.display = 'flex'; }
-function closeLogoutModal() { $('logoutOverlay').style.display = 'none'; }
-function confirmLogout()    { localStorage.removeItem('userName'); location.reload(); }
-
-/* ─── HOME RENDER ─────────────────────────────────────────────── */
-function renderHome() {
-  if (!userName) { $('nameOverlay').style.display = 'flex'; return; }
-
-  const frag = document.createDocumentFragment();
-
-  // Mis Turnos
-  const myShifts = allData.filter(d =>
-    d.nombres.toLowerCase().includes(userName.toLowerCase())
-  );
-  if (myShifts.length) {
-    const title = document.createElement('div');
-    title.className = 'section-title'; title.textContent = 'Mis Turnos';
-    frag.appendChild(title);
-
-    myShifts.forEach(s => {
-      const card = document.createElement('div');
-      card.className = 'my-shift-card';
-      card.onclick = () => openTurnDetail(s.id);
-      card.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:12px;height:12px;border-radius:50%;background:${shiftColor(s.tipo)};flex-shrink:0"></div>
-          <span style="font-weight:800;font-size:1.1rem">${s.punto}</span>
-        </div>
-        <div style="color:var(--text-gray);font-size:.9rem;font-weight:600;padding-left:22px">${s.dia} • ${s.hora}</div>
-        <div style="background:var(--bg-screen);border-radius:12px;padding:10px;margin-top:4px;font-size:.85rem;border:1px solid var(--border-color)">
-          <span style="color:var(--text-gray);font-weight:bold;display:block;margin-bottom:2px;font-size:.7rem;text-transform:uppercase">Turno de:</span>
-          <span style="font-weight:700">${s.nombres}</span>
-        </div>`;
-      frag.appendChild(card);
-    });
-  }
-
-  // Locaciones
-  const locTitle = document.createElement('div');
-  locTitle.className = 'section-title'; locTitle.textContent = 'Locaciones';
-  frag.appendChild(locTitle);
-
-  const grid = document.createElement('div');
-  grid.className = 'grid-2x2';
-  Object.entries(POINT_DATA).forEach(([name, p]) => {
-    const card = document.createElement('div');
-    card.className = 'location-card';
-    card.onclick = () => selectPoint(name);
-    card.innerHTML = `<div class="status-dot" style="background:${p.color}"></div><h2>${name}</h2>`;
-    grid.appendChild(card);
-  });
-  frag.appendChild(grid);
-
-  const home = $('locationsList');
-  home.innerHTML = '';
-  home.appendChild(frag);
-}
-
-/* ─── POINT DETAIL ────────────────────────────────────────────── */
-function selectPoint(name) {
-  currentPoint = name;
-  const p = POINT_DATA[name];
-  $('currentPointTitle').textContent = name;
-  $('logisticsInfo').innerHTML = logisticsHTML(p);
-
-  // Days row
-  const dRow = $('daysRow');
-  dRow.innerHTML = '';
-  currentDay = p.days[0];
-  p.days.forEach(d => {
-    const b = document.createElement('div');
-    b.className = `filter-chip${d === currentDay ? ' active' : ''}`;
-    b.textContent = d.substring(0,3);
-    b.onclick = () => {
-      dRow.querySelectorAll('.filter-chip').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      currentDay = d;
-      renderShifts();
+  <script>
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT22dGTCsHGc5Qj4EbMxn4XqPoPuUI93UblvVlwu0nPm4FOUzMvLCIv5eTCgjQXS3MiNamBMsBdJ45A/pub?output=csv';
+    
+    const POINT_DATA = {
+      "Clínica Cordillera": { color: "#f36100", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { nombre: "Av. Alejandro Fleming 7806", sub: "Casa Eliana Whittaker", tel: "+56982195443" }, encargado: { nombre: "Douglas García", tel: "+56934574675" } },
+      "Supermercado Lider": { color: "#0056ff", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { nombre: "Av. Alejandro Fleming 7806", sub: "Casa Eliana Whittaker", tel: "+56982195443" }, encargado: { nombre: "Douglas García", tel: "+56934574675" } },
+      "Santa Zita": { color: "#04c92f", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { nombre: "Incahuasi 1549", sub: "Familia Tobar", tel: "+56992357751" }, encargado: { nombre: "Fernando Aldunate", tel: "+56996377733" } },
+      "Visviri/Supermercado Santa Isabel": { color: "#f36100", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { nombre: "Espigas 1625", sub: "Familia Muñoz", tel: "+56987274609" }, encargado: { nombre: "Fernando Aldunate", tel: "+56996377733" } },
+      "Feria de Francisco Bilbao (Curaco)": { color: "#0056ff", days: ['Sabado'], guardado: { nombre: "Duqueco 1965", sub: "Ingrid Arnold", tel: "+56977081786" }, encargado: { nombre: "Germán Cabezas", tel: "+56967883164" } },
+      "Parque Intercomunal": { color: "#04c92f", days: ['Domingo'], guardado: { nombre: "Duqueco 1965", sub: "Ingrid Arnold", tel: "+56977081786" }, encargado: { nombre: "Germán Cabezas", tel: "+56967883164" } },
+      "Patricia": { color: "#f36100", days: ['Domingo'], guardado: { nombre: "Incahuasi 1549", sub: "Familia Tobar", tel: "+56992357751" }, encargado: { nombre: "Fernando Aldunate", tel: "+56996377733" } }
     };
-    dRow.appendChild(b);
-  });
 
-  if (window.innerWidth < 768) $('detail-screen').classList.add('active');
-  renderShifts();
-}
+    let allData = [];
+    let currentDay = '';
+    let currentPoint = "";
+    let activeFilters = [];
+    let userName = localStorage.getItem('userName') || "";
 
-function renderShifts() {
-  const filtered = allData.filter(d =>
-    d.dia.toLowerCase() === currentDay.toLowerCase() && d.punto === currentPoint
-  );
-  const cont = $('slotsContainer');
-  if (!filtered.length) {
-    cont.innerHTML = '<p style="text-align:center;opacity:.5;margin-top:20px">No hay turnos hoy.</p>';
-    return;
-  }
-  const frag = document.createDocumentFragment();
-  filtered.forEach(s => {
-    const isTD = s.tipo.includes('TD');
-    const cls  = isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M');
-    const el   = document.createElement('div');
-    el.className = `slot ${cls}`;
-    el.onclick = () => openTurnDetail(s.id);
-    el.innerHTML = `
-      <div style="display:flex;justify-content:space-between"><b>${s.nombres}</b><span>➔</span></div>
-      <div style="background:rgba(255,255,255,.2);padding:6px 14px;border-radius:999px;width:fit-content;font-size:.9rem;font-weight:700">${s.hora}</div>`;
-    frag.appendChild(el);
-  });
-  cont.innerHTML = '';
-  cont.appendChild(frag);
-}
+    async function loadExcelData() {
+      try {
+        const res = await fetch(SHEET_URL);
+        const text = await res.text();
+        const rows = text.split(/\r?\n/).slice(1).filter(r => r.trim());
+        allData = rows.map((r, index) => {
+          const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+          return { id: index, dia: (c[0]||"").trim(), tipo: (c[1]||"").replace(/"/g,"").toUpperCase(), nombres: (c[2]||"").replace(/"/g,""), hora: (c[3]||"").replace(/"/g,""), punto: (c[4]||"").replace(/"/g,"").trim() };
+        });
+        renderHome();
+      } catch (e) { console.error("Error cargando datos", e); }
+    }
 
-/* ─── TURN DETAIL ─────────────────────────────────────────────── */
-function openTurnDetail(id) {
-  const s = allData.find(x => x.id === id);
-  const p = POINT_DATA[s.punto];
-  if (!p) return;
+    function saveName() {
+        const input = document.getElementById('userNameInput');
+        if(input.value.trim()){
+            userName = input.value.trim();
+            localStorage.setItem('userName', userName);
+            document.getElementById('nameOverlay').style.display = 'none';
+            renderHome();
+        }
+    }
 
-  const isTD = s.tipo.includes('TD');
-  const isM  = s.tipo.startsWith('M');
-  const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
+    function openLogoutModal() { document.getElementById('logoutOverlay').style.display = 'flex'; }
+    function closeLogoutModal() { document.getElementById('logoutOverlay').style.display = 'none'; }
+    function confirmLogout() { localStorage.removeItem('userName'); location.reload(); }
 
-  $('turnDetailBody').innerHTML = `
-    <div style="background:var(--bg-card);border-radius:20px;padding:25px;margin-bottom:20px">
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-        <span style="width:fit-content;font-size:.75rem;font-weight:800;color:${estadoColor};
-                     border:1px solid ${estadoColor};padding:4px 10px;border-radius:8px">
-          ${isTD ? 'Disponible' : 'Ocupado'}
-        </span>
-        <span style="font-size:.85rem;color:var(--text-gray);font-weight:700">
-          ⏰ ${isM ? 'Turno Mañana' : 'Turno Tarde'}
-        </span>
-      </div>
-      <h1 style="margin:0 0 4px">${s.nombres}</h1>
-      <h3 style="margin:0;font-weight:600">${s.hora}</h3>
-    </div>
-    ${logisticsHTML(p).replace(
-      '📞 Llamar</a>\n      </div>\n    </div>',
-      `📞 Llamar</a>
-        <a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" class="btn-mini">💬 WhatsApp</a>
-      </div>
-    </div>`
-    )}`;
+    function renderHome() {
+        if(!userName) {
+            document.getElementById('nameOverlay').style.display = 'flex';
+            return;
+        }
 
-  let btns = `<a href="https://www.google.com/maps/search/?api=1&query=${mapQ(s.punto)}" target="_blank"
-                 style="background:var(--bg-card);color:var(--text-main);border:1px solid var(--border-color);
-                        margin-bottom:12px;display:flex;padding:15px;border-radius:15px;
-                        justify-content:center;text-decoration:none;font-weight:bold">📍 Cómo llegar</a>`;
-  if (isTD) {
-    const msg = `Hola! Quiero inscribirme en el turno disponible:\n📍 Punto: ${s.punto}\n📅 Día: ${s.dia}\n⏰ Hora: ${s.hora}\n👤 Nombre: ${userName}`;
-    btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent(msg)}" target="_blank"
-                style="background:#25D366;color:#fff;padding:18px;border-radius:16px;font-weight:800;
-                       width:100%;display:flex;justify-content:center;text-decoration:none">Solicitar Turno</a>`;
-  }
-  $('turnActionBar').innerHTML = btns;
-  $('turnDetailScreen').classList.add('open');
-}
+        const home = document.getElementById('locationsList');
+        home.innerHTML = '';
 
-/* ─── SEARCH & FILTERS ────────────────────────────────────────── */
-function handleSearch() {
-  clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(_doSearch, 120);
-}
+        const myShifts = allData.filter(d => d.nombres.toLowerCase().includes(userName.toLowerCase()));
+        if(myShifts.length > 0) {
+            home.innerHTML += `<div class="section-title">Mis Turnos</div>`;
+            myShifts.forEach(s => {
+                const color = s.tipo.includes('TD') ? 'var(--primary-green)' : (s.tipo.startsWith('M') ? 'var(--primary-orange)' : 'var(--primary-blue)');
+                home.innerHTML += `
+                    <div class="my-shift-card" onclick="openTurnDetail(${s.id})">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width:12px; height:12px; border-radius:50%; background:${color};"></div>
+                            <span style="font-weight:800; font-size:1.1rem;">${s.punto}</span>
+                        </div>
+                        <div style="color:var(--text-gray); font-size:0.9rem; font-weight:600; padding-left:22px;">
+                            ${s.dia} • ${s.hora}
+                        </div>
+                        <div style="background:var(--bg-screen); border-radius:12px; padding:10px; margin-top:4px; font-size:0.85rem; border:1px solid var(--border-color);">
+                            <span style="color:var(--text-gray); font-weight:bold; display:block; margin-bottom:2px; font-size:0.7rem; text-transform:uppercase;">Turno de:</span>
+                            <span style="font-weight:700;">${s.nombres}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
-function _doSearch() {
-  const q = $('searchInput').value.toLowerCase().trim();
-  if (!q && !activeFilters.length) { renderHome(); return; }
+        home.innerHTML += `<div class="section-title">Locaciones</div>`;
+        const grid = document.createElement('div');
+        grid.className = "grid-2x2";
+        grid.innerHTML = Object.keys(POINT_DATA).map(name => `
+            <div class="location-card" onclick="selectPoint('${name}')">
+                <div class="status-dot" style="background:${POINT_DATA[name].color}"></div>
+                <h2>${name}</h2>
+            </div>
+        `).join('');
+        home.appendChild(grid);
+    }
 
-  let res = allData.filter(r => r.nombres.toLowerCase().includes(q));
-  if (activeFilters.length) {
-    res = res.filter(r => activeFilters.some(f => {
-      if (f === 'M')  return r.tipo.startsWith('M');
-      if (f === 'T')  return r.tipo.startsWith('T') && !r.tipo.includes('TD');
-      if (f === 'TD') return r.tipo.includes('TD');
-    }));
-  }
+    function selectPoint(name) {
+      currentPoint = name; const p = POINT_DATA[name];
+      document.getElementById('currentPointTitle').innerText = name;
+      document.getElementById('logisticsInfo').innerHTML = `<div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
+      const dRow = document.getElementById('daysRow'); dRow.innerHTML = ''; currentDay = p.days[0];
+      p.days.forEach(d => {
+        const b = document.createElement('div'); b.className = `filter-chip ${d === currentDay ? 'active' : ''}`; b.innerText = d.substring(0,3);
+        b.onclick = () => { document.querySelectorAll('#daysRow .filter-chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentDay = d; renderShifts(); };
+        dRow.appendChild(b);
+      });
+      if (window.innerWidth < 768) document.getElementById('detail-screen').classList.add('active');
+      renderShifts();
+    }
 
-  const frag = document.createDocumentFragment();
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'display:grid;gap:10px';
+    function renderShifts() {
+      const cont = document.getElementById('slotsContainer');
+      const filtered = allData.filter(d => d.dia.toLowerCase() === currentDay.toLowerCase() && d.punto === currentPoint);
+      cont.innerHTML = filtered.map(s => {
+        const isTD = s.tipo.includes('TD');
+        return `<div class="slot ${isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M')}" onclick="openTurnDetail(${s.id})"><div style="display:flex; justify-content:space-between"><b>${s.nombres}</b><span>➔</span></div><div style="background:rgba(255,255,255,0.2); padding:6px 14px; border-radius:999px; width:fit-content; font-size:0.9rem; font-weight:700;">${s.hora}</div></div>`;
+      }).join('') || '<p style="text-align:center; opacity:0.5; margin-top:20px;">No hay turnos hoy.</p>';
+    }
 
-  res.forEach(r => {
-    const color = shiftColor(r.tipo);
-    const el = document.createElement('div');
-    el.className = 'logistics-box';
-    el.style.cssText = 'cursor:pointer;display:flex;align-items:center;gap:14px';
-    el.onclick = () => openTurnDetail(r.id);
-    el.innerHTML = `
-      <div style="width:14px;height:14px;border-radius:50%;background:${color};flex-shrink:0"></div>
-      <div>
-        <div style="font-weight:800">${r.nombres}</div>
-        <div style="font-size:.8rem;color:var(--text-gray)">${r.punto} • ${r.dia}</div>
-      </div>`;
-    wrap.appendChild(el);
-  });
+    function openTurnDetail(id) {
+      const s = allData.find(x => x.id === id); const p = POINT_DATA[s.punto];
+      if(!p) return;
+      const isTD = s.tipo.includes('TD'), isM = s.tipo.startsWith('M');
+      const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
+      document.getElementById('turnDetailBody').innerHTML = `<div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;"><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"><span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${isTD?'Disponible':'Ocupado'}</span><span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':'Turno Tarde'}</span></div><h1 style="margin:0;">${s.nombres}</h1><h3 style="margin:0;">${s.hora}</h3></div><div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" class="btn-mini">💬 WhatsApp</a><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
+      let btns = `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold;">📍 Cómo llegar</a>`;
+      if (isTD) {
+        const mensaje = `Hola! Quiero inscribirme en el turno disponible:
+📍 Punto: ${s.punto}
+📅 Día: ${s.dia}
+⏰ Hora: ${s.hora}
+👤 Nombre: ${userName}`;
+        btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent(mensaje)}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none;">Solicitar Turno</a>`;
+      }      
+      document.getElementById('turnActionBar').innerHTML = btns;
+      document.getElementById('turnDetailScreen').style.left = '0';
+    }
 
-  frag.appendChild(wrap);
-  const home = $('locationsList');
-  home.innerHTML = '';
-  home.appendChild(frag);
-}
+    function handleSearch() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const home = document.getElementById('locationsList');
+      if(!q && !activeFilters.length) { renderHome(); return; }
+      
+      let res = allData.filter(r => r.nombres.toLowerCase().includes(q));
+      
+      if(activeFilters.length > 0) {
+        res = res.filter(r => {
+          return activeFilters.some(filter => {
+            if(filter === 'M') return r.tipo.startsWith('M');
+            if(filter === 'T') return r.tipo.startsWith('T') && !r.tipo.includes('TD');
+            if(filter === 'TD') return r.tipo.includes('TD');
+            return false;
+          });
+        });
+      }
+      
+      home.innerHTML = `<div style="display:grid; gap:10px">${res.map(r => {
+        const isTD = r.tipo.includes('TD');
+        const isM = r.tipo.startsWith('M');
+        const color = isTD ? 'var(--primary-green)' : (isM ? 'var(--primary-orange)' : 'var(--primary-blue)');
+        return `<div class="logistics-box" onclick="openTurnDetail(${r.id})" style="cursor:pointer; display:flex; align-items:center; gap:14px;"><div style="width:14px; height:14px; border-radius:50%; background:${color}; flex-shrink:0;"></div><div><div style="font-weight:800">${r.nombres}</div><div style="font-size:0.8rem; color:var(--text-gray)">${r.punto} • ${r.dia}</div></div></div>`;
+      }).join('')}</div>`;
+    }
 
-function toggleFilterMenu() { $('filterMenu').classList.toggle('open'); }
+    function toggleFilterMenu() { document.getElementById('filterMenu').classList.toggle('open'); }
+    
+    function toggleFilter(f) { 
+        const chip = event.target;
+        chip.classList.toggle('active'); 
+        const i = activeFilters.indexOf(f); 
+        if(i>-1) activeFilters.splice(i,1); else activeFilters.push(f); 
+        handleSearch(); 
+    }
 
-function toggleFilter(f, chipEl) {
-  chipEl.classList.toggle('active');
-  const i = activeFilters.indexOf(f);
-  if (i > -1) activeFilters.splice(i, 1); else activeFilters.push(f);
-  handleSearch();
-}
+    function clearFilters() {
+        activeFilters = [];
+        const chips = document.querySelectorAll('#filterMenu .filter-chip');
+        chips.forEach(chip => chip.classList.remove('active'));
+        handleSearch();
+    }
 
-function clearFilters() {
-  activeFilters = [];
-  document.querySelectorAll('#filterMenu .filter-chip').forEach(c => c.classList.remove('active'));
-  handleSearch();
-}
+    function goBack() { document.getElementById('detail-screen').classList.remove('active'); }
+    function closeTurnDetail() { document.getElementById('turnDetailScreen').style.left = '100%'; }
+    function toggleTheme() { document.body.classList.toggle('dark-mode'); }
 
-/* ─── NAVIGATION ──────────────────────────────────────────────── */
-function goBack()         { $('detail-screen').classList.remove('active'); }
-function closeTurnDetail(){ $('turnDetailScreen').classList.remove('open'); }
-function toggleTheme()    { document.body.classList.toggle('dark-mode'); }
-
-/* ─── INIT ────────────────────────────────────────────────────── */
-loadExcelData();
-</script>
+    // Inicialización
+    loadExcelData();
+    
+  </script>
 </body>
 </html>
