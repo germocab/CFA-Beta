@@ -5,33 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inicio</title>
   <link rel="icon" href="favicon_io2/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon_io2/favicon-32x32.png">
-<link rel="apple-touch-icon" href="favicon_io2/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon_io2/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="favicon_io2/apple-touch-icon.png">
   <style>
-/* --- ESTILOS ORIGINALES PRESERVADOS --- */
-body {
-  transition: background-color 0.35s ease, color 0.35s ease;
-}
-
-.screen, .logistics-box, .location-card, .filter-chip, .header-btn {
-  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-}
-
-.screen { transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease; }
-#detail-screen { opacity: 0; }
-#detail-screen.active { opacity: 1; }
-
-#filterMenu {
-  max-height: 0; opacity: 0; overflow: hidden; transform: translateY(-6px);
-  transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.35s ease;
-}
-#filterMenu.open { max-height: 300px; opacity: 1; transform: translateY(0); }
-
+/* --- VARIABLES Y BASES --- */
 :root {
   --bg-body: #f0f2f5; --bg-screen: #ffffff; --bg-card: #f8f9fa;
   --text-main: #1a1a1a; --text-gray: #65676b; --primary-orange: #f36100;
   --primary-blue: #0056ff; --primary-green: #28a745; --radius: 24px;
   --border-color: #e4e6eb; --shadow: 0 4px 12px rgba(0,0,0,0.08);
+  /* Curva de rebote Apple (Spring) */
+  --spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --liquid-easing: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 body.dark-mode {
@@ -39,339 +24,149 @@ body.dark-mode {
   --text-main: #ffffff; --text-gray: #a0a0a0; --border-color: rgba(255,255,255,0.05);
 }
 
-* { box-sizing: border-box; }
-body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); overflow-x: hidden; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { 
+  margin: 0; font-family: 'Segoe UI', sans-serif; 
+  background-color: var(--bg-body); color: var(--text-main); 
+  overflow-x: hidden; 
+  transition: background-color 0.4s ease;
+}
 
+/* --- ANIMACIONES DE ELASTICIDAD (BOUNCY) --- */
+.screen, .logistics-box, .location-card, .filter-chip, .header-btn, .slot, .my-shift-card {
+  transition: 
+    transform 0.4s var(--spring-easing), 
+    background-color 0.3s ease, 
+    box-shadow 0.3s ease,
+    opacity 0.3s ease;
+}
+
+/* Efecto de presión (Squish) */
+.location-card:active, .slot:active, .my-shift-card:active, .header-btn:active, .filter-chip:active {
+  transform: scale(0.92);
+}
+
+/* --- ESTRUCTURA --- */
 .app-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 1100px; padding: 20px; margin: auto; }
-.screen { background-color: var(--bg-screen); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; }
+
+.screen { 
+  background-color: var(--bg-screen); border-radius: var(--radius); 
+  overflow: hidden; height: 850px; display: flex; flex-direction: column; 
+  box-shadow: var(--shadow); border: 1px solid var(--border-color); 
+  position: relative; 
+  backdrop-filter: blur(10px);
+}
+
 .scroll-container { padding: 20px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
 
 .header-btn {
   background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main);
-  width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex;
-  align-items: center; justify-content: center; font-size: 1.2rem; position: relative; transition: transform 0.2s;
+  width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; font-size: 1.1rem;
 }
 
-.grid-2x2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; align-items: stretch; }
+.grid-2x2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+
 .location-card { 
   padding: 20px 10px; border-radius: var(--radius); cursor: pointer; background-color: var(--bg-card); 
   display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; 
-  gap: 12px; border: 2px solid transparent; min-height: 190px; height: 100%; 
+  gap: 12px; border: 1px solid var(--border-color); min-height: 180px;
 }
-.status-dot { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; }
+
+.status-dot { 
+  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; 
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
 .location-card h2 { margin: 0; font-size: 0.95rem; font-weight: 800; line-height: 1.2; }
 
-.logistics-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 15px; margin-bottom: 15px; }
-.logistics-box.orange { background: rgba(243, 97, 0, 0.05); border-color: rgba(243, 97, 0, 0.2); }
-
-.filter-chip { padding: 8px 15px; border-radius: 20px; background: var(--bg-screen); border: 1px solid var(--border-color); font-size: 0.85rem; cursor: pointer; font-weight: 600; color: var(--text-gray); }
-.filter-chip.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
-
-.slot { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; color: white; display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: transform 0.2s; }
-.turno-M { background-color: var(--primary-orange); }
-.turno-T { background-color: var(--primary-blue); }
-.turno-TD { background-color: var(--primary-green); }
-
-/* --- AJUSTES SOLICITADOS --- */
-#nameOverlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
-    z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px;
+/* --- FILTROS Y BUSQUEDA --- */
+#filterMenu {
+  max-height: 0; opacity: 0; overflow: hidden; transform: scale(0.95) translateY(-10px);
+  transition: all 0.4s var(--spring-easing);
 }
-#nameModal {
-    background: var(--bg-screen); padding: 30px; border-radius: 28px;
-    width: 100%; max-width: 400px; text-align: center;
+#filterMenu.open { max-height: 300px; opacity: 1; transform: scale(1) translateY(0); }
+
+.filter-chip { 
+  padding: 8px 18px; border-radius: 20px; background: var(--bg-screen); 
+  border: 1px solid var(--border-color); font-size: 0.85rem; cursor: pointer; 
+  font-weight: 600; color: var(--text-gray); white-space: nowrap;
+}
+.filter-chip.active { 
+  background: var(--primary-orange); color: white; border-color: var(--primary-orange);
+  box-shadow: 0 4px 12px rgba(243, 97, 0, 0.3);
 }
 
-.section-title { 
-    font-size: 1.1rem; 
-    font-weight: 800; 
-    margin: 10px 0 10px 5px; 
-    color: var(--text-main); 
+/* --- SLOTS Y CARDS --- */
+.slot { 
+  padding: 20px; border-radius: var(--radius); margin-bottom: 12px; 
+  color: white; display: flex; flex-direction: column; gap: 10px; cursor: pointer;
 }
+.turno-M { background: linear-gradient(135deg, #f36100, #ff8c42); }
+.turno-T { background: linear-gradient(135deg, #0056ff, #4d8aff); }
+.turno-TD { background: linear-gradient(135deg, #28a745, #5ddb7b); }
 
-/* Tarjeta de Mis Turnos Optimizada */
 .my-shift-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 16px;
-    margin-bottom: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    cursor: pointer;
+  background: var(--bg-card); border: 1px solid var(--border-color);
+  border-radius: 20px; padding: 16px; margin-bottom: 12px; cursor: pointer;
 }
+
+/* --- OVERLAYS (MODALES) --- */
+#nameOverlay, #logoutOverlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
+  z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+#nameModal, #logoutOverlay > div {
+  background: var(--bg-screen); padding: 30px; border-radius: 28px;
+  width: 100%; max-width: 400px; text-align: center;
+  transform: scale(0.8); animation: modalPop 0.4s var(--spring-easing) forwards;
+}
+
+@keyframes modalPop { to { transform: scale(1); } }
+
+/* --- DETALLE SCREEN (DESLIZAMIENTO) --- */
+#detail-screen { 
+  opacity: 0; transform: translateX(30px); 
+  transition: transform 0.5s var(--liquid-easing), opacity 0.4s ease;
+}
+#detail-screen.active { opacity: 1; transform: translateX(0); }
 
 @media (max-width: 767px) {
   .app-wrapper { display: block; padding: 0; }
   .screen { height: 100vh; border-radius: 0; border: none; width: 100%; }
-  #detail-screen { position: fixed; top: 0; left: 100%; width: 100%; z-index: 2000; }
-  #detail-screen.active { transform: translateX(-100%); }
+  #detail-screen { 
+    position: fixed; top: 0; left: 100%; width: 100%; z-index: 2000; 
+    transform: translateX(0); transition: left 0.5s var(--liquid-easing);
+  }
+  #detail-screen.active { left: 0; }
 }
 
 @media (min-width: 768px) {
-  .app-wrapper { display: grid; grid-template-columns: 420px 1fr; gap: 20px; }
-  #detail-screen { position: relative; opacity: 1 !important; transform: none !important; left: auto !important; }
+  .app-wrapper { display: grid; grid-template-columns: 400px 1fr; gap: 20px; }
+  #detail-screen { opacity: 1; transform: none; }
 }
 
-#locationsList {
-    flex: 1; 
-    padding-bottom: 20px; 
-    display: block;          
+/* Estilo Liquid Glass para inputs */
+input {
+  transition: all 0.3s var(--spring-easing);
+}
+input:focus {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 4px rgba(243, 97, 0, 0.1);
 }
 
-/* --- MEJORA DE TARJETAS Y BOTONES --- */
-.logistics-box {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 18px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-
-.logistics-box.orange {
-    background: linear-gradient(145deg, rgba(243, 97, 0, 0.08), rgba(243, 97, 0, 0.02));
-    border-color: rgba(243, 97, 0, 0.15);
-}
-
-.logistics-box h4 {
-    margin: 0 0 8px 0;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-gray);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.logistics-box p {
-    margin: 0;
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--text-main);
-}
-
-.btn-mini {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 14px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 700;
-    transition: all 0.2s ease;
-    border: 1px solid var(--border-color);
-    background: var(--bg-screen);
-    color: var(--text-main);
-}
-
-.btn-mini:active {
-    transform: scale(0.96);
-}
-
-.logistics-box.orange .btn-mini {
-    border-color: rgba(243, 97, 0, 0.2);
-    color: var(--primary-orange);
-}
-
-.btn-whatsapp {
-    background: #25D366 !important;
-    color: white !important;
-    border: none !important;
-}
-
-/* ============================= */
-/* ✨ LIQUID GLASS UPGRADE */
-/* ============================= */
-
-:root {
-  --glass-blur: blur(18px);
-  --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-bg-dark: rgba(30, 30, 30, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.35);
-  --glass-border-dark: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 10px 30px rgba(0,0,0,0.12);
-}
-
-body {
-  background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(243,97,0,0.10), transparent),
-    radial-gradient(900px 500px at 90% 110%, rgba(0,86,255,0.10), transparent),
-    var(--bg-body);
-}
-
-.screen,
-.location-card,
-.logistics-box,
-.my-shift-card,
-#filterMenu,
-#nameModal,
-#logoutOverlay > div {
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-}
-
-body.dark-mode .screen,
-body.dark-mode .location-card,
-body.dark-mode .logistics-box,
-body.dark-mode .my-shift-card,
-body.dark-mode #filterMenu,
-body.dark-mode #nameModal,
-body.dark-mode #logoutOverlay > div {
-  background: var(--glass-bg-dark);
-  border: 1px solid var(--glass-border-dark);
-}
-
-.location-card,
-.my-shift-card,
-.slot,
-.header-btn,
-.btn-mini {
-  transition:
-    transform 0.25s cubic-bezier(.22,1,.36,1),
-    box-shadow 0.25s ease,
-    background 0.25s ease,
-    border-color 0.25s ease;
-}
-
-.location-card:hover,
-.my-shift-card:hover,
-.slot:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.14);
-}
-
-.header-btn:hover,
-.btn-mini:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-}
-
-.filter-chip {
-  backdrop-filter: blur(10px);
-  background: rgba(255,255,255,0.5);
-}
-
-body.dark-mode .filter-chip {
-  background: rgba(255,255,255,0.06);
-}
-
-.filter-chip.active {
-  box-shadow: 0 6px 18px rgba(243,97,0,0.35);
-}
-
-#searchInput {
-  backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.6);
-  border: 1px solid rgba(255,255,255,0.4);
-  transition: all 0.25s ease;
-}
-
-body.dark-mode #searchInput {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-#searchInput:focus {
-  box-shadow: 0 0 0 3px rgba(243,97,0,0.18);
-  transform: translateY(-1px);
-}
-
-.status-dot {
-  box-shadow: 0 0 0 6px rgba(255,255,255,0.25),
-              0 8px 18px rgba(0,0,0,0.18);
-}
-
-#nameOverlay,
-#logoutOverlay {
-  backdrop-filter: blur(14px);
-}
-
-.screen {
-  transition:
-    transform 0.55s cubic-bezier(.22,1,.36,1),
-    opacity 0.3s ease,
-    background-color 0.35s ease,
-    border-color 0.35s ease,
-    box-shadow 0.35s ease;
-}
-
-.slot {
-  position: relative;
-  overflow: hidden;
-}
-
-.slot::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    120deg,
-    transparent 20%,
-    rgba(255,255,255,0.18),
-    transparent 80%
-  );
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.slot:hover::after {
-  opacity: 1;
-}
-
-.edge-swipe-area {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 24px;
-  height: 100%;
-  z-index: 5000;
-  background: transparent;
-}
-
-html, body {
-  overscroll-behavior-x: contain;
-}
-
-.screen,
-#detail-screen,
-#turnDetailScreen {
-  touch-action: pan-y;
-}
-
-/* ESTILO DEL NUEVO BOTÓN QUITAR FILTROS */
 .clear-filters-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(243, 97, 0, 0.1);
-  color: var(--primary-orange);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 1.2rem;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(243, 97, 0, 0.2);
-  margin-left: 5px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(243, 97, 0, 0.1); color: var(--primary-orange);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.3s var(--spring-easing);
 }
-
-.clear-filters-btn:hover {
-  background: var(--primary-orange);
-  color: white;
-  transform: rotate(90deg);
-}
-    
+.clear-filters-btn:hover { transform: rotate(90deg) scale(1.1); }
   </style>
 </head>
 <body>
@@ -389,21 +184,16 @@ html, body {
     </div>
   </div>
 
-<div id="logoutOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px;">
-  <div style="background: var(--bg-screen); padding: 30px; border-radius: 28px; width: 100%; max-width: 350px; text-align: center; box-shadow: var(--shadow);">
+<div id="logoutOverlay">
+  <div style="box-shadow: var(--shadow);">
       <div style="background: rgba(243, 97, 0, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: var(--primary-orange);">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </div>
       <h2 style="margin-top:0; font-size: 1.4rem;">¿Cerrar sesión?</h2>
-      <p style="color:var(--text-gray); margin-bottom:25px; font-size: 0.95rem;">Tendrás que ingresar tu nombre nuevamente para entrar.</p>
-      
+      <p style="color:var(--text-gray); margin-bottom:25px; font-size: 0.95rem;">Tendrás que ingresar tu nombre nuevamente.</p>
       <div style="display:flex; gap:12px;">
-        <button onclick="closeLogoutModal()" style="flex:1; padding:14px; border-radius:15px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:bold; cursor:pointer;">
-            Cancelar
-        </button>
-        <button onclick="confirmLogout()" style="flex:1; padding:14px; border-radius:15px; border:none; background:var(--primary-orange); color:white; font-weight:bold; cursor:pointer;">
-            Sí, salir
-        </button>
+        <button onclick="closeLogoutModal()" style="flex:1; padding:14px; border-radius:15px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:bold; cursor:pointer;">Cancelar</button>
+        <button onclick="confirmLogout()" style="flex:1; padding:14px; border-radius:15px; border:none; background:var(--primary-orange); color:white; font-weight:bold; cursor:pointer;">Sí, salir</button>
       </div>
   </div>
 </div>
@@ -411,62 +201,52 @@ html, body {
   <div class="app-wrapper">
     <section class="screen" id="list-screen">
       <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:25px 25px 10px;">
-        <h1 style="margin:0; font-size: 2.2rem;">Inicio</h1>
+        <h1 style="margin:0; font-size: 2.2rem; letter-spacing: -1px;">Inicio</h1>
         <div style="display:flex; gap:12px;">
-          <button class="header-btn" onclick="toggleTheme()"><svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/></svg></button>
-<button class="header-btn" onclick="openLogoutModal()" title="Cerrar Sesión">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-    </svg>         </div>
+          <button class="header-btn" onclick="toggleTheme()"><svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/></svg></button>
+          <button class="header-btn" onclick="openLogoutModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+        </div>
       </div>
 
-      <div style="padding: 0 20px 5px;"> <div style="position:relative; display:flex; align-items:center;">
+      <div style="padding: 0 20px 5px;"> 
+        <div style="position:relative; display:flex; align-items:center;">
           <input type="text" id="searchInput" placeholder="Buscar por nombre..." oninput="handleSearch()" style="width:100%; padding:14px 50px 14px 18px; border-radius:18px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none;">
           <button onclick="toggleFilterMenu()" style="position:absolute; right:12px; background:none; border:none; cursor:pointer; color:var(--text-gray);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="10" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="18" r="2"/></svg></button>
         </div>
-        <div id="filterMenu" style="margin-top:10px; padding:15px; background:var(--bg-card); border-radius:15px;">
-  <div style="display:flex; gap:8px; flex-wrap:nowrap; align-items:center; overflow-x: auto;">
-    <div class="filter-chip" onclick="toggleFilter('M')">Mañana</div>
-    <div class="filter-chip" onclick="toggleFilter('T')">Tarde</div>
-    <div class="filter-chip" onclick="toggleFilter('TD')">Disponibles</div>
-    
-    <div class="clear-filters-btn" onclick="clearFilters()" title="Quitar filtros">
-        ✕
-    </div>
-  </div>
-</div>
-</div>
+        <div id="filterMenu" style="margin-top:10px; padding:5px 0;">
+          <div style="display:flex; gap:8px; flex-wrap:nowrap; align-items:center; overflow-x: auto; padding-bottom: 5px;">
+            <div class="filter-chip" onclick="toggleFilter('M')">Mañana</div>
+            <div class="filter-chip" onclick="toggleFilter('T')">Tarde</div>
+            <div class="filter-chip" onclick="toggleFilter('TD')">Disponibles</div>
+            <div class="clear-filters-btn" onclick="clearFilters()">✕</div>
+          </div>
+        </div>
+      </div>
 
-<div class="scroll-container" id="locationsList" style="padding-top: 5px;"></div>
-
+      <div class="scroll-container" id="locationsList" style="padding-top: 10px;"></div>
     </section>
 
     <section class="screen" id="detail-screen">
       <div style="padding: 20px 20px 0;">
-        <button onclick="goBack()" class="header-btn">
-  <svg width="22" height="22" viewBox="0 0 24 24"
-       fill="none" stroke="currentColor" stroke-width="2"
-       stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="15 18 9 12 15 6"/>
-  </svg>
-</button>
+        <button onclick="goBack()" class="header-btn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       </div>
       <div class="scroll-container" id="detailScrollBody">
         <h1 id="currentPointTitle" style="margin-top:10px; font-size: 1.8rem;">Punto</h1>
         <div id="logisticsInfo"></div>
-        <div id="daysRow" style="display:flex; gap:8px; margin: 20px 0; overflow-x:auto;"></div>
+        <div id="daysRow" style="display:flex; gap:8px; margin: 20px 0; overflow-x:auto; padding-bottom:10px;"></div>
         <div id="slotsContainer"></div>
       </div>
     </section>
   </div>
 
-  <div id="turnDetailScreen" class="turn-detail-screen" style="position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: var(--bg-screen); z-index: 4000; transition: 0.4s; display: flex; flex-direction: column;">
-    <div style="padding: 25px; display: flex; align-items: center; gap: 15px;"><button onclick="closeTurnDetail()" style="background: var(--bg-card); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; color: var(--text-main);">✕</button><h2 style="margin:0;">Ficha de Turno</h2></div>
+  <div id="turnDetailScreen" style="position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: var(--bg-screen); z-index: 4000; transition: transform 0.5s var(--liquid-easing); display: flex; flex-direction: column;">
+    <div style="padding: 25px; display: flex; align-items: center; gap: 15px;">
+      <button onclick="closeTurnDetail()" class="header-btn" style="border:none;">✕</button>
+      <h2 style="margin:0;">Ficha de Turno</h2>
+    </div>
     <div class="scroll-container" id="turnDetailBody"></div>
     <div id="turnActionBar" style="padding:20px;"></div>
   </div>
-
-  <div id="edgeSwipeZone" class="edge-swipe-area"></div>
 
   <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT22dGTCsHGc5Qj4EbMxn4XqPoPuUI93UblvVlwu0nPm4FOUzMvLCIv5eTCgjQXS3MiNamBMsBdJ45A/pub?output=csv';
@@ -525,7 +305,7 @@ html, body {
 
         const myShifts = allData.filter(d => d.nombres.toLowerCase().includes(userName.toLowerCase()));
         if(myShifts.length > 0) {
-            home.innerHTML += `<div class="section-title">Mis Turnos</div>`;
+            home.innerHTML += `<div style="font-weight:800; margin: 10px 5px;">Mis Turnos</div>`;
             myShifts.forEach(s => {
                 const color = s.tipo.includes('TD') ? 'var(--primary-green)' : (s.tipo.startsWith('M') ? 'var(--primary-orange)' : 'var(--primary-blue)');
                 home.innerHTML += `
@@ -537,16 +317,12 @@ html, body {
                         <div style="color:var(--text-gray); font-size:0.9rem; font-weight:600; padding-left:22px;">
                             ${s.dia} • ${s.hora}
                         </div>
-                        <div style="background:var(--bg-screen); border-radius:12px; padding:10px; margin-top:4px; font-size:0.85rem; border:1px solid var(--border-color);">
-                            <span style="color:var(--text-gray); font-weight:bold; display:block; margin-bottom:2px; font-size:0.7rem; text-transform:uppercase;">Turno de:</span>
-                            <span style="font-weight:700;">${s.nombres}</span>
-                        </div>
                     </div>
                 `;
             });
         }
 
-        home.innerHTML += `<div class="section-title">Locaciones</div>`;
+        home.innerHTML += `<div style="font-weight:800; margin: 20px 5px 10px;">Locaciones</div>`;
         const grid = document.createElement('div');
         grid.className = "grid-2x2";
         grid.innerHTML = Object.keys(POINT_DATA).map(name => `
@@ -561,14 +337,24 @@ html, body {
     function selectPoint(name) {
       currentPoint = name; const p = POINT_DATA[name];
       document.getElementById('currentPointTitle').innerText = name;
-      document.getElementById('logisticsInfo').innerHTML = `<div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
+      document.getElementById('logisticsInfo').innerHTML = `<div class="logistics-box" style="background:rgba(243,97,0,0.05); border-color:rgba(243,97,0,0.1); padding:18px; border-radius:20px; margin-bottom:15px;">
+        <h4 style="margin:0; font-size:0.7rem; color:var(--text-gray); text-transform:uppercase;">📍 Retiro</h4>
+        <p style="margin:5px 0; font-weight:700;">${p.guardado.nombre}</p>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <a href="tel:${p.guardado.tel}" style="flex:1; background:white; text-decoration:none; text-align:center; padding:10px; border-radius:12px; font-size:0.8rem; font-weight:bold; color:var(--text-main); border:1px solid var(--border-color);">📞 Llamar</a>
+        </div>
+      </div>`;
+      
       const dRow = document.getElementById('daysRow'); dRow.innerHTML = ''; currentDay = p.days[0];
       p.days.forEach(d => {
         const b = document.createElement('div'); b.className = `filter-chip ${d === currentDay ? 'active' : ''}`; b.innerText = d.substring(0,3);
-        b.onclick = () => { document.querySelectorAll('#daysRow .filter-chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentDay = d; renderShifts(); };
+        b.onclick = () => { 
+          document.querySelectorAll('#daysRow .filter-chip').forEach(x=>x.classList.remove('active')); 
+          b.classList.add('active'); currentDay = d; renderShifts(); 
+        };
         dRow.appendChild(b);
       });
-      if (window.innerWidth < 768) document.getElementById('detail-screen').classList.add('active');
+      document.getElementById('detail-screen').classList.add('active');
       renderShifts();
     }
 
@@ -577,28 +363,42 @@ html, body {
       const filtered = allData.filter(d => d.dia.toLowerCase() === currentDay.toLowerCase() && d.punto === currentPoint);
       cont.innerHTML = filtered.map(s => {
         const isTD = s.tipo.includes('TD');
-        return `<div class="slot ${isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M')}" onclick="openTurnDetail(${s.id})"><div style="display:flex; justify-content:space-between"><b>${s.nombres}</b><span>➔</span></div><div style="background:rgba(255,255,255,0.2); padding:6px 14px; border-radius:999px; width:fit-content; font-size:0.9rem; font-weight:700;">${s.hora}</div></div>`;
+        return `<div class="slot ${isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M')}" onclick="openTurnDetail(${s.id})">
+          <div style="display:flex; justify-content:space-between"><b>${s.nombres}</b><span>➔</span></div>
+          <div style="background:rgba(255,255,255,0.2); padding:6px 14px; border-radius:999px; width:fit-content; font-size:0.85rem; font-weight:700;">${s.hora}</div>
+        </div>`;
       }).join('') || '<p style="text-align:center; opacity:0.5; margin-top:20px;">No hay turnos hoy.</p>';
     }
 
     function openTurnDetail(id) {
-      const s = allData.find(x => x.id === id); const p = POINT_DATA[s.punto];
+      const s = allData.find(x => x.id === id);
+      const p = POINT_DATA[s.punto];
       if(!p) return;
-      const isTD = s.tipo.includes('TD'), isM = s.tipo.startsWith('M');
+      
+      const isTD = s.tipo.includes('TD');
       const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
-      document.getElementById('turnDetailBody').innerHTML = `<div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;"><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"><span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${isTD?'Disponible':'Ocupado'}</span><span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':'Turno Tarde'}</span></div><h1 style="margin:0;">${s.nombres}</h1><h3 style="margin:0;">${s.hora}</h3></div><div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" class="btn-mini">💬 WhatsApp</a><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
-      let btns = `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold;">📍 Cómo llegar</a>`;
+      
+      document.getElementById('turnDetailBody').innerHTML = `
+        <div style="background:var(--bg-card); border-radius:24px; padding:25px; margin-bottom:20px;">
+          <span style="font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px; display:inline-block; margin-bottom:15px;">${isTD?'Disponible':'Ocupado'}</span>
+          <h1 style="margin:0; font-size:2rem;">${s.nombres}</h1>
+          <h3 style="margin:5px 0; color:var(--text-gray);">${s.hora}</h3>
+        </div>
+        <div style="padding:0 5px;">
+           <p style="font-weight:700;">👤 Encargado: ${p.encargado.nombre}</p>
+           <a href="tel:${p.encargado.tel}" style="display:block; text-decoration:none; background:var(--bg-card); padding:15px; border-radius:15px; color:var(--text-main); font-weight:bold; border:1px solid var(--border-color); margin-bottom:10px;">📞 Llamar Encargado</a>
+        </div>
+      `;
+      
+      let btns = "";
       if (isTD) {
-        const mensaje = `Hola! Quiero inscribirme en el turno disponible:
-📍 Punto: ${s.punto}
-📅 Día: ${s.dia}
-⏰ Hora: ${s.hora}
-👤 Nombre: ${userName}`;
-        btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent(mensaje)}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none;">Solicitar Turno</a>`;
-      }      
+        btns = `<button onclick="window.open('https://wa.me/56996377733')" style="background:#25D366; color:white; border:none; padding:18px; border-radius:20px; font-weight:800; width:100%; font-size:1rem; cursor:pointer;">Solicitar este turno</button>`;
+      }
       document.getElementById('turnActionBar').innerHTML = btns;
-      document.getElementById('turnDetailScreen').style.left = '0';
+      document.getElementById('turnDetailScreen').style.transform = 'translateX(-100%)';
     }
+
+    function closeTurnDetail() { document.getElementById('turnDetailScreen').style.transform = 'translateX(0)'; }
 
     function handleSearch() {
       const q = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -620,17 +420,18 @@ html, body {
       
       home.innerHTML = `<div style="display:grid; gap:10px">${res.map(r => {
         const isTD = r.tipo.includes('TD');
-        const isM = r.tipo.startsWith('M');
-        const color = isTD ? 'var(--primary-green)' : (isM ? 'var(--primary-orange)' : 'var(--primary-blue)');
-        return `<div class="logistics-box" onclick="openTurnDetail(${r.id})" style="cursor:pointer; display:flex; align-items:center; gap:14px;"><div style="width:14px; height:14px; border-radius:50%; background:${color}; flex-shrink:0;"></div><div><div style="font-weight:800">${r.nombres}</div><div style="font-size:0.8rem; color:var(--text-gray)">${r.punto} • ${r.dia}</div></div></div>`;
+        const color = isTD ? 'var(--primary-green)' : (r.tipo.startsWith('M') ? 'var(--primary-orange)' : 'var(--primary-blue)');
+        return `<div class="my-shift-card" onclick="openTurnDetail(${r.id})" style="display:flex; align-items:center; gap:14px;">
+          <div style="width:14px; height:14px; border-radius:50%; background:${color}; flex-shrink:0;"></div>
+          <div><div style="font-weight:800">${r.nombres}</div><div style="font-size:0.8rem; color:var(--text-gray)">${r.punto} • ${r.dia}</div></div>
+        </div>`;
       }).join('')}</div>`;
     }
 
     function toggleFilterMenu() { document.getElementById('filterMenu').classList.toggle('open'); }
     
     function toggleFilter(f) { 
-        const chip = event.target;
-        chip.classList.toggle('active'); 
+        event.target.classList.toggle('active'); 
         const i = activeFilters.indexOf(f); 
         if(i>-1) activeFilters.splice(i,1); else activeFilters.push(f); 
         handleSearch(); 
@@ -638,18 +439,14 @@ html, body {
 
     function clearFilters() {
         activeFilters = [];
-        const chips = document.querySelectorAll('#filterMenu .filter-chip');
-        chips.forEach(chip => chip.classList.remove('active'));
+        document.querySelectorAll('#filterMenu .filter-chip').forEach(chip => chip.classList.remove('active'));
         handleSearch();
     }
 
     function goBack() { document.getElementById('detail-screen').classList.remove('active'); }
-    function closeTurnDetail() { document.getElementById('turnDetailScreen').style.left = '100%'; }
     function toggleTheme() { document.body.classList.toggle('dark-mode'); }
 
-    // Inicialización
     loadExcelData();
-    
   </script>
 </body>
 </html>
