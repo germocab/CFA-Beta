@@ -462,17 +462,42 @@ html, body {
           <input type="text" id="searchInput" placeholder="Buscar por nombre..." oninput="handleSearch()" style="width:100%; padding:14px 50px 14px 18px; border-radius:18px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none;">
           <button onclick="toggleFilterMenu()" style="position:absolute; right:12px; background:none; border:none; cursor:pointer; color:var(--text-gray);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="10" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="18" r="2"/></svg></button>
         </div>
-        <div id="filterMenu" style="margin-top:10px; padding:15px; background:var(--bg-card); border-radius:15px;">
+        
+<div id="filterMenu" style="margin-top:10px; padding:15px; background:var(--bg-card); border-radius:15px;">
   <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+    
     <div class="filter-chip" onclick="toggleFilter('M')">Mañana</div>
     <div class="filter-chip" onclick="toggleFilter('T')">Tarde</div>
     <div class="filter-chip" onclick="toggleFilter('TD')">Disponibles</div>
-    
-    <div onclick="clearFilters()" style="font-size: 0.8rem; color: var(--primary-orange); cursor: pointer; font-weight: 800; margin-left: 10px; text-decoration: underline; line-height: 1;">
-        Quitar filtros
-    </div>
+
+    <!-- Botón circular limpiar -->
+    <button
+      onclick="clearFilters()"
+      title="Quitar filtros"
+      style="
+        width:36px;
+        height:36px;
+        border-radius:50%;
+        border:1px solid var(--border-color);
+        background:var(--bg-screen);
+        color:var(--text-main);
+        font-size:18px;
+        font-weight:900;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        transition:all .25s ease;
+      "
+      onmouseenter="this.style.transform='translateY(-1px) scale(1.05)'"
+      onmouseleave="this.style.transform=''"
+      onmousedown="this.style.transform='scale(0.92)'"
+      onmouseup="this.style.transform='translateY(-1px) scale(1.05)'"
+    >
+      ✕
+    </button>
+
   </div>
-</div>
 </div>
 
 <div class="scroll-container" id="locationsList" style="padding-top: 5px;"></div>
@@ -814,6 +839,7 @@ window.addEventListener('pointerup', handlePointerUp);
   </script>
 </body>
 </html>
+
 
 
 
