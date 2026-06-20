@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inicio</title>
-  <link rel="icon" href="favicon_io2/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon_io2/favicon-32x32.png">
-<link rel="apple-touch-icon" href="favicon_io2/apple-touch-icon.png">
   <style>
+/* --- ESTILOS ORIGINALES PRESERVADOS --- */
 body {
   transition: background-color 0.35s ease, color 0.35s ease;
 }
@@ -70,6 +68,7 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
 .turno-M { background-color: var(--primary-orange); }
 .turno-T { background-color: var(--primary-blue); }
 .turno-TD { background-color: var(--primary-green); }
+.turno-RESERVADO { background-color: #e08600; }
 
 /* --- AJUSTES SOLICITADOS --- */
 #nameOverlay {
@@ -85,7 +84,7 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
 .section-title { 
     font-size: 1.1rem; 
     font-weight: 800; 
-    margin: 10px 0 10px 5px; 
+    margin: 10px 0 10px 5px;
     color: var(--text-main); 
 }
 
@@ -106,81 +105,24 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
   .screen { height: 100vh; border-radius: 0; border: none; width: 100%; }
   #detail-screen { position: fixed; top: 0; left: 100%; width: 100%; z-index: 2000; }
   #detail-screen.active { transform: translateX(-100%); }
-
-  /* Mobile: turn detail stays fullscreen */
-  #turnDetailScreen {
-    position: fixed !important;
-    top: 0 !important;
-    left: 100% !important;
-    width: 100% !important;
-    height: 100% !important;
-    border-radius: 0 !important;
-    max-width: none !important;
-    max-height: none !important;
-    transform: none !important;
-    opacity: 1 !important;
-    overflow: hidden !important;
-  }
-  #turnDetailScreen.open {
-    left: 0 !important;
-  }
-  #turnDetailOverlay { display: none !important; }
 }
 
 @media (min-width: 768px) {
   .app-wrapper { display: grid; grid-template-columns: 420px 1fr; gap: 20px; }
   #detail-screen { position: relative; opacity: 1 !important; transform: none !important; left: auto !important; }
-
-  /* Desktop: turn detail as modal popup */
-  #turnDetailOverlay {
-    display: flex;
-    position: fixed;
-    inset: 0;
-    z-index: 4000;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-
-  #turnDetailOverlay.open {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  #turnDetailScreen {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    width: 100% !important;
-    max-width: 520px !important;
-    height: auto !important;
-    max-height: 85vh !important;
-    border-radius: 28px !important;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.3) !important;
-    transform: scale(0.94) translateY(12px) !important;
-    transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease !important;
-    opacity: 0 !important;
-    overflow: hidden !important;
-    display: flex;
-    flex-direction: column;
-  }
-
-  #turnDetailOverlay.open #turnDetailScreen {
-    transform: scale(1) translateY(0) !important;
-    opacity: 1 !important;
-  }
 }
 
 #locationsList {
-    flex: 1; 
-    padding-bottom: 20px; 
-    display: block;          
+    flex: 1;
+    padding-bottom: 20px;
+    display: block;
+}
+
+@media (max-width: 767px) {
+    .screen { 
+        height: 100vh;
+        border-radius: 0; 
+    }
 }
 
 .logistics-box {
@@ -241,205 +183,108 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
     color: var(--primary-orange);
 }
 
-/* ============================= */
-/* LIQUID GLASS UPGRADE */
-/* ============================= */
-
-:root {
-  --glass-blur: blur(18px);
-  --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-bg-dark: rgba(30, 30, 30, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.35);
-  --glass-border-dark: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 10px 30px rgba(0,0,0,0.12);
+.btn-whatsapp {
+    background: #25D366 !important;
+    color: white !important;
+    border: none !important;
 }
 
-body {
-  background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(243,97,0,0.10), transparent),
-    radial-gradient(900px 500px at 90% 110%, rgba(0,86,255,0.10), transparent),
-    var(--bg-body);
+/* --- ESTILOS ADMIN --- */
+.admin-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    z-index: 10500; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.admin-modal {
+    background: var(--bg-screen); padding: 30px; border-radius: 28px;
+    width: 100%; max-width: 420px; text-align: center;
+}
+.admin-input {
+    width:100%; padding:16px; border-radius:15px; border:1px solid var(--border-color);
+    background:var(--bg-card); color:var(--text-main); outline:none; font-size:1rem; margin-bottom:15px;
+    text-align: left;
+}
+.admin-btn-primary {
+    width:100%; padding:16px; border-radius:15px; border:none;
+    background:var(--primary-orange); color:white; font-weight:bold; font-size:1rem; cursor:pointer;
+}
+.admin-btn-secondary {
+    width:100%; padding:14px; border-radius:15px; border:1px solid var(--border-color);
+    background:var(--bg-card); color:var(--text-main); font-weight:bold; font-size:0.95rem; cursor:pointer; margin-top:10px;
+}
+.admin-error { color: #e63946; font-size: 0.85rem; font-weight: 700; margin: -8px 0 12px; min-height: 1em; }
+
+#adminPanel {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-body); z-index: 6000; display: none; flex-direction: column;
+}
+.admin-tabs {
+    display: flex; gap: 8px; padding: 0 20px 15px; overflow-x: auto;
+}
+.admin-tab {
+    padding: 10px 16px; border-radius: 14px; background: var(--bg-card); border:1px solid var(--border-color);
+    font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; color: var(--text-gray);
+}
+.admin-tab.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
+
+.admin-list-item {
+    background: var(--bg-card); border:1px solid var(--border-color); border-radius: 18px;
+    padding: 16px; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center; gap: 12px;
+}
+.admin-list-item .info { flex: 1; min-width: 0; }
+.admin-list-item .info .title { font-weight: 800; font-size: 1rem; }
+.admin-list-item .info .sub { color: var(--text-gray); font-size: 0.8rem; margin-top: 2px; }
+.admin-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.icon-btn {
+    width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border-color);
+    background: var(--bg-screen); display:flex; align-items:center; justify-content:center; cursor:pointer; color: var(--text-main);
+}
+.icon-btn.danger { color: #e63946; border-color: rgba(230,57,70,0.3); }
+
+.fab-add {
+    position: sticky; bottom: 16px; margin: 16px 20px 0; padding: 16px; border-radius: 16px;
+    background: var(--primary-orange); color: white; font-weight: 800; border: none; cursor: pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px; font-size: 0.95rem; width: calc(100% - 40px);
 }
 
-.screen,
-.location-card,
-.logistics-box,
-.my-shift-card,
-#filterMenu,
-#nameModal,
-#logoutOverlay > div {
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+.form-overlay {
+    position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px); z-index: 7000; display:none; align-items:flex-end; justify-content:center;
 }
-
-body.dark-mode .screen,
-body.dark-mode .location-card,
-body.dark-mode .logistics-box,
-body.dark-mode .my-shift-card,
-body.dark-mode #filterMenu,
-body.dark-mode #nameModal,
-body.dark-mode #logoutOverlay > div {
-  background: var(--glass-bg-dark);
-  border: 1px solid var(--glass-border-dark);
-}
-
-/* Apply glass to the turn detail modal on desktop */
 @media (min-width: 768px) {
-  #turnDetailScreen {
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-    background: var(--glass-bg) !important;
-    border: 1px solid var(--glass-border) !important;
-  }
-  body.dark-mode #turnDetailScreen {
-    background: rgba(18, 18, 18, 0.85) !important;
-    border: 1px solid var(--glass-border-dark) !important;
-  }
+  .form-overlay { align-items: center; }
 }
+.form-sheet {
+    background: var(--bg-screen); width: 100%; max-width: 500px; border-radius: 24px 24px 0 0;
+    padding: 25px; max-height: 88vh; overflow-y: auto;
+}
+@media (min-width: 768px) {
+  .form-sheet { border-radius: 24px; }
+}
+.form-group { margin-bottom: 14px; text-align: left; }
+.form-group label {
+    display:block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-gray); margin-bottom: 6px;
+}
+.form-input, .form-select, .form-textarea {
+    width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-main); font-size: 0.95rem; outline: none; font-family: inherit;
+}
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+.chip-multi { display:flex; flex-wrap:wrap; gap:8px; }
+.chip-multi .filter-chip { margin: 0; }
+.form-actions { display:flex; gap:10px; margin-top: 20px; }
 
-.location-card,
-.my-shift-card,
-.slot,
-.header-btn,
-.btn-mini {
-  transition:
-    transform 0.25s cubic-bezier(.22,1,.36,1),
-    box-shadow 0.25s ease,
-    background 0.25s ease,
-    border-color 0.25s ease;
+.empty-state { text-align:center; padding: 40px 20px; color: var(--text-gray); }
+.toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1a1a1a; color: white; padding: 14px 22px; border-radius: 14px;
+    font-weight: 700; font-size: 0.9rem; z-index: 9000; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none; max-width: 90%; text-align: center;
 }
+.toast.show { opacity: 1; }
 
-.location-card:hover,
-.my-shift-card:hover,
-.slot:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.14);
-}
-
-.header-btn:hover,
-.btn-mini:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-}
-
-.filter-chip {
-  backdrop-filter: blur(10px);
-  background: rgba(255,255,255,0.5);
-}
-
-body.dark-mode .filter-chip {
-  background: rgba(255,255,255,0.06);
-}
-
-.filter-chip.active {
-  box-shadow: 0 6px 18px rgba(243,97,0,0.35);
-}
-
-#searchInput {
-  backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.6);
-  border: 1px solid rgba(255,255,255,0.4);
-  transition: all 0.25s ease;
-}
-
-body.dark-mode #searchInput {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-#searchInput:focus {
-  box-shadow: 0 0 0 3px rgba(243,97,0,0.18);
-  transform: translateY(-1px);
-}
-
-.status-dot {
-  box-shadow: 0 0 0 6px rgba(255,255,255,0.25),
-              0 8px 18px rgba(0,0,0,0.18);
-}
-
-#nameOverlay,
-#logoutOverlay {
-  backdrop-filter: blur(14px);
-}
-
-.screen {
-  transition:
-    transform 0.55s cubic-bezier(.22,1,.36,1),
-    opacity 0.3s ease,
-    background-color 0.35s ease,
-    border-color 0.35s ease,
-    box-shadow 0.35s ease;
-}
-
-.slot {
-  position: relative;
-  overflow: hidden;
-}
-
-.slot::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    120deg,
-    transparent 20%,
-    rgba(255,255,255,0.18),
-    transparent 80%
-  );
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.slot:hover::after {
-  opacity: 1;
-}
-
-.edge-swipe-area {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 24px;
-  height: 100%;
-  z-index: 5000;
-  background: transparent;
-}
-
-html, body {
-  overscroll-behavior-x: contain;
-}
-
-.screen,
-#detail-screen,
-#turnDetailScreen {
-  touch-action: pan-y;
-}
-
-.clear-filters-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(243, 97, 0, 0.1);
-  color: var(--primary-orange);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 1.2rem;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(243, 97, 0, 0.2);
-  margin-left: 5px;
-}
-
-.clear-filters-btn:hover {
-  background: var(--primary-orange);
-  color: white;
-  transform: rotate(90deg);
-}
-    
   </style>
 </head>
 <body>
@@ -476,44 +321,83 @@ html, body {
   </div>
 </div>
 
+  <!-- MODAL ACCESO ADMINISTRACIÓN (7 clicks en "Inicio") -->
+  <div class="admin-overlay" id="adminLoginOverlay">
+    <div class="admin-modal">
+      <h2 style="margin-top:0;">Administración</h2>
+      <p style="color:var(--text-gray); margin-bottom:20px; font-size:0.9rem;">Introduce la contraseña para gestionar puntos, turnos y personas.</p>
+      <input type="password" id="adminPasswordInput" class="admin-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter') tryAdminLogin()">
+      <div class="admin-error" id="adminLoginError"></div>
+      <button class="admin-btn-primary" onclick="tryAdminLogin()">Ingresar</button>
+      <button class="admin-btn-secondary" onclick="closeAdminLogin()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- PANEL DE ADMINISTRACIÓN -->
+  <div id="adminPanel">
+    <div style="display:flex; align-items:center; gap:15px; padding:25px 20px 10px;">
+      <button class="header-btn" onclick="closeAdminPanel()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h1 style="margin:0; font-size: 1.6rem;">Administración</h1>
+    </div>
+    <div class="admin-tabs">
+      <div class="admin-tab active" data-tab="puntos" onclick="switchAdminTab('puntos')">📍 Puntos</div>
+      <div class="admin-tab" data-tab="turnos" onclick="switchAdminTab('turnos')">🕒 Turnos</div>
+      <div class="admin-tab" data-tab="personas" onclick="switchAdminTab('personas')">👥 Personas</div>
+    </div>
+    <div class="scroll-container" id="adminBody" style="padding-top:5px;"></div>
+  </div>
+
+  <!-- FORMULARIO GENÉRICO (puntos / turnos / personas) -->
+  <div class="form-overlay" id="formOverlay">
+    <div class="form-sheet" id="formSheet"></div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
   <div class="app-wrapper">
     <section class="screen" id="list-screen">
       <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:25px 25px 10px;">
-        <h1 style="margin:0; font-size: 2.2rem;">Inicio</h1>
+        <h1 id="homeTitle" style="margin:0; font-size: 2.2rem; cursor:pointer; user-select:none;" onclick="handleTitleTap()">Inicio</h1>
         <div style="display:flex; gap:12px;">
           <button class="header-btn" onclick="toggleTheme()"><svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/></svg></button>
 <button class="header-btn" onclick="openLogoutModal()" title="Cerrar Sesión">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-    </svg></button>
-        </div>
+    </svg>        </div>
       </div>
 
-      <div style="padding: 0 20px 5px;">
-        <div style="position:relative; display:flex; align-items:center;">
+      <div style="padding: 0 20px 5px;"> <div style="position:relative; display:flex; align-items:center;">
           <input type="text" id="searchInput" placeholder="Buscar por nombre..." oninput="handleSearch()" style="width:100%; padding:14px 50px 14px 18px; border-radius:18px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none;">
           <button onclick="toggleFilterMenu()" style="position:absolute; right:12px; background:none; border:none; cursor:pointer; color:var(--text-gray);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="10" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="18" r="2"/></svg></button>
         </div>
         <div id="filterMenu" style="margin-top:10px; padding:15px; background:var(--bg-card); border-radius:15px;">
-          <div style="display:flex; gap:8px; flex-wrap:nowrap; align-items:center; overflow-x: auto;">
-            <div class="filter-chip" onclick="toggleFilter('M')">Mañana</div>
-            <div class="filter-chip" onclick="toggleFilter('T')">Tarde</div>
-            <div class="filter-chip" onclick="toggleFilter('TD')">Disponibles</div>
-            <div class="clear-filters-btn" onclick="clearFilters()" title="Quitar filtros">✕</div>
-          </div>
-        </div>
-      </div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+    <div class="filter-chip" onclick="toggleFilter('M')">Mañana</div>
+    <div class="filter-chip" onclick="toggleFilter('T')">Tarde</div>
+    <div class="filter-chip" onclick="toggleFilter('TD')">Disponibles</div>
+    
+    <div onclick="clearFilters()" style="font-size: 0.8rem; color: var(--primary-orange); cursor: pointer; font-weight: 800; margin-left: 10px; text-decoration: underline; line-height: 1;">
+        Quitar filtros
+    </div>
+  </div>
+</div>
+</div>
 
-      <div class="scroll-container" id="locationsList" style="padding-top: 5px;"></div>
+<div class="scroll-container" id="locationsList" style="padding-top: 5px;"></div>
+
     </section>
 
     <section class="screen" id="detail-screen">
       <div style="padding: 20px 20px 0;">
         <button onclick="goBack()" class="header-btn">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
+  <svg width="22" height="22" viewBox="0 0 24 24"
+       fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+</button>
       </div>
       <div class="scroll-container" id="detailScrollBody">
         <h1 id="currentPointTitle" style="margin-top:10px; font-size: 1.8rem;">Punto</h1>
@@ -524,54 +408,79 @@ html, body {
     </section>
   </div>
 
-  <!-- Desktop: overlay wrapper. Mobile: ignored via CSS -->
-  <div id="turnDetailOverlay" onclick="handleOverlayClick(event)">
-    <div id="turnDetailScreen" style="background: var(--bg-screen);">
-      <div style="padding: 20px 20px 0; display: flex; align-items: center; gap: 15px; flex-shrink: 0;">
-        <button onclick="closeTurnDetail()" style="background: var(--bg-card); border: 1px solid var(--border-color); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; color: var(--text-main); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-        <h2 style="margin:0; font-size: 1.1rem;">Ficha de Turno</h2>
-      </div>
-      <div class="scroll-container" id="turnDetailBody" style="flex:1; overflow-y:auto;"></div>
-      <div id="turnActionBar" style="padding:20px; flex-shrink:0;"></div>
-    </div>
+  <div id="turnDetailScreen" class="turn-detail-screen" style="position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: var(--bg-screen); z-index: 4000; transition: 0.4s; display: flex; flex-direction: column;">
+    <div style="padding: 25px; display: flex; align-items: center; gap: 15px;"><button onclick="closeTurnDetail()" style="background: var(--bg-card); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; color: var(--text-main);">✕</button><h2 style="margin:0;">Ficha de Turno</h2></div>
+    <div class="scroll-container" id="turnDetailBody"></div>
+    <div id="turnActionBar" style="padding:20px;"></div>
   </div>
 
-  <div id="edgeSwipeZone" class="edge-swipe-area"></div>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.45.4/supabase.min.js"></script>
   <script>
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT22dGTCsHGc5Qj4EbMxn4XqPoPuUI93UblvVlwu0nPm4FOUzMvLCIv5eTCgjQXS3MiNamBMsBdJ45A/pub?output=csv';
-    
-    const POINT_DATA = {
-      "Clínica Cordillera": { color: "#f36100", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { nombre: "Av. Alejandro Fleming 7806", sub: "Casa Eliana Whittaker", tel: "+56982195443" }, encargado: { nombre: "Douglas García", tel: "+56934574675" } },
-      "Supermercado Lider": { color: "#0056ff", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { nombre: "Av. Alejandro Fleming 7806", sub: "Casa Eliana Whittaker", tel: "+56982195443" }, encargado: { nombre: "Douglas García", tel: "+56934574675" } },
-      "Santa Zita": { color: "#04c92f", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { nombre: "Incahuasi 1549", sub: "Familia Tobar", tel: "+56992357751" }, encargado: { nombre: "Fernando Aldunate", tel: "+56996377733" } },
-      "Visviri/Supermercado Santa Isabel": { color: "#f36100", days: ['Lunes','Martes','Miercoles','Jueves','Viernes'], guardado: { nombre: "Espigas 1625", sub: "Familia Muñoz", tel: "+56987274609" }, encargado: { nombre: "Fernando Aldunate", tel: "+56996377733" } },
-      "Feria de Francisco Bilbao (Curaco)": { color: "#0056ff", days: ['Sabado'], guardado: { nombre: "Duqueco 1965", sub: "Ingrid Arnold", tel: "+56977081786" }, encargado: { nombre: "Germán Cabezas", tel: "+56967883164" } },
-      "Parque Intercomunal": { color: "#04c92f", days: ['Domingo'], guardado: { nombre: "Duqueco 1965", sub: "Ingrid Arnold", tel: "+56977081786" }, encargado: { nombre: "Germán Cabezas", tel: "+56967883164" } },
-      "Patricia": { color: "#f36100", days: ['Domingo'], guardado: { nombre: "Incahuasi 1549", sub: "Familia Tobar", tel: "+56992357751" }, encargado: { nombre: "Fernando Aldunate", tel: "+56996377733" } }
-    };
+    // =========================================================
+    // CONFIGURACIÓN SUPABASE
+    // =========================================================
+    const SUPABASE_URL = 'https://ldqyqiopulizblfspwym.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkcXlxaW9wdWxpemJsZnNwd3ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MDMzNTQsImV4cCI6MjA5NzQ3OTM1NH0.KhjIvLBMgDf3UjnPaGaXSyGKnaJoStkEzucEWZKHoB8';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let allData = [];
+    // =========================================================
+    // ESTADO GLOBAL
+    // =========================================================
+    let PUNTOS = [];
+    let TURNOS = [];
+    let PERSONAS = [];
     let currentDay = '';
-    let currentPoint = "";
+    let currentPointId = null;
     let activeFilters = [];
     let userName = localStorage.getItem('userName') || "";
+    let isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+    let titleTapCount = 0;
+    let titleTapTimer = null;
+    let currentAdminTab = 'puntos';
 
-    const isDesktop = () => window.innerWidth >= 768;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('show'), 2600);
+    }
 
-    async function loadExcelData() {
-      try {
-        const res = await fetch(SHEET_URL);
-        const text = await res.text();
-        const rows = text.split(/\r?\n/).slice(1).filter(r => r.trim());
-        allData = rows.map((r, index) => {
-          const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-          return { id: index, dia: (c[0]||"").trim(), tipo: (c[1]||"").replace(/"/g,"").toUpperCase(), nombres: (c[2]||"").replace(/"/g,""), hora: (c[3]||"").replace(/"/g,""), punto: (c[4]||"").replace(/"/g,"").trim() };
-        });
-        renderHome();
-      } catch (e) { console.error("Error cargando datos", e); }
+    // =========================================================
+    // CARGA DE DATOS DESDE SUPABASE
+    // =========================================================
+    async function loadAllData() {
+      const [{ data: puntos, error: errP }, { data: turnos, error: errT }, { data: personas, error: errPe }] = await Promise.all([
+        sb.from('puntos').select('*').order('orden', { ascending: true }),
+        sb.from('turnos').select('*'),
+        sb.from('personas').select('*').order('nombre', { ascending: true })
+      ]);
+
+      if (errP || errT || errPe) {
+        console.error(errP || errT || errPe);
+        showToast('Error cargando datos. Revisa la conexión.');
+        return;
+      }
+
+      PUNTOS = puntos || [];
+      TURNOS = (turnos || []).map(t => {
+        const punto = PUNTOS.find(p => p.id === t.punto_id);
+        return {
+          id: t.id,
+          dia: t.dia,
+          tipo: t.tipo,
+          nombres: t.nombres,
+          hora: t.hora,
+          punto: punto ? punto.nombre : '',
+          punto_id: t.punto_id,
+          estado: t.estado,
+          reservado_por: t.reservado_por,
+          persona_id: t.persona_id
+        };
+      });
+      PERSONAS = personas || [];
+
+      renderHome();
     }
 
     function saveName() {
@@ -584,26 +493,24 @@ html, body {
         }
     }
 
-    function openLogoutModal() { document.getElementById('logoutOverlay').style.display = 'flex'; }
-    function closeLogoutModal() { document.getElementById('logoutOverlay').style.display = 'none'; }
-    function confirmLogout() { localStorage.removeItem('userName'); location.reload(); }
-
     function renderHome() {
         if(!userName) {
             document.getElementById('nameOverlay').style.display = 'flex';
             return;
+        } else {
+            document.getElementById('nameOverlay').style.display = 'none';
         }
 
         const home = document.getElementById('locationsList');
         home.innerHTML = '';
 
-        const myShifts = allData.filter(d => d.nombres.toLowerCase().includes(userName.toLowerCase()));
+        const myShifts = TURNOS.filter(d => d.nombres.toLowerCase().includes(userName.toLowerCase()));
         if(myShifts.length > 0) {
             home.innerHTML += `<div class="section-title">Mis Turnos</div>`;
             myShifts.forEach(s => {
-                const color = s.tipo.includes('TD') ? 'var(--primary-green)' : (s.tipo.startsWith('M') ? 'var(--primary-orange)' : 'var(--primary-blue)');
+                const color = s.tipo.includes('TD') ? (s.estado === 'reservado' ? '#e08600' : 'var(--primary-green)') : (s.tipo.startsWith('M') ? 'var(--primary-orange)' : 'var(--primary-blue)');
                 home.innerHTML += `
-                    <div class="my-shift-card" onclick="openTurnDetail(${s.id})">
+                    <div class="my-shift-card" onclick="openTurnDetail('${s.id}')">
                         <div style="display:flex; align-items:center; gap:10px;">
                             <div style="width:12px; height:12px; border-radius:50%; background:${color};"></div>
                             <span style="font-weight:800; font-size:1.1rem;">${s.punto}</span>
@@ -623,21 +530,27 @@ html, body {
         home.innerHTML += `<div class="section-title">Locaciones</div>`;
         const grid = document.createElement('div');
         grid.className = "grid-2x2";
-        grid.innerHTML = Object.keys(POINT_DATA).map(name => `
-            <div class="location-card" onclick="selectPoint('${name}')">
-                <div class="status-dot" style="background:${POINT_DATA[name].color}"></div>
-                <h2>${name}</h2>
-            </div>
-        `).join('');
+        if (PUNTOS.length === 0) {
+          grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Aún no hay puntos cargados.</div>`;
+        } else {
+          grid.innerHTML = PUNTOS.map(p => `
+              <div class="location-card" onclick="selectPoint('${p.id}')">
+                  <div class="status-dot" style="background:${p.color}"></div>
+                  <h2>${p.nombre}</h2>
+              </div>
+          `).join('');
+        }
         home.appendChild(grid);
     }
 
-    function selectPoint(name) {
-      currentPoint = name; const p = POINT_DATA[name];
-      document.getElementById('currentPointTitle').innerText = name;
-      document.getElementById('logisticsInfo').innerHTML = `<div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
-      const dRow = document.getElementById('daysRow'); dRow.innerHTML = ''; currentDay = p.days[0];
-      p.days.forEach(d => {
+    function selectPoint(id) {
+      currentPointId = id;
+      const p = PUNTOS.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('currentPointTitle').innerText = p.nombre;
+      document.getElementById('logisticsInfo').innerHTML = `<div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.retiro_nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.retiro_tel}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p.retiro_nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado_nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.encargado_tel}" class="btn-mini">📞 Llamar</a></div></div>`;
+      const dRow = document.getElementById('daysRow'); dRow.innerHTML = ''; currentDay = p.dias[0] || '';
+      (p.dias || []).forEach(d => {
         const b = document.createElement('div'); b.className = `filter-chip ${d === currentDay ? 'active' : ''}`; b.innerText = d.substring(0,3);
         b.onclick = () => { document.querySelectorAll('#daysRow .filter-chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentDay = d; renderShifts(); };
         dRow.appendChild(b);
@@ -648,47 +561,76 @@ html, body {
 
     function renderShifts() {
       const cont = document.getElementById('slotsContainer');
-      const filtered = allData.filter(d => d.dia.toLowerCase() === currentDay.toLowerCase() && d.punto === currentPoint);
+      const pNombre = (PUNTOS.find(x => x.id === currentPointId) || {}).nombre;
+      const filtered = TURNOS.filter(d => d.dia.toLowerCase() === currentDay.toLowerCase() && d.punto === pNombre);
       cont.innerHTML = filtered.map(s => {
         const isTD = s.tipo.includes('TD');
-        return `<div class="slot ${isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M')}" onclick="openTurnDetail(${s.id})"><div style="display:flex; justify-content:space-between"><b>${s.nombres}</b><span>➔</span></div><div style="background:rgba(255,255,255,0.2); padding:6px 14px; border-radius:999px; width:fit-content; font-size:0.9rem; font-weight:700;">${s.hora}</div></div>`;
+        const isReservado = isTD && s.estado === 'reservado';
+        const claseColor = isReservado ? 'turno-RESERVADO' : (isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M'));
+        const etiqueta = isReservado ? `Reservado por ${s.reservado_por || 'alguien'}` : s.hora;
+        return `<div class="slot ${claseColor}" onclick="openTurnDetail('${s.id}')"><div style="display:flex; justify-content:space-between"><b>${s.nombres || (isTD ? 'Disponible' : '')}</b><span>➔</span></div><div style="background:rgba(255,255,255,0.2); padding:6px 14px; border-radius:999px; width:fit-content; font-size:0.9rem; font-weight:700;">${etiqueta}</div></div>`;
       }).join('') || '<p style="text-align:center; opacity:0.5; margin-top:20px;">No hay turnos hoy.</p>';
     }
 
     function openTurnDetail(id) {
-      const s = allData.find(x => x.id === id); const p = POINT_DATA[s.punto];
-      if(!p) return;
+      const s = TURNOS.find(x => x.id === id);
+      if (!s) return;
+      const p = PUNTOS.find(x => x.nombre === s.punto);
       const isTD = s.tipo.includes('TD'), isM = s.tipo.startsWith('M');
-      const estadoColor = isTD ? 'var(--primary-green)' : 'var(--primary-blue)';
-      document.getElementById('turnDetailBody').innerHTML = `<div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;"><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"><span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${isTD?'Disponible':'Ocupado'}</span><span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':'Turno Tarde'}</span></div><h1 style="margin:0;">${s.nombres}</h1><h3 style="margin:0;">${s.hora}</h3></div><div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.guardado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.guardado.tel}" class="btn-mini">📞 Llamar</a><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.guardado.nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado.nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="https://wa.me/${p.encargado.tel.replace('+','')}" target="_blank" class="btn-mini">💬 WhatsApp</a><a href="tel:${p.encargado.tel}" class="btn-mini">📞 Llamar</a></div></div>`;
-      let btns = `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold;">📍 Cómo llegar</a>`;
-      if (isTD) {
-        const mensaje = `Hola! Quiero inscribirme en el turno disponible:\n*Punto*: ${s.punto}\n*Día*: ${s.dia}\n*Hora*: ${s.hora}\n*Nombre*: ${userName}`;
-        btns += `<a href="https://api.whatsapp.com/send?phone=56996377733&text=${encodeURIComponent(mensaje)}" target="_blank" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; text-decoration:none;">Solicitar Turno</a>`;
-      }      
-      document.getElementById('turnActionBar').innerHTML = btns;
+      const isReservado = isTD && s.estado === 'reservado';
+      const estadoColor = isReservado ? '#e08600' : (isTD ? 'var(--primary-green)' : 'var(--primary-blue)');
+      const estadoTexto = isReservado ? `Reservado por ${s.reservado_por || 'alguien'}` : (isTD ? 'Disponible' : 'Ocupado');
+      document.getElementById('turnDetailBody').innerHTML = `<div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;"><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"><span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${estadoTexto}</span><span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':(isTD?'Turno Disponible':'Turno Tarde')}</span></div><h1 style="margin:0;">${s.nombres || (isTD ? 'Disponible' : '')}</h1><h3 style="margin:0;">${s.hora}</h3></div><div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p ? p.retiro_nombre : ''}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p?p.retiro_tel:''}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p?p.retiro_nombre:'')}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p ? p.encargado_nombre : ''}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="https://wa.me/${p?p.encargado_tel.replace('+',''):''}" target="_blank" class="btn-mini">💬 WhatsApp</a><a href="tel:${p?p.encargado_tel:''}" class="btn-mini">📞 Llamar</a></div></div>`;
+      let btns = `<a href="http://maps.google.com/?q=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold;">📍 Cómo llegar</a>`;
+      if (isTD && s.estado === 'libre') {
+        const mensaje = `Hola! Quiero inscribirme en el turno disponible:
+📍 Punto: ${s.punto}
+📅 Día: ${s.dia}
+⏰ Hora: ${s.hora}
+👤 Nombre: ${userName}`;
 
-      if (isDesktop()) {
-        // Desktop: show as popup modal
-        const overlay = document.getElementById('turnDetailOverlay');
-        overlay.style.display = 'flex';
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            overlay.classList.add('open');
-          });
-        });
-        document.body.style.overflow = 'hidden';
-      } else {
-        // Mobile: slide in fullscreen
-        document.getElementById('turnDetailScreen').classList.add('open');
+        btns += `<button onclick="reservarTurno('${s.id}')" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; border:none; cursor:pointer; font-size:1rem;">Solicitar Turno</button>`;
+        window._pendingWhatsappMsg = mensaje;
+        window._pendingWhatsappTel = '56996377733';
+      } else if (isReservado) {
+        btns += `<div style="text-align:center; color:var(--text-gray); font-weight:700; padding:14px; font-size:0.9rem;">Este turno ya fue solicitado y está pendiente de confirmación.</div>`;
+        if (isAdmin) {
+          btns += `<button onclick="liberarTurnoAdmin('${s.id}')" style="margin-top:10px; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:14px; border-radius:15px; font-weight:700; width:100%; cursor:pointer;">Liberar turno (admin)</button>`;
+        }
       }
+      document.getElementById('turnActionBar').innerHTML = btns;
+      document.getElementById('turnDetailScreen').style.left = '0';
     }
 
-    function handleOverlayClick(e) {
-      // Close if clicking on the overlay background (not the modal itself)
-      if (e.target === document.getElementById('turnDetailOverlay')) {
-        closeTurnDetail();
+    async function reservarTurno(turnoId) {
+      const { error } = await sb.from('turnos')
+        .update({ estado: 'reservado', reservado_por: userName, reservado_at: new Date().toISOString() })
+        .eq('id', turnoId)
+        .eq('estado', 'libre');
+
+      if (error) {
+        console.error(error);
+        showToast('No se pudo reservar el turno. Intenta de nuevo.');
+        return;
       }
+
+      if (window._pendingWhatsappMsg) {
+        window.open(`https://api.whatsapp.com/send?phone=${window._pendingWhatsappTel}&text=${encodeURIComponent(window._pendingWhatsappMsg)}`, '_blank');
+      }
+
+      showToast('Turno reservado. Quedó marcado para que nadie más lo tome.');
+      await loadAllData();
+      closeTurnDetail();
+    }
+
+    async function liberarTurnoAdmin(turnoId) {
+      const pass = getAdminPassword();
+      if (!pass) { showToast('Sesión admin expirada.'); return; }
+      const { error } = await sb.rpc('admin_liberar_turno', { p_password: pass, p_id: turnoId });
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast('Turno liberado.');
+      await loadAllData();
+      closeTurnDetail();
     }
 
     function handleSearch() {
@@ -696,14 +638,14 @@ html, body {
       const home = document.getElementById('locationsList');
       if(!q && !activeFilters.length) { renderHome(); return; }
       
-      let res = allData.filter(r => r.nombres.toLowerCase().includes(q));
+      let res = TURNOS.filter(r => r.nombres.toLowerCase().includes(q));
       
       if(activeFilters.length > 0) {
         res = res.filter(r => {
           return activeFilters.some(filter => {
             if(filter === 'M') return r.tipo.startsWith('M');
             if(filter === 'T') return r.tipo.startsWith('T') && !r.tipo.includes('TD');
-            if(filter === 'TD') return r.tipo.includes('TD');
+            if(filter === 'TD') return r.tipo.includes('TD') && r.estado === 'libre';
             return false;
           });
         });
@@ -712,51 +654,419 @@ html, body {
       home.innerHTML = `<div style="display:grid; gap:10px">${res.map(r => {
         const isTD = r.tipo.includes('TD');
         const isM = r.tipo.startsWith('M');
-        const color = isTD ? 'var(--primary-green)' : (isM ? 'var(--primary-orange)' : 'var(--primary-blue)');
-        return `<div class="logistics-box" onclick="openTurnDetail(${r.id})" style="cursor:pointer; display:flex; align-items:center; gap:14px;"><div style="width:14px; height:14px; border-radius:50%; background:${color}; flex-shrink:0;"></div><div><div style="font-weight:800">${r.nombres}</div><div style="font-size:0.8rem; color:var(--text-gray)">${r.punto} • ${r.dia}</div></div></div>`;
-      }).join('')}</div>`;
+        const isReservado = isTD && r.estado === 'reservado';
+        const color = isReservado ? '#e08600' : (isTD ? 'var(--primary-green)' : (isM ? 'var(--primary-orange)' : 'var(--primary-blue)'));
+        return `<div class="logistics-box" onclick="openTurnDetail('${r.id}')" style="cursor:pointer; display:flex; align-items:center; gap:14px;"><div style="width:14px; height:14px; border-radius:50%; background:${color}; flex-shrink:0;"></div><div><div style="font-weight:800">${r.nombres || (isTD?'Disponible':'')}</div><div style="font-size:0.8rem; color:var(--text-gray)">${r.punto} • ${r.dia}</div></div></div>`;
+      }).join('')}</div>` || '<p style="text-align:center; opacity:0.5; margin-top:20px;">Sin resultados.</p>';
     }
 
     function toggleFilterMenu() { document.getElementById('filterMenu').classList.toggle('open'); }
-    
-    function toggleFilter(f) { 
-        const chip = event.target;
-        chip.classList.toggle('active'); 
-        const i = activeFilters.indexOf(f); 
-        if(i>-1) activeFilters.splice(i,1); else activeFilters.push(f); 
-        handleSearch(); 
-    }
-
+    function toggleFilter(f) { event.target.classList.toggle('active'); const i = activeFilters.indexOf(f); if(i>-1) activeFilters.splice(i,1); else activeFilters.push(f); handleSearch(); }
     function clearFilters() {
-        activeFilters = [];
-        const chips = document.querySelectorAll('#filterMenu .filter-chip');
-        chips.forEach(chip => chip.classList.remove('active'));
-        handleSearch();
-    }
-
+    activeFilters = [];
+    const chips = document.querySelectorAll('#filterMenu .filter-chip');
+    chips.forEach(chip => chip.classList.remove('active'));
+    handleSearch();
+}
     function goBack() { document.getElementById('detail-screen').classList.remove('active'); }
-    
-    function closeTurnDetail() {
-      if (isDesktop()) {
-        const overlay = document.getElementById('turnDetailOverlay');
-        overlay.classList.remove('open');
-        document.body.style.overflow = '';
-        setTimeout(() => {
-          overlay.style.display = 'none';
-        }, 300);
-      } else {
-        document.getElementById('turnDetailScreen').classList.remove('open');
+    function closeTurnDetail() { document.getElementById('turnDetailScreen').style.left = '100%'; }
+    function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+
+    function init() {
+      loadAllData();
+    }
+    init();
+
+function openLogoutModal() {
+    document.getElementById('logoutOverlay').style.display = 'flex';
+}
+
+function closeLogoutModal() {
+    document.getElementById('logoutOverlay').style.display = 'none';
+}
+
+function confirmLogout() {
+    localStorage.removeItem('userName');
+    location.reload();
+}
+
+    // =========================================================
+    // ADMINISTRACIÓN: ACCESO (7 taps en "Inicio")
+    // =========================================================
+    function handleTitleTap() {
+      titleTapCount++;
+      clearTimeout(titleTapTimer);
+      titleTapTimer = setTimeout(() => { titleTapCount = 0; }, 2500);
+      if (titleTapCount >= 7) {
+        titleTapCount = 0;
+        clearTimeout(titleTapTimer);
+        openAdminLogin();
       }
     }
 
-    // Close modal on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeTurnDetail();
-    });
+    function openAdminLogin() {
+      document.getElementById('adminLoginError').textContent = '';
+      document.getElementById('adminPasswordInput').value = '';
+      document.getElementById('adminLoginOverlay').style.display = 'flex';
+      setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
+    }
+    function closeAdminLogin() {
+      document.getElementById('adminLoginOverlay').style.display = 'none';
+    }
 
-    function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+    async function tryAdminLogin() {
+      const pass = document.getElementById('adminPasswordInput').value;
+      const errEl = document.getElementById('adminLoginError');
+      if (!pass) { errEl.textContent = 'Ingresa la contraseña.'; return; }
 
-    loadExcelData();
+      const { data, error } = await sb.rpc('verificar_admin_password', { intento: pass });
+      if (error) { errEl.textContent = 'Error de conexión. Intenta de nuevo.'; console.error(error); return; }
+
+      if (data === true) {
+        isAdmin = true;
+        sessionStorage.setItem('isAdmin', 'true');
+        sessionStorage.setItem('adminPassword', pass);
+        closeAdminLogin();
+        openAdminPanel();
+      } else {
+        errEl.textContent = 'Contraseña incorrecta.';
+      }
+    }
+
+    function getAdminPassword() {
+      return sessionStorage.getItem('adminPassword') || '';
+    }
+
+    // =========================================================
+    // ADMINISTRACIÓN: PANEL PRINCIPAL
+    // =========================================================
+    function openAdminPanel() {
+      document.getElementById('adminPanel').style.display = 'flex';
+      switchAdminTab('puntos');
+    }
+    function closeAdminPanel() {
+      document.getElementById('adminPanel').style.display = 'none';
+    }
+
+    function switchAdminTab(tab) {
+      currentAdminTab = tab;
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      if (tab === 'puntos') renderAdminPuntos();
+      if (tab === 'turnos') renderAdminTurnos();
+      if (tab === 'personas') renderAdminPersonas();
+    }
+
+    // ---------- PUNTOS ----------
+    function renderAdminPuntos() {
+      const body = document.getElementById('adminBody');
+      const items = PUNTOS.map(p => `
+        <div class="admin-list-item">
+          <div style="width:34px; height:34px; border-radius:50%; background:${p.color}; flex-shrink:0;"></div>
+          <div class="info">
+            <div class="title">${p.nombre}</div>
+            <div class="sub">${(p.dias||[]).join(', ')}</div>
+          </div>
+          <div class="admin-actions">
+            <div class="icon-btn" onclick="openPuntoForm('${p.id}')">✏️</div>
+            <div class="icon-btn danger" onclick="confirmDeletePunto('${p.id}')">🗑️</div>
+          </div>
+        </div>
+      `).join('') || `<div class="empty-state">No hay puntos creados aún.</div>`;
+      body.innerHTML = items + `<button class="fab-add" onclick="openPuntoForm()">＋ Agregar punto</button>`;
+    }
+
+    function openPuntoForm(id) {
+      const p = id ? PUNTOS.find(x => x.id === id) : null;
+      const dias = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
+      const selDias = p ? p.dias : [];
+      document.getElementById('formSheet').innerHTML = `
+        <h2 style="margin-top:0;">${p ? 'Editar punto' : 'Nuevo punto'}</h2>
+        <div class="form-group"><label>Nombre del punto</label><input class="form-input" id="f_nombre" value="${p ? p.nombre.replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Color identificador</label><input class="form-input" id="f_color" type="color" value="${p ? p.color : '#f36100'}" style="height:46px; padding:6px;"></div>
+        <div class="form-group">
+          <label>Días activos</label>
+          <div class="chip-multi" id="f_dias">
+            ${dias.map(d => `<div class="filter-chip ${selDias.includes(d) ? 'active' : ''}" data-dia="${d}" onclick="this.classList.toggle('active')">${d}</div>`).join('')}
+          </div>
+        </div>
+        <div class="form-group"><label>Dirección de retiro</label><input class="form-input" id="f_retiro_nombre" value="${p ? (p.retiro_nombre||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Referencia (ej: "Casa de...")</label><input class="form-input" id="f_retiro_sub" value="${p ? (p.retiro_sub||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Teléfono de retiro</label><input class="form-input" id="f_retiro_tel" placeholder="+569..." value="${p ? (p.retiro_tel||'') : ''}"></div>
+        <div class="form-group"><label>Nombre del encargado</label><input class="form-input" id="f_encargado_nombre" value="${p ? (p.encargado_nombre||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Teléfono del encargado</label><input class="form-input" id="f_encargado_tel" placeholder="+569..." value="${p ? (p.encargado_tel||'') : ''}"></div>
+        <div class="form-group"><label>Orden (posición en la grilla)</label><input class="form-input" id="f_orden" type="number" value="${p ? p.orden : (PUNTOS.length+1)}"></div>
+        <div class="form-actions">
+          <button class="admin-btn-secondary" style="margin:0;" onclick="closeForm()">Cancelar</button>
+          <button class="admin-btn-primary" onclick="savePunto('${p ? p.id : ''}')">${p ? 'Guardar cambios' : 'Crear punto'}</button>
+        </div>
+      `;
+      openForm();
+    }
+
+    async function savePunto(id) {
+      const nombre = document.getElementById('f_nombre').value.trim();
+      if (!nombre) { showToast('El nombre es obligatorio.'); return; }
+      const color = document.getElementById('f_color').value;
+      const dias = Array.from(document.querySelectorAll('#f_dias .filter-chip.active')).map(c => c.dataset.dia);
+      const retiro_nombre = document.getElementById('f_retiro_nombre').value.trim();
+      const retiro_sub = document.getElementById('f_retiro_sub').value.trim();
+      const retiro_tel = document.getElementById('f_retiro_tel').value.trim();
+      const encargado_nombre = document.getElementById('f_encargado_nombre').value.trim();
+      const encargado_tel = document.getElementById('f_encargado_tel').value.trim();
+      const orden = parseInt(document.getElementById('f_orden').value || '0', 10);
+      const pass = getAdminPassword();
+
+      let res;
+      if (id) {
+        res = await sb.rpc('admin_editar_punto', {
+          p_password: pass, p_id: id, p_nombre: nombre, p_color: color, p_dias: dias,
+          p_retiro_nombre: retiro_nombre, p_retiro_sub: retiro_sub, p_retiro_tel: retiro_tel,
+          p_encargado_nombre: encargado_nombre, p_encargado_tel: encargado_tel, p_orden: orden
+        });
+      } else {
+        res = await sb.rpc('admin_crear_punto', {
+          p_password: pass, p_nombre: nombre, p_color: color, p_dias: dias,
+          p_retiro_nombre: retiro_nombre, p_retiro_sub: retiro_sub, p_retiro_tel: retiro_tel,
+          p_encargado_nombre: encargado_nombre, p_encargado_tel: encargado_tel, p_orden: orden
+        });
+      }
+
+      if (res.error) { showToast('Error: ' + res.error.message); return; }
+      showToast(id ? 'Punto actualizado.' : 'Punto creado.');
+      closeForm();
+      await loadAllData();
+      renderAdminPuntos();
+    }
+
+    function confirmDeletePunto(id) {
+      const p = PUNTOS.find(x => x.id === id);
+      if (!confirm(`¿Borrar "${p ? p.nombre : 'este punto'}"? Esto también borrará sus turnos asociados.`)) return;
+      deletePunto(id);
+    }
+    async function deletePunto(id) {
+      const pass = getAdminPassword();
+      const { error } = await sb.rpc('admin_borrar_punto', { p_password: pass, p_id: id });
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast('Punto eliminado.');
+      await loadAllData();
+      renderAdminPuntos();
+    }
+
+    // ---------- TURNOS ----------
+    function renderAdminTurnos() {
+      const body = document.getElementById('adminBody');
+      if (PUNTOS.length === 0) {
+        body.innerHTML = `<div class="empty-state">Primero crea un punto en la pestaña "Puntos".</div>`;
+        return;
+      }
+      const items = TURNOS.map(t => {
+        const isTD = t.tipo.includes('TD');
+        const isReservado = isTD && t.estado === 'reservado';
+        const color = isReservado ? '#e08600' : (isTD ? 'var(--primary-green)' : (t.tipo.startsWith('M') ? 'var(--primary-orange)' : 'var(--primary-blue)'));
+        const estadoTxt = isReservado ? `Reservado (${t.reservado_por || ''})` : (isTD ? 'Disponible' : 'Ocupado');
+        return `
+          <div class="admin-list-item">
+            <div style="width:12px; height:12px; border-radius:50%; background:${color}; flex-shrink:0;"></div>
+            <div class="info">
+              <div class="title">${t.nombres || estadoTxt}</div>
+              <div class="sub">${t.punto} • ${t.dia} • ${t.hora || ''} ${isTD ? '• ' + estadoTxt : ''}</div>
+            </div>
+            <div class="admin-actions">
+              <div class="icon-btn" onclick="openTurnoForm('${t.id}')">✏️</div>
+              <div class="icon-btn danger" onclick="confirmDeleteTurno('${t.id}')">🗑️</div>
+            </div>
+          </div>
+        `;
+      }).join('') || `<div class="empty-state">No hay turnos creados aún.</div>`;
+      body.innerHTML = items + `<button class="fab-add" onclick="openTurnoForm()">＋ Agregar turno</button>`;
+    }
+
+    function openTurnoForm(id) {
+      const t = id ? TURNOS.find(x => x.id === id) : null;
+      const puntoIdActual = t ? (PUNTOS.find(p => p.nombre === t.punto) || {}).id : (PUNTOS[0] && PUNTOS[0].id);
+      const dias = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
+      document.getElementById('formSheet').innerHTML = `
+        <h2 style="margin-top:0;">${t ? 'Editar turno' : 'Nuevo turno'}</h2>
+        <div class="form-group">
+          <label>Punto</label>
+          <select class="form-select" id="t_punto">
+            ${PUNTOS.map(p => `<option value="${p.id}" ${p.id === puntoIdActual ? 'selected' : ''}>${p.nombre}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Día</label>
+            <select class="form-select" id="t_dia">
+              ${dias.map(d => `<option value="${d}" ${t && t.dia === d ? 'selected' : ''}>${d}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tipo</label>
+            <select class="form-select" id="t_tipo" onchange="onTipoTurnoChange()">
+              <option value="M" ${t && t.tipo === 'M' ? 'selected' : ''}>Mañana</option>
+              <option value="T" ${t && t.tipo === 'T' ? 'selected' : ''}>Tarde</option>
+              <option value="TD" ${t && t.tipo === 'TD' ? 'selected' : ''}>Disponible (TD)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Horario</label><input class="form-input" id="t_hora" placeholder="ej: 09:00 - 11:00" value="${t ? (t.hora||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group">
+          <label>Persona asignada (opcional, del catálogo)</label>
+          <select class="form-select" id="t_persona">
+            <option value="">— Texto libre abajo —</option>
+            ${PERSONAS.map(p => `<option value="${p.id}" ${t && t.persona_id === p.id ? 'selected' : ''}>${p.nombre}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label>Nombre(s) a mostrar</label><input class="form-input" id="t_nombres" placeholder="Nombre de quien hace el turno" value="${t ? (t.nombres||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group" id="t_estado_group" style="${t && t.tipo === 'TD' || (!t) ? '' : 'display:none;'}">
+          <label>Estado (solo turnos Disponibles)</label>
+          <select class="form-select" id="t_estado">
+            <option value="libre" ${(!t || t.estado === 'libre') ? 'selected' : ''}>Libre</option>
+            <option value="reservado" ${t && t.estado === 'reservado' ? 'selected' : ''}>Reservado</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button class="admin-btn-secondary" style="margin:0;" onclick="closeForm()">Cancelar</button>
+          <button class="admin-btn-primary" onclick="saveTurno('${t ? t.id : ''}')">${t ? 'Guardar cambios' : 'Crear turno'}</button>
+        </div>
+      `;
+      openForm();
+      onTipoTurnoChange();
+    }
+
+    function onTipoTurnoChange() {
+      const tipo = document.getElementById('t_tipo').value;
+      document.getElementById('t_estado_group').style.display = tipo === 'TD' ? '' : 'none';
+    }
+
+    async function saveTurno(id) {
+      const punto_id = document.getElementById('t_punto').value;
+      const dia = document.getElementById('t_dia').value;
+      const tipo = document.getElementById('t_tipo').value;
+      const hora = document.getElementById('t_hora').value.trim();
+      const persona_id = document.getElementById('t_persona').value || null;
+      let nombres = document.getElementById('t_nombres').value.trim();
+      const estadoSel = document.getElementById('t_estado') ? document.getElementById('t_estado').value : null;
+      const estado = tipo === 'TD' ? (estadoSel || 'libre') : 'ocupado';
+
+      if (persona_id) {
+        const per = PERSONAS.find(p => p.id === persona_id);
+        if (per && !nombres) nombres = per.nombre;
+      }
+
+      if (!punto_id || !dia || !tipo) { showToast('Completa punto, día y tipo.'); return; }
+
+      const pass = getAdminPassword();
+      let res;
+      if (id) {
+        res = await sb.rpc('admin_editar_turno', {
+          p_password: pass, p_id: id, p_punto_id: punto_id, p_dia: dia, p_tipo: tipo,
+          p_hora: hora, p_nombres: nombres, p_persona_id: persona_id, p_estado: estado
+        });
+      } else {
+        res = await sb.rpc('admin_crear_turno', {
+          p_password: pass, p_punto_id: punto_id, p_dia: dia, p_tipo: tipo,
+          p_hora: hora, p_nombres: nombres, p_persona_id: persona_id, p_estado: estado
+        });
+      }
+
+      if (res.error) { showToast('Error: ' + res.error.message); return; }
+      showToast(id ? 'Turno actualizado.' : 'Turno creado.');
+      closeForm();
+      await loadAllData();
+      renderAdminTurnos();
+    }
+
+    function confirmDeleteTurno(id) {
+      if (!confirm('¿Borrar este turno?')) return;
+      deleteTurno(id);
+    }
+    async function deleteTurno(id) {
+      const pass = getAdminPassword();
+      const { error } = await sb.rpc('admin_borrar_turno', { p_password: pass, p_id: id });
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast('Turno eliminado.');
+      await loadAllData();
+      renderAdminTurnos();
+    }
+
+    // ---------- PERSONAS ----------
+    function renderAdminPersonas() {
+      const body = document.getElementById('adminBody');
+      const items = PERSONAS.map(p => `
+        <div class="admin-list-item">
+          <div style="width:34px; height:34px; border-radius:50%; background:${p.activo ? 'var(--primary-green)' : 'var(--text-gray)'}; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;">${p.nombre.charAt(0).toUpperCase()}</div>
+          <div class="info">
+            <div class="title">${p.nombre}</div>
+            <div class="sub">${p.telefono || 'Sin teléfono'} ${p.activo ? '' : '• Inactivo'}</div>
+          </div>
+          <div class="admin-actions">
+            <div class="icon-btn" onclick="openPersonaForm('${p.id}')">✏️</div>
+            <div class="icon-btn danger" onclick="confirmDeletePersona('${p.id}')">🗑️</div>
+          </div>
+        </div>
+      `).join('') || `<div class="empty-state">No hay personas registradas aún.</div>`;
+      body.innerHTML = items + `<button class="fab-add" onclick="openPersonaForm()">＋ Agregar persona</button>`;
+    }
+
+    function openPersonaForm(id) {
+      const p = id ? PERSONAS.find(x => x.id === id) : null;
+      document.getElementById('formSheet').innerHTML = `
+        <h2 style="margin-top:0;">${p ? 'Editar persona' : 'Nueva persona'}</h2>
+        <div class="form-group"><label>Nombre</label><input class="form-input" id="pe_nombre" value="${p ? p.nombre.replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Teléfono (opcional)</label><input class="form-input" id="pe_telefono" placeholder="+569..." value="${p ? (p.telefono||'') : ''}"></div>
+        ${p ? `<div class="form-group"><label>Estado</label>
+          <select class="form-select" id="pe_activo">
+            <option value="true" ${p.activo ? 'selected' : ''}>Activo</option>
+            <option value="false" ${!p.activo ? 'selected' : ''}>Inactivo</option>
+          </select>
+        </div>` : ''}
+        <div class="form-actions">
+          <button class="admin-btn-secondary" style="margin:0;" onclick="closeForm()">Cancelar</button>
+          <button class="admin-btn-primary" onclick="savePersona('${p ? p.id : ''}')">${p ? 'Guardar cambios' : 'Agregar persona'}</button>
+        </div>
+      `;
+      openForm();
+    }
+
+    async function savePersona(id) {
+      const nombre = document.getElementById('pe_nombre').value.trim();
+      if (!nombre) { showToast('El nombre es obligatorio.'); return; }
+      const telefono = document.getElementById('pe_telefono').value.trim();
+      const pass = getAdminPassword();
+
+      let res;
+      if (id) {
+        const activo = document.getElementById('pe_activo').value === 'true';
+        res = await sb.rpc('admin_editar_persona', { p_password: pass, p_id: id, p_nombre: nombre, p_telefono: telefono, p_activo: activo });
+      } else {
+        res = await sb.rpc('admin_crear_persona', { p_password: pass, p_nombre: nombre, p_telefono: telefono });
+      }
+
+      if (res.error) { showToast('Error: ' + res.error.message); return; }
+      showToast(id ? 'Persona actualizada.' : 'Persona agregada.');
+      closeForm();
+      await loadAllData();
+      renderAdminPersonas();
+    }
+
+    function confirmDeletePersona(id) {
+      if (!confirm('¿Borrar esta persona del catálogo?')) return;
+      deletePersona(id);
+    }
+    async function deletePersona(id) {
+      const pass = getAdminPassword();
+      const { error } = await sb.rpc('admin_borrar_persona', { p_password: pass, p_id: id });
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast('Persona eliminada.');
+      await loadAllData();
+      renderAdminPersonas();
+    }
+
+    // ---------- FORM OVERLAY HELPERS ----------
+    function openForm() { document.getElementById('formOverlay').style.display = 'flex'; }
+    function closeForm() { document.getElementById('formOverlay').style.display = 'none'; }
+
   </script>
 </body>
 </html>
