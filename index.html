@@ -889,7 +889,14 @@ function confirmLogout() {
       if (SUPABASE_LOAD_ERROR || !sb) { errEl.textContent = 'Sin conexión con la base de datos. Recarga la página.'; return; }
 
       const { data, error } = await sb.rpc('verificar_admin_password', { intento: pass });
-      if (error) { errEl.textContent = 'Error de conexión. Intenta de nuevo.'; console.error(error); return; }
+      if (error) {
+        console.error('Error en verificar_admin_password:', error);
+        // Mostramos el motivo real (ej: "function does not exist") en vez
+        // de un mensaje genérico, para poder diagnosticar rápido si falta
+        // correr algún script SQL en Supabase.
+        errEl.textContent = 'Error: ' + (error.message || 'No se pudo verificar la contraseña.');
+        return;
+      }
 
       if (data === true) {
         isAdmin = true;
