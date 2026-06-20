@@ -359,7 +359,7 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
   <div class="app-wrapper">
     <section class="screen" id="list-screen">
       <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:25px 25px 10px;">
-        <h1 id="homeTitle" style="margin:0; font-size: 2.2rem; cursor:pointer; user-select:none;" onclick="handleTitleTap()">Inicio</h1>
+        <h1 id="homeTitle" style="margin:0; font-size: 2.2rem; cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; touch-action:manipulation;">Inicio</h1>
         <div style="display:flex; gap:12px;">
           <button class="header-btn" onclick="toggleTheme()"><svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/></svg></button>
 <button class="header-btn" onclick="openLogoutModal()" title="Cerrar Sesión">
@@ -674,6 +674,10 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
 
     function init() {
       loadAllData();
+      const titleEl = document.getElementById('homeTitle');
+      if (titleEl) {
+        titleEl.addEventListener('click', handleTitleTap);
+      }
     }
     init();
 
@@ -693,14 +697,45 @@ function confirmLogout() {
     // =========================================================
     // ADMINISTRACIÓN: ACCESO (7 taps en "Inicio")
     // =========================================================
+    // El bug original: en móvil, toques rápidos y repetidos sobre el
+    // mismo texto son interpretados por el navegador como gesto de
+    // doble-tap-zoom, lo que cancela o retrasa el evento 'click' y
+    // hace que el conteo nunca llegue a 7 de forma consistente.
+    // Se corrige con `touch-action: manipulation` en el <h1> (CSS inline)
+    // que desactiva ese gesto del navegador para ese elemento, dejando
+    // 'click' libre para dispararse inmediatamente en cada toque.
+    // También se amplía la ventana de tiempo (4s) y se agrega feedback
+    // visual + vibración para que el usuario confirme que cada toque
+    // está siendo contado.
     function handleTitleTap() {
       titleTapCount++;
       clearTimeout(titleTapTimer);
-      titleTapTimer = setTimeout(() => { titleTapCount = 0; }, 2500);
+      // Ventana ampliada a 4s: 7 toques rápidos pero humanos pueden
+      // tomar más de 2.5s, sobre todo en pantallas táctiles.
+      titleTapTimer = setTimeout(() => { titleTapCount = 0; updateTitleTapFeedback(); }, 4000);
+
+      // Feedback táctil/visual para que el usuario sepa que el conteo
+      // está avanzando (antes era invisible y parecía "no hacer nada").
+      if (navigator.vibrate) navigator.vibrate(8);
+      updateTitleTapFeedback();
+
       if (titleTapCount >= 7) {
         titleTapCount = 0;
         clearTimeout(titleTapTimer);
+        updateTitleTapFeedback();
         openAdminLogin();
+      }
+    }
+
+    function updateTitleTapFeedback() {
+      const el = document.getElementById('homeTitle');
+      if (!el) return;
+      if (titleTapCount > 0) {
+        // Pequeño "pulso" de opacidad para confirmar visualmente cada toque
+        // sin mostrar números (mantiene el acceso discreto).
+        el.style.transition = 'opacity 0.1s ease';
+        el.style.opacity = '0.5';
+        setTimeout(() => { el.style.opacity = '1'; }, 100);
       }
     }
 
