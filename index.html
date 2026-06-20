@@ -285,6 +285,50 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
 }
 .toast.show { opacity: 1; }
 
+/* --- MENÚ CONTEXTUAL (3 puntos) --- */
+.header-menu {
+    position: absolute;
+    top: 56px;
+    right: 0;
+    background: var(--bg-screen);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    padding: 8px;
+    min-width: 220px;
+    z-index: 5000;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.header-menu.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+.header-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--text-main);
+}
+.header-menu-item:active { background: var(--bg-card); }
+.header-menu-item .header-menu-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; flex-shrink: 0; color: var(--text-gray);
+}
+.header-menu-item.danger { color: #e63946; }
+.header-menu-item.danger .header-menu-icon { color: #e63946; }
+@media (hover: hover) {
+  .header-menu-item:hover { background: var(--bg-card); }
+}
+
   </style>
 </head>
 <body>
@@ -358,14 +402,36 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
 
   <div class="app-wrapper">
     <section class="screen" id="list-screen">
-      <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:25px 25px 10px;">
-        <h1 id="homeTitle" style="margin:0; font-size: 2.2rem; cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; touch-action:manipulation;">Inicio</h1>
+      <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:25px 25px 10px; position:relative;">
+        <h1 id="homeTitle" style="margin:0; font-size: 2.2rem;">Inicio</h1>
         <div style="display:flex; gap:12px;">
-          <button class="header-btn" onclick="toggleTheme()"><svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/></svg></button>
-<button class="header-btn" onclick="openLogoutModal()" title="Cerrar Sesión">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-    </svg>        </div>
+          <button class="header-btn" id="menuDotsBtn" onclick="toggleHeaderMenu()" title="Menú">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+            </svg>
+          </button>
+        </div>
+
+        <div id="headerMenu" class="header-menu">
+          <div class="header-menu-item" onclick="toggleTheme()">
+            <span class="header-menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/></svg>
+            </span>
+            <span>Modo Claro/Oscuro</span>
+          </div>
+          <div class="header-menu-item" onclick="handleAdminMenuClick()">
+            <span class="header-menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </span>
+            <span>Administrador</span>
+          </div>
+          <div class="header-menu-item danger" onclick="openLogoutModal()">
+            <span class="header-menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </span>
+            <span>Cerrar Sesión</span>
+          </div>
+        </div>
       </div>
 
       <div style="padding: 0 20px 5px;"> <div style="position:relative; display:flex; align-items:center;">
@@ -434,8 +500,6 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
     let activeFilters = [];
     let userName = localStorage.getItem('userName') || "";
     let isAdmin = sessionStorage.getItem('isAdmin') === 'true';
-    let titleTapCount = 0;
-    let titleTapTimer = null;
     let currentAdminTab = 'puntos';
 
     function showToast(msg) {
@@ -674,14 +738,20 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--b
 
     function init() {
       loadAllData();
-      const titleEl = document.getElementById('homeTitle');
-      if (titleEl) {
-        titleEl.addEventListener('click', handleTitleTap);
-      }
+      // Cerrar el menú contextual al tocar fuera de él
+      document.addEventListener('click', (e) => {
+        const menu = document.getElementById('headerMenu');
+        const btn = document.getElementById('menuDotsBtn');
+        if (!menu || !btn) return;
+        if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
+          menu.classList.remove('open');
+        }
+      });
     }
     init();
 
 function openLogoutModal() {
+    closeHeaderMenu();
     document.getElementById('logoutOverlay').style.display = 'flex';
 }
 
@@ -695,47 +765,25 @@ function confirmLogout() {
 }
 
     // =========================================================
-    // ADMINISTRACIÓN: ACCESO (7 taps en "Inicio")
+    // MENÚ CONTEXTUAL (3 puntos): Modo Claro/Oscuro, Administrador, Cerrar Sesión
     // =========================================================
-    // El bug original: en móvil, toques rápidos y repetidos sobre el
-    // mismo texto son interpretados por el navegador como gesto de
-    // doble-tap-zoom, lo que cancela o retrasa el evento 'click' y
-    // hace que el conteo nunca llegue a 7 de forma consistente.
-    // Se corrige con `touch-action: manipulation` en el <h1> (CSS inline)
-    // que desactiva ese gesto del navegador para ese elemento, dejando
-    // 'click' libre para dispararse inmediatamente en cada toque.
-    // También se amplía la ventana de tiempo (4s) y se agrega feedback
-    // visual + vibración para que el usuario confirme que cada toque
-    // está siendo contado.
-    function handleTitleTap() {
-      titleTapCount++;
-      clearTimeout(titleTapTimer);
-      // Ventana ampliada a 4s: 7 toques rápidos pero humanos pueden
-      // tomar más de 2.5s, sobre todo en pantallas táctiles.
-      titleTapTimer = setTimeout(() => { titleTapCount = 0; updateTitleTapFeedback(); }, 4000);
-
-      // Feedback táctil/visual para que el usuario sepa que el conteo
-      // está avanzando (antes era invisible y parecía "no hacer nada").
-      if (navigator.vibrate) navigator.vibrate(8);
-      updateTitleTapFeedback();
-
-      if (titleTapCount >= 7) {
-        titleTapCount = 0;
-        clearTimeout(titleTapTimer);
-        updateTitleTapFeedback();
-        openAdminLogin();
-      }
+    function toggleHeaderMenu() {
+      const menu = document.getElementById('headerMenu');
+      if (!menu) return;
+      menu.classList.toggle('open');
     }
 
-    function updateTitleTapFeedback() {
-      const el = document.getElementById('homeTitle');
-      if (!el) return;
-      if (titleTapCount > 0) {
-        // Pequeño "pulso" de opacidad para confirmar visualmente cada toque
-        // sin mostrar números (mantiene el acceso discreto).
-        el.style.transition = 'opacity 0.1s ease';
-        el.style.opacity = '0.5';
-        setTimeout(() => { el.style.opacity = '1'; }, 100);
+    function closeHeaderMenu() {
+      const menu = document.getElementById('headerMenu');
+      if (menu) menu.classList.remove('open');
+    }
+
+    function handleAdminMenuClick() {
+      closeHeaderMenu();
+      if (isAdmin) {
+        openAdminPanel();
+      } else {
+        openAdminLogin();
       }
     }
 
