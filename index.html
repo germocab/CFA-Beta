@@ -1,203 +1,1299 @@
--- =========================================================
--- MIGRACIÓN: Múltiples personas por turno + Horarios automáticos por punto
--- Ejecutar en el SQL Editor de Supabase, en orden, de arriba hacia abajo.
--- =========================================================
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inicio</title>
+  <style>
+/* --- ESTILOS ORIGINALES PRESERVADOS --- */
+body {
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
 
--- ---------------------------------------------------------
--- 1) NUEVAS COLUMNAS EN "turnos": persona_ids (varias personas)
--- ---------------------------------------------------------
-ALTER TABLE turnos ADD COLUMN IF NOT EXISTS persona_ids jsonb DEFAULT '[]'::jsonb;
+.screen, .logistics-box, .location-card, .filter-chip, .header-btn {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
 
--- Migramos los datos viejos: si un turno ya tenía persona_id (single),
--- lo convertimos en un arreglo de 1 elemento para no perder información.
-UPDATE turnos
-SET persona_ids = jsonb_build_array(persona_id)
-WHERE persona_id IS NOT NULL
-  AND (persona_ids IS NULL OR persona_ids = '[]'::jsonb);
+.screen { transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease; }
+#detail-screen { opacity: 0; }
+#detail-screen.active { opacity: 1; }
 
--- (Opcional, puedes dejarla por compatibilidad o borrarla más adelante)
--- ALTER TABLE turnos DROP COLUMN persona_id;
+#filterMenu {
+  max-height: 0; opacity: 0; overflow: hidden; transform: translateY(-6px);
+  transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.35s ease;
+}
+#filterMenu.open { max-height: 300px; opacity: 1; transform: translateY(0); }
 
--- ---------------------------------------------------------
--- 2) NUEVAS COLUMNAS EN "puntos": horarios predeterminados por tipo de turno
--- ---------------------------------------------------------
-ALTER TABLE puntos ADD COLUMN IF NOT EXISTS horario_m  text DEFAULT '';
-ALTER TABLE puntos ADD COLUMN IF NOT EXISTS horario_t  text DEFAULT '';
-ALTER TABLE puntos ADD COLUMN IF NOT EXISTS horario_td text DEFAULT '';
+:root {
+  --bg-body: #f0f2f5; --bg-screen: #ffffff; --bg-card: #f8f9fa;
+  --text-main: #1a1a1a; --text-gray: #65676b; --primary-orange: #f36100;
+  --primary-blue: #0056ff; --primary-green: #28a745; --radius: 24px;
+  --border-color: #e4e6eb; --shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
 
--- ---------------------------------------------------------
--- 3) FUNCIÓN: admin_crear_turno (ahora recibe p_persona_ids en vez de p_persona_id)
--- ---------------------------------------------------------
-DROP FUNCTION IF EXISTS admin_crear_turno(text, uuid, text, text, text, text, uuid, text);
+body.dark-mode {
+  --bg-body: #1e1e1e; --bg-screen: #121212; --bg-card: #1e1e1e;
+  --text-main: #ffffff; --text-gray: #a0a0a0; --border-color: rgba(255,255,255,0.05);
+}
 
-CREATE OR REPLACE FUNCTION admin_crear_turno(
-  p_password text,
-  p_punto_id uuid,
-  p_dia text,
-  p_tipo text,
-  p_hora text,
-  p_nombres text,
-  p_persona_ids jsonb,
-  p_estado text
-)
-RETURNS uuid
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-DECLARE
-  v_id uuid;
-BEGIN
-  IF NOT verificar_admin_password(p_password) THEN
-    RAISE EXCEPTION 'Contraseña incorrecta';
-  END IF;
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-main); overflow-x: hidden; }
 
-  INSERT INTO turnos (punto_id, dia, tipo, hora, nombres, persona_ids, estado)
-  VALUES (p_punto_id, p_dia, p_tipo, p_hora, p_nombres, p_persona_ids, p_estado)
-  RETURNING id INTO v_id;
+.app-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 1100px; padding: 20px; margin: auto; }
+.screen { background-color: var(--bg-screen); border-radius: var(--radius); overflow: hidden; height: 850px; display: flex; flex-direction: column; box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; }
+.scroll-container { padding: 20px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
 
-  RETURN v_id;
-END;
-$$;
+.header-btn {
+  background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main);
+  width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; font-size: 1.2rem; position: relative; transition: transform 0.2s;
+}
 
--- ---------------------------------------------------------
--- 4) FUNCIÓN: admin_editar_turno (ahora recibe p_persona_ids en vez de p_persona_id)
--- ---------------------------------------------------------
-DROP FUNCTION IF EXISTS admin_editar_turno(text, uuid, uuid, text, text, text, text, uuid, text);
+.grid-2x2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; align-items: stretch; }
+.location-card { 
+  padding: 20px 10px; border-radius: var(--radius); cursor: pointer; background-color: var(--bg-card); 
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; 
+  gap: 12px; border: 2px solid transparent; min-height: 190px; height: 100%; 
+}
+.status-dot { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; }
+.location-card h2 { margin: 0; font-size: 0.95rem; font-weight: 800; line-height: 1.2; }
 
-CREATE OR REPLACE FUNCTION admin_editar_turno(
-  p_password text,
-  p_id uuid,
-  p_punto_id uuid,
-  p_dia text,
-  p_tipo text,
-  p_hora text,
-  p_nombres text,
-  p_persona_ids jsonb,
-  p_estado text
-)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-BEGIN
-  IF NOT verificar_admin_password(p_password) THEN
-    RAISE EXCEPTION 'Contraseña incorrecta';
-  END IF;
+.logistics-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 15px; margin-bottom: 15px; }
+.logistics-box.orange { background: rgba(243, 97, 0, 0.05); border-color: rgba(243, 97, 0, 0.2); }
 
-  UPDATE turnos
-  SET punto_id = p_punto_id,
-      dia = p_dia,
-      tipo = p_tipo,
-      hora = p_hora,
-      nombres = p_nombres,
-      persona_ids = p_persona_ids,
-      estado = p_estado
-  WHERE id = p_id;
-END;
-$$;
+.filter-chip { padding: 8px 15px; border-radius: 20px; background: var(--bg-screen); border: 1px solid var(--border-color); font-size: 0.85rem; cursor: pointer; font-weight: 600; color: var(--text-gray); }
+.filter-chip.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
 
--- ---------------------------------------------------------
--- 5) FUNCIÓN: admin_crear_punto (agrega p_horario_m, p_horario_t, p_horario_td)
--- ---------------------------------------------------------
-DROP FUNCTION IF EXISTS admin_crear_punto(text, text, text, text[], text, text, text, text, text, integer);
+.slot { padding: 20px; border-radius: var(--radius); margin-bottom: 12px; color: white; display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: transform 0.2s; }
+.turno-M { background-color: var(--primary-orange); }
+.turno-T { background-color: var(--primary-blue); }
+.turno-TD { background-color: var(--primary-green); }
+.turno-RESERVADO { background-color: #e08600; }
 
-CREATE OR REPLACE FUNCTION admin_crear_punto(
-  p_password text,
-  p_nombre text,
-  p_color text,
-  p_dias text[],
-  p_retiro_nombre text,
-  p_retiro_sub text,
-  p_retiro_tel text,
-  p_encargado_nombre text,
-  p_encargado_tel text,
-  p_orden integer,
-  p_horario_m text,
-  p_horario_t text,
-  p_horario_td text
-)
-RETURNS uuid
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-DECLARE
-  v_id uuid;
-BEGIN
-  IF NOT verificar_admin_password(p_password) THEN
-    RAISE EXCEPTION 'Contraseña incorrecta';
-  END IF;
+/* --- AJUSTES SOLICITADOS --- */
+#nameOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+#nameModal {
+    background: var(--bg-screen); padding: 30px; border-radius: 28px;
+    width: 100%; max-width: 400px; text-align: center;
+}
 
-  INSERT INTO puntos (
-    nombre, color, dias, retiro_nombre, retiro_sub, retiro_tel,
-    encargado_nombre, encargado_tel, orden, horario_m, horario_t, horario_td
-  )
-  VALUES (
-    p_nombre, p_color, p_dias, p_retiro_nombre, p_retiro_sub, p_retiro_tel,
-    p_encargado_nombre, p_encargado_tel, p_orden, p_horario_m, p_horario_t, p_horario_td
-  )
-  RETURNING id INTO v_id;
+.section-title { 
+    font-size: 1.1rem; 
+    font-weight: 800; 
+    margin: 10px 0 10px 5px;
+    color: var(--text-main); 
+}
 
-  RETURN v_id;
-END;
-$$;
+.my-shift-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+}
 
--- ---------------------------------------------------------
--- 6) FUNCIÓN: admin_editar_punto (agrega p_horario_m, p_horario_t, p_horario_td)
--- ---------------------------------------------------------
-DROP FUNCTION IF EXISTS admin_editar_punto(text, uuid, text, text, text[], text, text, text, text, text, integer);
+@media (max-width: 767px) {
+  .app-wrapper { display: block; padding: 0; }
+  .screen { height: 100vh; border-radius: 0; border: none; width: 100%; }
+  #detail-screen { position: fixed; top: 0; left: 100%; width: 100%; z-index: 2000; }
+  #detail-screen.active { transform: translateX(-100%); }
+}
 
-CREATE OR REPLACE FUNCTION admin_editar_punto(
-  p_password text,
-  p_id uuid,
-  p_nombre text,
-  p_color text,
-  p_dias text[],
-  p_retiro_nombre text,
-  p_retiro_sub text,
-  p_retiro_tel text,
-  p_encargado_nombre text,
-  p_encargado_tel text,
-  p_orden integer,
-  p_horario_m text,
-  p_horario_t text,
-  p_horario_td text
-)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-BEGIN
-  IF NOT verificar_admin_password(p_password) THEN
-    RAISE EXCEPTION 'Contraseña incorrecta';
-  END IF;
+@media (min-width: 768px) {
+  .app-wrapper { display: grid; grid-template-columns: 420px 1fr; gap: 20px; }
+  #detail-screen { position: relative; opacity: 1 !important; transform: none !important; left: auto !important; }
+}
 
-  UPDATE puntos
-  SET nombre = p_nombre,
-      color = p_color,
-      dias = p_dias,
-      retiro_nombre = p_retiro_nombre,
-      retiro_sub = p_retiro_sub,
-      retiro_tel = p_retiro_tel,
-      encargado_nombre = p_encargado_nombre,
-      encargado_tel = p_encargado_tel,
-      orden = p_orden,
-      horario_m = p_horario_m,
-      horario_t = p_horario_t,
-      horario_td = p_horario_td
-  WHERE id = p_id;
-END;
-$$;
+#locationsList {
+    flex: 1;
+    padding-bottom: 20px;
+    display: block;
+}
 
--- =========================================================
--- FIN DE LA MIGRACIÓN
--- =========================================================
--- NOTA IMPORTANTE: Los nombres exactos de los parámetros (p_password,
--- p_punto_id, etc.) y sus tipos (uuid, text, text[], jsonb...) deben
--- coincidir con los que ya tenías en tu base. Si tu función original
--- usaba un tipo distinto para algún parámetro (por ejemplo "id" en vez
--- de "uuid"), revisa el DROP FUNCTION correspondiente: si no encuentra
--- una función con esa firma exacta, no hace nada (no falla), por lo
--- que el CREATE OR REPLACE de abajo simplemente crea una nueva versión
--- y puede que quede una versión vieja "duplicada". Si ves un error de
--- "function is not unique" al usar la app, entra a Database > Functions
--- en Supabase y borra a mano las versiones antiguas que ya no usas.
+@media (max-width: 767px) {
+    .screen { 
+        height: 100vh;
+        border-radius: 0; 
+    }
+}
+
+.logistics-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.logistics-box.orange {
+    background: linear-gradient(145deg, rgba(243, 97, 0, 0.08), rgba(243, 97, 0, 0.02));
+    border-color: rgba(243, 97, 0, 0.15);
+}
+
+.logistics-box h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-gray);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.logistics-box p {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+
+.btn-mini {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color);
+    background: var(--bg-screen);
+    color: var(--text-main);
+}
+
+.btn-mini:active {
+    transform: scale(0.96);
+}
+
+.logistics-box.orange .btn-mini {
+    border-color: rgba(243, 97, 0, 0.2);
+    color: var(--primary-orange);
+}
+
+.btn-whatsapp {
+    background: #25D366 !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* --- ESTILOS ADMIN --- */
+.admin-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    z-index: 10500; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.admin-modal {
+    background: var(--bg-screen); padding: 30px; border-radius: 28px;
+    width: 100%; max-width: 420px; text-align: center;
+}
+.admin-input {
+    width:100%; padding:16px; border-radius:15px; border:1px solid var(--border-color);
+    background:var(--bg-card); color:var(--text-main); outline:none; font-size:1rem; margin-bottom:15px;
+    text-align: left;
+}
+.admin-btn-primary {
+    width:100%; padding:16px; border-radius:15px; border:none;
+    background:var(--primary-orange); color:white; font-weight:bold; font-size:1rem; cursor:pointer;
+}
+.admin-btn-secondary {
+    width:100%; padding:14px; border-radius:15px; border:1px solid var(--border-color);
+    background:var(--bg-card); color:var(--text-main); font-weight:bold; font-size:0.95rem; cursor:pointer; margin-top:10px;
+}
+.admin-error { color: #e63946; font-size: 0.85rem; font-weight: 700; margin: -8px 0 12px; min-height: 1em; }
+
+#adminPanel {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-body); z-index: 6000; display: none; flex-direction: column;
+}
+.admin-tabs {
+    display: flex; gap: 8px; padding: 0 20px 15px; overflow-x: auto;
+}
+.admin-tab {
+    padding: 10px 16px; border-radius: 14px; background: var(--bg-card); border:1px solid var(--border-color);
+    font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; color: var(--text-gray);
+}
+.admin-tab.active { background: var(--primary-orange); color: white; border-color: var(--primary-orange); }
+
+.admin-list-item {
+    background: var(--bg-card); border:1px solid var(--border-color); border-radius: 18px;
+    padding: 16px; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center; gap: 12px;
+}
+.admin-list-item .info { flex: 1; min-width: 0; }
+.admin-list-item .info .title { font-weight: 800; font-size: 1rem; }
+.admin-list-item .info .sub { color: var(--text-gray); font-size: 0.8rem; margin-top: 2px; }
+.admin-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.icon-btn {
+    width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border-color);
+    background: var(--bg-screen); display:flex; align-items:center; justify-content:center; cursor:pointer; color: var(--text-main);
+}
+.icon-btn.danger { color: #e63946; border-color: rgba(230,57,70,0.3); }
+
+.fab-add {
+    position: sticky; bottom: 16px; margin: 16px 20px 0; padding: 16px; border-radius: 16px;
+    background: var(--primary-orange); color: white; font-weight: 800; border: none; cursor: pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px; font-size: 0.95rem; width: calc(100% - 40px);
+}
+
+.form-overlay {
+    position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px); z-index: 7000; display:none; align-items:flex-end; justify-content:center;
+}
+@media (min-width: 768px) {
+  .form-overlay { align-items: center; }
+}
+.form-sheet {
+    background: var(--bg-screen); width: 100%; max-width: 500px; border-radius: 24px 24px 0 0;
+    padding: 25px; max-height: 88vh; overflow-y: auto;
+}
+@media (min-width: 768px) {
+  .form-sheet { border-radius: 24px; }
+}
+.form-group { margin-bottom: 14px; text-align: left; }
+.form-group label {
+    display:block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-gray); margin-bottom: 6px;
+}
+.form-input, .form-select, .form-textarea {
+    width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-main); font-size: 0.95rem; outline: none; font-family: inherit;
+}
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+.chip-multi { display:flex; flex-wrap:wrap; gap:8px; }
+.chip-multi .filter-chip { margin: 0; }
+.form-actions { display:flex; gap:10px; margin-top: 20px; }
+
+.empty-state { text-align:center; padding: 40px 20px; color: var(--text-gray); }
+.toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1a1a1a; color: white; padding: 14px 22px; border-radius: 14px;
+    font-weight: 700; font-size: 0.9rem; z-index: 9000; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none; max-width: 90%; text-align: center;
+}
+.toast.show { opacity: 1; }
+
+/* --- MENÚ CONTEXTUAL (3 puntos) --- */
+.header-menu {
+    position: absolute;
+    top: 56px;
+    right: 0;
+    background: var(--bg-screen);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    padding: 8px;
+    min-width: 220px;
+    z-index: 5000;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.header-menu.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+.header-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--text-main);
+}
+.header-menu-item:active { background: var(--bg-card); }
+.header-menu-item .header-menu-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; flex-shrink: 0; color: var(--text-gray);
+}
+.header-menu-item.danger { color: #e63946; }
+.header-menu-item.danger .header-menu-icon { color: #e63946; }
+@media (hover: hover) {
+  .header-menu-item:hover { background: var(--bg-card); }
+}
+
+  </style>
+</head>
+<body>
+
+  <div id="nameOverlay">
+    <div id="nameModal">
+        <h2 style="margin-top:0;">Bienvenido</h2>
+        <p style="color:var(--text-gray); margin-bottom:25px;">Introduce tu nombre para acceder.</p>
+        <input type="text" id="userNameInput" placeholder="Escribe tu nombre..." 
+               style="width:100%; padding:16px; border-radius:15px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none; font-size:1rem; margin-bottom:15px;">
+        <button onclick="saveName()" 
+                style="width:100%; padding:16px; border-radius:15px; border:none; background:var(--primary-orange); color:white; font-weight:bold; font-size:1rem; cursor:pointer;">
+            Comenzar
+        </button>
+    </div>
+  </div>
+
+<div id="logoutOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: var(--bg-screen); padding: 30px; border-radius: 28px; width: 100%; max-width: 350px; text-align: center; box-shadow: var(--shadow);">
+      <div style="background: rgba(243, 97, 0, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: var(--primary-orange);">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
+      <h2 style="margin-top:0; font-size: 1.4rem;">¿Cerrar sesión?</h2>
+      <p style="color:var(--text-gray); margin-bottom:25px; font-size: 0.95rem;">Tendrás que ingresar tu nombre nuevamente para entrar.</p>
+      
+      <div style="display:flex; gap:12px;">
+        <button onclick="closeLogoutModal()" style="flex:1; padding:14px; border-radius:15px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:bold; cursor:pointer;">
+            Cancelar
+        </button>
+        <button onclick="confirmLogout()" style="flex:1; padding:14px; border-radius:15px; border:none; background:var(--primary-orange); color:white; font-weight:bold; cursor:pointer;">
+            Sí, salir
+        </button>
+      </div>
+  </div>
+</div>
+
+  <!-- MODAL ACCESO ADMINISTRACIÓN (7 clicks en "Inicio") -->
+  <div class="admin-overlay" id="adminLoginOverlay">
+    <div class="admin-modal">
+      <h2 style="margin-top:0;">Administración</h2>
+      <p style="color:var(--text-gray); margin-bottom:20px; font-size:0.9rem;">Introduce la contraseña para gestionar puntos, turnos y personas.</p>
+      <input type="password" id="adminPasswordInput" class="admin-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter') tryAdminLogin()">
+      <div class="admin-error" id="adminLoginError"></div>
+      <button class="admin-btn-primary" onclick="tryAdminLogin()">Ingresar</button>
+      <button class="admin-btn-secondary" onclick="closeAdminLogin()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- PANEL DE ADMINISTRACIÓN -->
+  <div id="adminPanel">
+    <div style="display:flex; align-items:center; gap:15px; padding:25px 20px 10px;">
+      <button class="header-btn" onclick="closeAdminPanel()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h1 style="margin:0; font-size: 1.6rem;">Administración</h1>
+    </div>
+    <div class="admin-tabs">
+      <div class="admin-tab active" data-tab="puntos" onclick="switchAdminTab('puntos')">📍 Puntos</div>
+      <div class="admin-tab" data-tab="turnos" onclick="switchAdminTab('turnos')">🕒 Turnos</div>
+      <div class="admin-tab" data-tab="personas" onclick="switchAdminTab('personas')">👥 Personas</div>
+    </div>
+    <div class="scroll-container" id="adminBody" style="padding-top:5px;"></div>
+  </div>
+
+  <!-- FORMULARIO GENÉRICO (puntos / turnos / personas) -->
+  <div class="form-overlay" id="formOverlay">
+    <div class="form-sheet" id="formSheet"></div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div class="app-wrapper">
+    <section class="screen" id="list-screen">
+      <div class="header-list" style="display:flex; justify-content:space-between; align-items:center; padding:25px 25px 10px; position:relative;">
+        <h1 id="homeTitle" style="margin:0; font-size: 2.2rem;">Inicio</h1>
+        <div style="display:flex; gap:12px;">
+          <button class="header-btn" id="menuDotsBtn" onclick="toggleHeaderMenu()" title="Menú">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+            </svg>
+          </button>
+        </div>
+
+        <div id="headerMenu" class="header-menu">
+          <div class="header-menu-item" onclick="event.stopPropagation(); toggleTheme();">
+            <span class="header-menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"/></svg>
+            </span>
+            <span>Modo Claro/Oscuro</span>
+          </div>
+          <div class="header-menu-item" onclick="event.stopPropagation(); handleAdminMenuClick();">
+            <span class="header-menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </span>
+            <span>Administrador</span>
+          </div>
+          <div class="header-menu-item danger" onclick="event.stopPropagation(); openLogoutModal();">
+            <span class="header-menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </span>
+            <span>Cerrar Sesión</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 0 20px 5px;"> <div style="position:relative; display:flex; align-items:center;">
+          <input type="text" id="searchInput" placeholder="Buscar por nombre..." oninput="handleSearch()" style="width:100%; padding:14px 50px 14px 18px; border-radius:18px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); outline:none;">
+          <button onclick="toggleFilterMenu()" style="position:absolute; right:12px; background:none; border:none; cursor:pointer; color:var(--text-gray);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="10" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="18" r="2"/></svg></button>
+        </div>
+        <div id="filterMenu" style="margin-top:10px; padding:15px; background:var(--bg-card); border-radius:15px;">
+  <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+    <div class="filter-chip" onclick="toggleFilter('M')">Mañana</div>
+    <div class="filter-chip" onclick="toggleFilter('T')">Tarde</div>
+    <div class="filter-chip" onclick="toggleFilter('TD')">Disponibles</div>
+    
+    <div onclick="clearFilters()" style="font-size: 0.8rem; color: var(--primary-orange); cursor: pointer; font-weight: 800; margin-left: 10px; text-decoration: underline; line-height: 1;">
+        Quitar filtros
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="scroll-container" id="locationsList" style="padding-top: 5px;"></div>
+
+    </section>
+
+    <section class="screen" id="detail-screen">
+      <div style="padding: 20px 20px 0;">
+        <button onclick="goBack()" class="header-btn">
+  <svg width="22" height="22" viewBox="0 0 24 24"
+       fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+</button>
+      </div>
+      <div class="scroll-container" id="detailScrollBody">
+        <h1 id="currentPointTitle" style="margin-top:10px; font-size: 1.8rem;">Punto</h1>
+        <div id="logisticsInfo"></div>
+        <div id="daysRow" style="display:flex; gap:8px; margin: 20px 0; overflow-x:auto;"></div>
+        <div id="slotsContainer"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="turnDetailScreen" class="turn-detail-screen" style="position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: var(--bg-screen); z-index: 4000; transition: 0.4s; display: flex; flex-direction: column;">
+    <div style="padding: 25px; display: flex; align-items: center; gap: 15px;"><button onclick="closeTurnDetail()" style="background: var(--bg-card); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; color: var(--text-main);">✕</button><h2 style="margin:0;">Ficha de Turno</h2></div>
+    <div class="scroll-container" id="turnDetailBody"></div>
+    <div id="turnActionBar" style="padding:20px;"></div>
+  </div>
+
+  <script>
+    // =========================================================
+    // CARGA DE LA LIBRERÍA SUPABASE CON RESPALDO DE VARIOS CDN
+    // =========================================================
+    // Si un CDN está bloqueado (red corporativa, firewall, adblocker)
+    // probamos con otros automáticamente antes de rendirnos. Esto evita
+    // que toda la app dependa de un único dominio externo.
+    function cargarScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = () => resolve(src);
+        s.onerror = () => reject(new Error('No se pudo cargar: ' + src));
+        document.head.appendChild(s);
+      });
+    }
+
+    const SUPABASE_CDN_URLS = [
+      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+      'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/supabase/2.45.4/supabase.min.js'
+    ];
+
+    async function cargarSupabaseConRespaldo() {
+      for (const url of SUPABASE_CDN_URLS) {
+        try {
+          await cargarScript(url);
+          if (typeof supabase !== 'undefined') return true;
+        } catch (e) {
+          console.warn('Falló CDN de Supabase, probando el siguiente:', url);
+        }
+      }
+      return false;
+    }
+  </script>
+
+  <script>
+    // =========================================================
+    // CONFIGURACIÓN SUPABASE
+    // =========================================================
+    const SUPABASE_URL = 'https://ldqyqiopulizblfspwym.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkcXlxaW9wdWxpemJsZnNwd3ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MDMzNTQsImV4cCI6MjA5NzQ3OTM1NH0.KhjIvLBMgDf3UjnPaGaXSyGKnaJoStkEzucEWZKHoB8';
+
+    // Si NINGÚN CDN de Supabase llegó a cargar, 'supabase' no existe.
+    // La inicialización real de 'sb' ocurre dentro de init(), DESPUÉS de
+    // intentar los 3 CDN en cascada (ver cargarSupabaseConRespaldo arriba).
+    // Esto evita que una excepción aquí detenga el resto del script y
+    // deje variables como isAdmin sin inicializar (TDZ).
+    let sb = null;
+    let SUPABASE_LOAD_ERROR = false;
+
+    // =========================================================
+    // ESTADO GLOBAL
+    // =========================================================
+    let PUNTOS = [];
+    let TURNOS = [];
+    let PERSONAS = [];
+    let currentDay = '';
+    let currentPointId = null;
+    let activeFilters = [];
+    let userName = localStorage.getItem('userName') || "";
+    let isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+    let currentAdminTab = 'puntos';
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('show'), 2600);
+    }
+
+    // =========================================================
+    // CARGA DE DATOS DESDE SUPABASE
+    // =========================================================
+    async function loadAllData() {
+      if (SUPABASE_LOAD_ERROR || !sb) {
+        showToast('No se pudo conectar con la base de datos. Revisa tu conexión y recarga la página.');
+        return;
+      }
+      const [{ data: puntos, error: errP }, { data: turnos, error: errT }, { data: personas, error: errPe }] = await Promise.all([
+        sb.from('puntos').select('*').order('orden', { ascending: true }),
+        sb.from('turnos').select('*'),
+        sb.from('personas').select('*').order('nombre', { ascending: true })
+      ]);
+
+      if (errP || errT || errPe) {
+        console.error(errP || errT || errPe);
+        showToast('Error cargando datos. Revisa la conexión.');
+        return;
+      }
+
+      PUNTOS = puntos || [];
+      TURNOS = (turnos || []).map(t => {
+        const punto = PUNTOS.find(p => p.id === t.punto_id);
+        return {
+          id: t.id,
+          dia: t.dia,
+          tipo: t.tipo,
+          nombres: t.nombres,
+          hora: t.hora,
+          punto: punto ? punto.nombre : '',
+          punto_id: t.punto_id,
+          estado: t.estado,
+          reservado_por: t.reservado_por,
+          persona_ids: Array.isArray(t.persona_ids) ? t.persona_ids : (t.persona_id ? [t.persona_id] : [])
+        };
+      });
+      PERSONAS = personas || [];
+
+      renderHome();
+    }
+
+    function saveName() {
+        const input = document.getElementById('userNameInput');
+        if(input.value.trim()){
+            userName = input.value.trim();
+            localStorage.setItem('userName', userName);
+            document.getElementById('nameOverlay').style.display = 'none';
+            renderHome();
+        }
+    }
+
+    function checkUserName() {
+        const overlay = document.getElementById('nameOverlay');
+        if (!overlay) return;
+        overlay.style.display = userName ? 'none' : 'flex';
+    }
+
+    function renderHome() {
+        checkUserName();
+        if(!userName) {
+            return;
+        }
+
+        const home = document.getElementById('locationsList');
+        home.innerHTML = '';
+
+        const myShifts = TURNOS.filter(d => d.nombres.toLowerCase().includes(userName.toLowerCase()));
+        if(myShifts.length > 0) {
+            home.innerHTML += `<div class="section-title">Mis Turnos</div>`;
+            myShifts.forEach(s => {
+                const color = s.tipo.includes('TD') ? (s.estado === 'reservado' ? '#e08600' : 'var(--primary-green)') : (s.tipo.startsWith('M') ? 'var(--primary-orange)' : 'var(--primary-blue)');
+                home.innerHTML += `
+                    <div class="my-shift-card" onclick="openTurnDetail('${s.id}')">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width:12px; height:12px; border-radius:50%; background:${color};"></div>
+                            <span style="font-weight:800; font-size:1.1rem;">${s.punto}</span>
+                        </div>
+                        <div style="color:var(--text-gray); font-size:0.9rem; font-weight:600; padding-left:22px;">
+                            ${s.dia} • ${s.hora}
+                        </div>
+                        <div style="background:var(--bg-screen); border-radius:12px; padding:10px; margin-top:4px; font-size:0.85rem; border:1px solid var(--border-color);">
+                            <span style="color:var(--text-gray); font-weight:bold; display:block; margin-bottom:2px; font-size:0.7rem; text-transform:uppercase;">Turno de:</span>
+                            <span style="font-weight:700;">${s.nombres}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        home.innerHTML += `<div class="section-title">Locaciones</div>`;
+        const grid = document.createElement('div');
+        grid.className = "grid-2x2";
+        if (PUNTOS.length === 0) {
+          grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Aún no hay puntos cargados.</div>`;
+        } else {
+          grid.innerHTML = PUNTOS.map(p => `
+              <div class="location-card" onclick="selectPoint('${p.id}')">
+                  <div class="status-dot" style="background:${p.color}"></div>
+                  <h2>${p.nombre}</h2>
+              </div>
+          `).join('');
+        }
+        home.appendChild(grid);
+    }
+
+    function selectPoint(id) {
+      currentPointId = id;
+      const p = PUNTOS.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('currentPointTitle').innerText = p.nombre;
+      document.getElementById('logisticsInfo').innerHTML = `<div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p.retiro_nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.retiro_tel}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p.retiro_nombre)}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p.encargado_nombre}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p.encargado_tel}" class="btn-mini">📞 Llamar</a></div></div>`;
+      const dRow = document.getElementById('daysRow'); dRow.innerHTML = ''; currentDay = p.dias[0] || '';
+      (p.dias || []).forEach(d => {
+        const b = document.createElement('div'); b.className = `filter-chip ${d === currentDay ? 'active' : ''}`; b.innerText = d.substring(0,3);
+        b.onclick = () => { document.querySelectorAll('#daysRow .filter-chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); currentDay = d; renderShifts(); };
+        dRow.appendChild(b);
+      });
+      if (window.innerWidth < 768) document.getElementById('detail-screen').classList.add('active');
+      renderShifts();
+    }
+
+    function renderShifts() {
+      const cont = document.getElementById('slotsContainer');
+      const pNombre = (PUNTOS.find(x => x.id === currentPointId) || {}).nombre;
+      const filtered = TURNOS.filter(d => d.dia.toLowerCase() === currentDay.toLowerCase() && d.punto === pNombre);
+      cont.innerHTML = filtered.map(s => {
+        const isTD = s.tipo.includes('TD');
+        const isReservado = isTD && s.estado === 'reservado';
+        const claseColor = isReservado ? 'turno-RESERVADO' : (isTD ? 'turno-TD' : (s.tipo.startsWith('T') ? 'turno-T' : 'turno-M'));
+        const etiqueta = isReservado ? `Reservado por ${s.reservado_por || 'alguien'}` : s.hora;
+        return `<div class="slot ${claseColor}" onclick="openTurnDetail('${s.id}')"><div style="display:flex; justify-content:space-between"><b>${s.nombres || (isTD ? 'Disponible' : '')}</b><span>➔</span></div><div style="background:rgba(255,255,255,0.2); padding:6px 14px; border-radius:999px; width:fit-content; font-size:0.9rem; font-weight:700;">${etiqueta}</div></div>`;
+      }).join('') || '<p style="text-align:center; opacity:0.5; margin-top:20px;">No hay turnos hoy.</p>';
+    }
+
+    function openTurnDetail(id) {
+      const s = TURNOS.find(x => x.id === id);
+      if (!s) return;
+      const p = PUNTOS.find(x => x.nombre === s.punto);
+      const isTD = s.tipo.includes('TD'), isM = s.tipo.startsWith('M');
+      const isReservado = isTD && s.estado === 'reservado';
+      const estadoColor = isReservado ? '#e08600' : (isTD ? 'var(--primary-green)' : 'var(--primary-blue)');
+      const estadoTexto = isReservado ? `Reservado por ${s.reservado_por || 'alguien'}` : (isTD ? 'Disponible' : 'Ocupado');
+      document.getElementById('turnDetailBody').innerHTML = `<div style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:20px;"><div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"><span style="width:fit-content; font-size:0.75rem; font-weight:800; color:${estadoColor}; border:1px solid ${estadoColor}; padding:4px 10px; border-radius:8px;">${estadoTexto}</span><span style="font-size:0.85rem; color:var(--text-gray); font-weight:700;">⏰ ${isM?'Turno Mañana':(isTD?'Turno Disponible':'Turno Tarde')}</span></div><h1 style="margin:0;">${s.nombres || (isTD ? 'Disponible' : '')}</h1><h3 style="margin:0;">${s.hora}</h3></div><div class="logistics-box orange"><h4>📍 Retiro</h4><p>${p ? p.retiro_nombre : ''}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="tel:${p?p.retiro_tel:''}" class="btn-mini">📞 Llamar</a><a href="http://maps.google.com/?q=${encodeURIComponent(p?p.retiro_nombre:'')}" target="_blank" class="btn-mini">🗺️ Mapa</a></div></div><div class="logistics-box"><h4>👤 Encargado</h4><p>${p ? p.encargado_nombre : ''}</p><div style="display:flex; gap:8px; margin-top:12px;"><a href="https://wa.me/${p?p.encargado_tel.replace('+',''):''}" target="_blank" class="btn-mini">💬 WhatsApp</a><a href="tel:${p?p.encargado_tel:''}" class="btn-mini">📞 Llamar</a></div></div>`;
+      let btns = `<a href="http://maps.google.com/?q=${encodeURIComponent(s.punto)}" target="_blank" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); margin-bottom:12px; display:flex; padding:15px; border-radius:15px; justify-content:center; text-decoration:none; font-weight:bold;">📍 Cómo llegar</a>`;
+      if (isTD && s.estado === 'libre') {
+        const mensaje = `Hola! Quiero inscribirme en el turno disponible:
+📍 Punto: ${s.punto}
+📅 Día: ${s.dia}
+⏰ Hora: ${s.hora}
+👤 Nombre: ${userName}`;
+
+        btns += `<button onclick="reservarTurno('${s.id}')" style="background:#25D366; color:white; padding:18px; border-radius:16px; font-weight:800; width:100%; display:flex; justify-content:center; border:none; cursor:pointer; font-size:1rem;">Solicitar Turno</button>`;
+        window._pendingWhatsappMsg = mensaje;
+        window._pendingWhatsappTel = '56996377733';
+      } else if (isReservado) {
+        btns += `<div style="text-align:center; color:var(--text-gray); font-weight:700; padding:14px; font-size:0.9rem;">Este turno ya fue solicitado y está pendiente de confirmación.</div>`;
+        if (isAdmin) {
+          btns += `<button onclick="liberarTurnoAdmin('${s.id}')" style="margin-top:10px; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:14px; border-radius:15px; font-weight:700; width:100%; cursor:pointer;">Liberar turno (admin)</button>`;
+        }
+      }
+      document.getElementById('turnActionBar').innerHTML = btns;
+      document.getElementById('turnDetailScreen').style.left = '0';
+    }
+
+    async function reservarTurno(turnoId) {
+      const { error } = await sb.from('turnos')
+        .update({ estado: 'reservado', reservado_por: userName, reservado_at: new Date().toISOString() })
+        .eq('id', turnoId)
+        .eq('estado', 'libre');
+
+      if (error) {
+        console.error(error);
+        showToast('No se pudo reservar el turno. Intenta de nuevo.');
+        return;
+      }
+
+      if (window._pendingWhatsappMsg) {
+        window.open(`https://api.whatsapp.com/send?phone=${window._pendingWhatsappTel}&text=${encodeURIComponent(window._pendingWhatsappMsg)}`, '_blank');
+      }
+
+      showToast('Turno reservado. Quedó marcado para que nadie más lo tome.');
+      await loadAllData();
+      closeTurnDetail();
+    }
+
+    async function liberarTurnoAdmin(turnoId) {
+      const pass = getAdminPassword();
+      if (!pass) { showToast('Sesión admin expirada.'); return; }
+      const { error } = await sb.rpc('admin_liberar_turno', { p_password: pass, p_id: turnoId });
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast('Turno liberado.');
+      await loadAllData();
+      closeTurnDetail();
+    }
+
+    function handleSearch() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const home = document.getElementById('locationsList');
+      if(!q && !activeFilters.length) { renderHome(); return; }
+      
+      let res = TURNOS.filter(r => r.nombres.toLowerCase().includes(q));
+      
+      if(activeFilters.length > 0) {
+        res = res.filter(r => {
+          return activeFilters.some(filter => {
+            if(filter === 'M') return r.tipo.startsWith('M');
+            if(filter === 'T') return r.tipo.startsWith('T') && !r.tipo.includes('TD');
+            if(filter === 'TD') return r.tipo.includes('TD') && r.estado === 'libre';
+            return false;
+          });
+        });
+      }
+      
+      home.innerHTML = `<div style="display:grid; gap:10px">${res.map(r => {
+        const isTD = r.tipo.includes('TD');
+        const isM = r.tipo.startsWith('M');
+        const isReservado = isTD && r.estado === 'reservado';
+        const color = isReservado ? '#e08600' : (isTD ? 'var(--primary-green)' : (isM ? 'var(--primary-orange)' : 'var(--primary-blue)'));
+        return `<div class="logistics-box" onclick="openTurnDetail('${r.id}')" style="cursor:pointer; display:flex; align-items:center; gap:14px;"><div style="width:14px; height:14px; border-radius:50%; background:${color}; flex-shrink:0;"></div><div><div style="font-weight:800">${r.nombres || (isTD?'Disponible':'')}</div><div style="font-size:0.8rem; color:var(--text-gray)">${r.punto} • ${r.dia}</div></div></div>`;
+      }).join('')}</div>` || '<p style="text-align:center; opacity:0.5; margin-top:20px;">Sin resultados.</p>';
+    }
+
+    function toggleFilterMenu() { document.getElementById('filterMenu').classList.toggle('open'); }
+    function toggleFilter(f) { event.target.classList.toggle('active'); const i = activeFilters.indexOf(f); if(i>-1) activeFilters.splice(i,1); else activeFilters.push(f); handleSearch(); }
+    function clearFilters() {
+    activeFilters = [];
+    const chips = document.querySelectorAll('#filterMenu .filter-chip');
+    chips.forEach(chip => chip.classList.remove('active'));
+    handleSearch();
+}
+    function goBack() { document.getElementById('detail-screen').classList.remove('active'); }
+    function closeTurnDetail() { document.getElementById('turnDetailScreen').style.left = '100%'; }
+    function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+
+    async function init() {
+      // Mostrar/ocultar el popup de nombre de inmediato: esto NO depende
+      // de Supabase, así que no debe esperar a la conexión con la base
+      // de datos para funcionar.
+      checkUserName();
+
+      // Registramos el listener del menú de inmediato, sin esperar a
+      // Supabase: el menú (tema, modales) debe funcionar siempre, sin
+      // importar si la base de datos está disponible o no.
+      document.addEventListener('click', (e) => {
+        const menu = document.getElementById('headerMenu');
+        const btn = document.getElementById('menuDotsBtn');
+        if (!menu || !btn) return;
+        if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
+          menu.classList.remove('open');
+        }
+      });
+
+      const cargado = await cargarSupabaseConRespaldo();
+      if (!cargado) {
+        SUPABASE_LOAD_ERROR = true;
+        console.error('No se pudo cargar la librería de Supabase desde ningún CDN.');
+        showToast('No se pudo conectar con la base de datos. Revisa tu conexión e inténtalo de nuevo.');
+        return;
+      }
+
+      try {
+        sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } catch (err) {
+        SUPABASE_LOAD_ERROR = true;
+        console.error('No se pudo inicializar el cliente de Supabase:', err);
+        showToast('No se pudo conectar con la base de datos.');
+        return;
+      }
+
+      loadAllData();
+    }
+    init();
+
+function openLogoutModal() {
+    try {
+        closeHeaderMenu();
+        document.getElementById('logoutOverlay').style.display = 'flex';
+    } catch (err) {
+        console.error('Error al abrir el modal de cierre de sesión:', err);
+        showToast('No se pudo abrir el menú de salida.');
+    }
+}
+
+function closeLogoutModal() {
+    document.getElementById('logoutOverlay').style.display = 'none';
+}
+
+function confirmLogout() {
+    localStorage.removeItem('userName');
+    location.reload();
+}
+
+    // =========================================================
+    // MENÚ CONTEXTUAL (3 puntos): Modo Claro/Oscuro, Administrador, Cerrar Sesión
+    // =========================================================
+    function toggleHeaderMenu() {
+      const menu = document.getElementById('headerMenu');
+      if (!menu) return;
+      menu.classList.toggle('open');
+    }
+
+    function closeHeaderMenu() {
+      const menu = document.getElementById('headerMenu');
+      if (menu) menu.classList.remove('open');
+    }
+
+    function handleAdminMenuClick() {
+      try {
+        closeHeaderMenu();
+        if (isAdmin) {
+          openAdminPanel();
+        } else {
+          openAdminLogin();
+        }
+      } catch (err) {
+        console.error('Error al abrir Administración:', err);
+        showToast('No se pudo abrir Administración. Revisa la consola.');
+      }
+    }
+
+    function openAdminLogin() {
+      document.getElementById('adminLoginError').textContent = '';
+      document.getElementById('adminPasswordInput').value = '';
+      document.getElementById('adminLoginOverlay').style.display = 'flex';
+      setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
+    }
+    function closeAdminLogin() {
+      document.getElementById('adminLoginOverlay').style.display = 'none';
+    }
+
+    async function tryAdminLogin() {
+      const pass = document.getElementById('adminPasswordInput').value;
+      const errEl = document.getElementById('adminLoginError');
+      if (!pass) { errEl.textContent = 'Ingresa la contraseña.'; return; }
+      if (SUPABASE_LOAD_ERROR || !sb) { errEl.textContent = 'Sin conexión con la base de datos. Recarga la página.'; return; }
+
+      const { data, error } = await sb.rpc('verificar_admin_password', { intento: pass });
+      if (error) {
+        console.error('Error en verificar_admin_password:', error);
+        // Mostramos el motivo real (ej: "function does not exist") en vez
+        // de un mensaje genérico, para poder diagnosticar rápido si falta
+        // correr algún script SQL en Supabase.
+        errEl.textContent = 'Error: ' + (error.message || 'No se pudo verificar la contraseña.');
+        return;
+      }
+
+      if (data === true) {
+        isAdmin = true;
+        sessionStorage.setItem('isAdmin', 'true');
+        sessionStorage.setItem('adminPassword', pass);
+        closeAdminLogin();
+        openAdminPanel();
+      } else {
+        errEl.textContent = 'Contraseña incorrecta.';
+      }
+    }
+
+    function getAdminPassword() {
+      return sessionStorage.getItem('adminPassword') || '';
+    }
+
+    // =========================================================
+    // ADMINISTRACIÓN: PANEL PRINCIPAL
+    // =========================================================
+    function openAdminPanel() {
+      document.getElementById('adminPanel').style.display = 'flex';
+      switchAdminTab('puntos');
+    }
+    function closeAdminPanel() {
+      document.getElementById('adminPanel').style.display = 'none';
+    }
+
+    function switchAdminTab(tab) {
+      currentAdminTab = tab;
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      if (tab === 'puntos') renderAdminPuntos();
+      if (tab === 'turnos') renderAdminTurnos();
+      if (tab === 'personas') renderAdminPersonas();
+    }
+
+    // ---------- PUNTOS ----------
+    function renderAdminPuntos() {
+      const body = document.getElementById('adminBody');
+      const items = PUNTOS.map(p => `
+        <div class="admin-list-item">
+          <div style="width:34px; height:34px; border-radius:50%; background:${p.color}; flex-shrink:0;"></div>
+          <div class="info">
+            <div class="title">${p.nombre}</div>
+            <div class="sub">${(p.dias||[]).join(', ')}</div>
+          </div>
+          <div class="admin-actions">
+            <div class="icon-btn" onclick="openPuntoForm('${p.id}')">✏️</div>
+            <div class="icon-btn danger" onclick="confirmDeletePunto('${p.id}')">🗑️</div>
+          </div>
+        </div>
+      `).join('') || `<div class="empty-state">No hay puntos creados aún.</div>`;
+      body.innerHTML = items + `<button class="fab-add" onclick="openPuntoForm()">＋ Agregar punto</button>`;
+    }
+
+    function openPuntoForm(id) {
+      const p = id ? PUNTOS.find(x => x.id === id) : null;
+      const dias = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
+      const selDias = p ? p.dias : [];
+      document.getElementById('formSheet').innerHTML = `
+        <h2 style="margin-top:0;">${p ? 'Editar punto' : 'Nuevo punto'}</h2>
+        <div class="form-group"><label>Nombre del punto</label><input class="form-input" id="f_nombre" value="${p ? p.nombre.replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Color identificador</label><input class="form-input" id="f_color" type="color" value="${p ? p.color : '#f36100'}" style="height:46px; padding:6px;"></div>
+        <div class="form-group">
+          <label>Días activos</label>
+          <div class="chip-multi" id="f_dias">
+            ${dias.map(d => `<div class="filter-chip ${selDias.includes(d) ? 'active' : ''}" data-dia="${d}" onclick="this.classList.toggle('active')">${d}</div>`).join('')}
+          </div>
+        </div>
+        <div class="form-group"><label>Dirección de retiro</label><input class="form-input" id="f_retiro_nombre" value="${p ? (p.retiro_nombre||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Referencia (ej: "Casa de...")</label><input class="form-input" id="f_retiro_sub" value="${p ? (p.retiro_sub||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Teléfono de retiro</label><input class="form-input" id="f_retiro_tel" placeholder="+569..." value="${p ? (p.retiro_tel||'') : ''}"></div>
+        <div class="form-group"><label>Nombre del encargado</label><input class="form-input" id="f_encargado_nombre" value="${p ? (p.encargado_nombre||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Teléfono del encargado</label><input class="form-input" id="f_encargado_tel" placeholder="+569..." value="${p ? (p.encargado_tel||'') : ''}"></div>
+        <div class="form-group"><label>Orden (posición en la grilla)</label><input class="form-input" id="f_orden" type="number" value="${p ? p.orden : (PUNTOS.length+1)}"></div>
+        <div class="section-title" style="margin-top:18px; margin-bottom:6px;">Horarios predeterminados</div>
+        <p style="margin:0 0 12px; font-size:0.8rem; color:var(--text-gray);">Al crear un turno de este tipo en este punto, el horario se rellenará solo (igual se puede editar caso por caso).</p>
+        <div class="form-group"><label>Horario Mañana (M)</label><input class="form-input" id="f_horario_m" placeholder="ej: 09:00 - 11:00" value="${p ? (p.horario_m||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Horario Tarde (T)</label><input class="form-input" id="f_horario_t" placeholder="ej: 16:00 - 18:00" value="${p ? (p.horario_t||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Horario Disponible (TD)</label><input class="form-input" id="f_horario_td" placeholder="ej: 11:00 - 13:00" value="${p ? (p.horario_td||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-actions">
+          <button class="admin-btn-secondary" style="margin:0;" onclick="closeForm()">Cancelar</button>
+          <button class="admin-btn-primary" onclick="savePunto('${p ? p.id : ''}')">${p ? 'Guardar cambios' : 'Crear punto'}</button>
+        </div>
+      `;
+      openForm();
+    }
+
+    async function savePunto(id) {
+      const nombre = document.getElementById('f_nombre').value.trim();
+      if (!nombre) { showToast('El nombre es obligatorio.'); return; }
+      const color = document.getElementById('f_color').value;
+      const dias = Array.from(document.querySelectorAll('#f_dias .filter-chip.active')).map(c => c.dataset.dia);
+      const retiro_nombre = document.getElementById('f_retiro_nombre').value.trim();
+      const retiro_sub = document.getElementById('f_retiro_sub').value.trim();
+      const retiro_tel = document.getElementById('f_retiro_tel').value.trim();
+      const encargado_nombre = document.getElementById('f_encargado_nombre').value.trim();
+      const encargado_tel = document.getElementById('f_encargado_tel').value.trim();
+      const orden = parseInt(document.getElementById('f_orden').value || '0', 10);
+      const horario_m = document.getElementById('f_horario_m').value.trim();
+      const horario_t = document.getElementById('f_horario_t').value.trim();
+      const horario_td = document.getElementById('f_horario_td').value.trim();
+      const pass = getAdminPassword();
+
+      let res;
+      if (id) {
+        res = await sb.rpc('admin_editar_punto', {
+          p_password: pass, p_id: id, p_nombre: nombre, p_color: color, p_dias: dias,
+          p_retiro_nombre: retiro_nombre, p_retiro_sub: retiro_sub, p_retiro_tel: retiro_tel,
+          p_encargado_nombre: encargado_nombre, p_encargado_tel: encargado_tel, p_orden: orden,
+          p_horario_m: horario_m, p_horario_t: horario_t, p_horario_td: horario_td
+        });
+      } else {
+        res = await sb.rpc('admin_crear_punto', {
+          p_password: pass, p_nombre: nombre, p_color: color, p_dias: dias,
+          p_retiro_nombre: retiro_nombre, p_retiro_sub: retiro_sub, p_retiro_tel: retiro_tel,
+          p_encargado_nombre: encargado_nombre, p_encargado_tel: encargado_tel, p_orden: orden,
+          p_horario_m: horario_m, p_horario_t: horario_t, p_horario_td: horario_td
+        });
+      }
+
+      if (res.error) { showToast('Error: ' + res.error.message); return; }
+      showToast(id ? 'Punto actualizado.' : 'Punto creado.');
+      closeForm();
+      await loadAllData();
+      renderAdminPuntos();
+    }
+
+    function confirmDeletePunto(id) {
+      const p = PUNTOS.find(x => x.id === id);
+      if (!confirm(`¿Borrar "${p ? p.nombre : 'este punto'}"? Esto también borrará sus turnos asociados.`)) return;
+      deletePunto(id);
+    }
+    async function deletePunto(id) {
+      const pass = getAdminPassword();
+      const { error } = await sb.rpc('admin_borrar_punto', { p_password: pass, p_id: id });
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast('Punto eliminado.');
+      await loadAllData();
+      renderAdminPuntos();
+    }
+
+    // ---------- TURNOS ----------
+    function renderAdminTurnos() {
+      const body = document.getElementById('adminBody');
+      if (PUNTOS.length === 0) {
+        body.innerHTML = `<div class="empty-state">Primero crea un punto en la pestaña "Puntos".</div>`;
+        return;
+      }
+      const items = TURNOS.map(t => {
+        const isTD = t.tipo.includes('TD');
+        const isReservado = isTD && t.estado === 'reservado';
+        const color = isReservado ? '#e08600' : (isTD ? 'var(--primary-green)' : (t.tipo.startsWith('M') ? 'var(--primary-orange)' : 'var(--primary-blue)'));
+        const estadoTxt = isReservado ? `Reservado (${t.reservado_por || ''})` : (isTD ? 'Disponible' : 'Ocupado');
+        return `
+          <div class="admin-list-item">
+            <div style="width:12px; height:12px; border-radius:50%; background:${color}; flex-shrink:0;"></div>
+            <div class="info">
+              <div class="title">${t.nombres || estadoTxt}</div>
+              <div class="sub">${t.punto} • ${t.dia} • ${t.hora || ''} ${isTD ? '• ' + estadoTxt : ''}</div>
+            </div>
+            <div class="admin-actions">
+              <div class="icon-btn" onclick="openTurnoForm('${t.id}')">✏️</div>
+              <div class="icon-btn danger" onclick="confirmDeleteTurno('${t.id}')">🗑️</div>
+            </div>
+          </div>
+        `;
+      }).join('') || `<div class="empty-state">No hay turnos creados aún.</div>`;
+      body.innerHTML = items + `<button class="fab-add" onclick="openTurnoForm()">＋ Agregar turno</button>`;
+    }
+
+    function openTurnoForm(id) {
+      const t = id ? TURNOS.find(x => x.id === id) : null;
+      const puntoIdActual = t ? (PUNTOS.find(p => p.nombre === t.punto) || {}).id : (PUNTOS[0] && PUNTOS[0].id);
+      const dias = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
+      document.getElementById('formSheet').innerHTML = `
+        <h2 style="margin-top:0;">${t ? 'Editar turno' : 'Nuevo turno'}</h2>
+        <div class="form-group">
+          <label>Punto</label>
+          <select class="form-select" id="t_punto" onchange="aplicarHorarioAutomatico()">
+            ${PUNTOS.map(p => `<option value="${p.id}" ${p.id === puntoIdActual ? 'selected' : ''}>${p.nombre}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Día</label>
+            <select class="form-select" id="t_dia">
+              ${dias.map(d => `<option value="${d}" ${t && t.dia === d ? 'selected' : ''}>${d}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tipo</label>
+            <select class="form-select" id="t_tipo" onchange="onTipoTurnoChange()">
+              <option value="M" ${t && t.tipo === 'M' ? 'selected' : ''}>Mañana</option>
+              <option value="T" ${t && t.tipo === 'T' ? 'selected' : ''}>Tarde</option>
+              <option value="TD" ${t && t.tipo === 'TD' ? 'selected' : ''}>Disponible (TD)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Horario</label><input class="form-input" id="t_hora" placeholder="ej: 09:00 - 11:00" value="${t ? (t.hora||'').replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group">
+          <label>Personas asignadas (máx. 3)</label>
+          <div class="chip-multi" id="t_personas">
+            ${PERSONAS.map(p => `<div class="filter-chip ${t && (t.persona_ids||[]).includes(p.id) ? 'active' : ''}" data-persona-id="${p.id}" onclick="togglePersonaChip(this)">${p.nombre}</div>`).join('') || '<span style="font-size:0.85rem; color:var(--text-gray);">No hay personas en el catálogo todavía.</span>'}
+          </div>
+        </div>
+        <div class="form-group" id="t_estado_group" style="${t && t.tipo === 'TD' || (!t) ? '' : 'display:none;'}">
+          <label>Estado (solo turnos Disponibles)</label>
+          <select class="form-select" id="t_estado">
+            <option value="libre" ${(!t || t.estado === 'libre') ? 'selected' : ''}>Libre</option>
+            <option value="reservado" ${t && t.estado === 'reservado' ? 'selected' : ''}>Reservado</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button class="admin-btn-secondary" style="margin:0;" onclick="closeForm()">Cancelar</button>
+          <button class="admin-btn-primary" onclick="saveTurno('${t ? t.id : ''}')">${t ? 'Guardar cambios' : 'Crear turno'}</button>
+        </div>
+      `;
+      openForm();
+      onTipoTurnoChange();
+      // Si es un turno nuevo (sin horario guardado todavía), rellenamos
+      // el horario sugerido según el punto y tipo ya seleccionados.
+      if (!t) aplicarHorarioAutomatico();
+    }
+
+    // Máximo de personas que se pueden asignar a un mismo turno.
+    const MAX_PERSONAS_POR_TURNO = 3;
+
+    function togglePersonaChip(el) {
+      const yaActivo = el.classList.contains('active');
+      if (!yaActivo) {
+        const activos = document.querySelectorAll('#t_personas .filter-chip.active').length;
+        if (activos >= MAX_PERSONAS_POR_TURNO) {
+          showToast(`Máximo ${MAX_PERSONAS_POR_TURNO} personas por turno.`);
+          return;
+        }
+      }
+      el.classList.toggle('active');
+    }
+
+    // Busca el horario predeterminado del punto seleccionado según el
+    // tipo de turno (M/T/TD) y lo coloca en el campo Horario, SOLO si el
+    // punto tiene ese horario configurado. El campo sigue siendo editable
+    // a mano por si un turno puntual necesita un horario distinto.
+    function aplicarHorarioAutomatico() {
+      const puntoSel = document.getElementById('t_punto');
+      const tipoSel = document.getElementById('t_tipo');
+      const horaInput = document.getElementById('t_hora');
+      if (!puntoSel || !tipoSel || !horaInput) return;
+
+      const punto = PUNTOS.find(p => p.id === puntoSel.value);
+      if (!punto) return;
+
+      const horarioPorTipo = { M: punto.horario_m, T: punto.horario_t, TD: punto.horario_td };
+      const horarioSugerido = horarioPorTipo[tipoSel.value] || '';
+
+      // Solo autocompletamos si el campo está vacío o si todavía tiene
+      // el valor sugerido anterior (para no pisar algo que el usuario
+      // ya escribió a mano para este turno en particular).
+      const eraAutomatico = horaInput.value === '' || horaInput.dataset.autollenado === '1';
+      if (horarioSugerido && eraAutomatico) {
+        horaInput.value = horarioSugerido;
+        horaInput.dataset.autollenado = '1';
+      }
+    }
+
+    function onTipoTurnoChange() {
+      const tipo = document.getElementById('t_tipo').value;
+      document.getElementById('t_estado_group').style.display = tipo === 'TD' ? '' : 'none';
+      aplicarHorarioAutomatico();
+    }
+
+    async function saveTurno(id) {
+      const punto_id = document.getElementById('t_punto').value;
+      const dia = document.getElementById('t_dia').value;
+      const tipo = document.getElementById('t_tipo').value;
+      const hora = document.getElementById('t_hora').value.trim();
+      const persona_ids = Array.from(document.querySelectorAll('#t_personas .filter-chip.active')).map(c => c.dataset.personaId);
+      const nombres = persona_ids
+        .map(pid => (PERSONAS.find(p => p.id === pid) || {}).nombre)
+        .filter(Boolean)
+        .join(', ');
+      const estadoSel = document.getElementById('t_estado') ? document.getElementById('t_estado').value : null;
+      const estado = tipo === 'TD' ? (estadoSel || 'libre') : 'ocupado';
+
+      if (!punto_id || !dia || !tipo) { showToast('Completa punto, día y tipo.'); return; }
+
+      const pass = getAdminPassword();
+      let res;
+      if (id) {
+        res = await sb.rpc('admin_editar_turno', {
+          p_password: pass, p_id: id, p_punto_id: punto_id, p_dia: dia, p_tipo: tipo,
+          p_hora: hora, p_nombres: nombres, p_persona_ids: persona_ids, p_estado: estado
+        });
+      } else {
+        res = await sb.rpc('admin_crear_turno', {
+          p_password: pass, p_punto_id: punto_id, p_dia: dia, p_tipo: tipo,
+          p_hora: hora, p_nombres: nombres, p_persona_ids: persona_ids, p_estado: estado
+        });
+      }
+
+      if (res.error) { showToast('Error: ' + res.error.message); return; }
+      showToast(id ? 'Turno actualizado.' : 'Turno creado.');
+      closeForm();
+      await loadAllData();
+      renderAdminTurnos();
+    }
+
+    function confirmDeleteTurno(id) {
+      if (!confirm('¿Borrar este turno?')) return;
+      deleteTurno(id);
+    }
+    async function deleteTurno(id) {
+      const pass = getAdminPassword();
+      const { error } = await sb.rpc('admin_borrar_turno', { p_password: pass, p_id: id });
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast('Turno eliminado.');
+      await loadAllData();
+      renderAdminTurnos();
+    }
+
+    // ---------- PERSONAS ----------
+    function renderAdminPersonas() {
+      const body = document.getElementById('adminBody');
+      const items = PERSONAS.map(p => `
+        <div class="admin-list-item">
+          <div style="width:34px; height:34px; border-radius:50%; background:${p.activo ? 'var(--primary-green)' : 'var(--text-gray)'}; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;">${p.nombre.charAt(0).toUpperCase()}</div>
+          <div class="info">
+            <div class="title">${p.nombre}</div>
+            <div class="sub">${p.telefono || 'Sin teléfono'} ${p.activo ? '' : '• Inactivo'}</div>
+          </div>
+          <div class="admin-actions">
+            <div class="icon-btn" onclick="openPersonaForm('${p.id}')">✏️</div>
+            <div class="icon-btn danger" onclick="confirmDeletePersona('${p.id}')">🗑️</div>
+          </div>
+        </div>
+      `).join('') || `<div class="empty-state">No hay personas registradas aún.</div>`;
+      body.innerHTML = items + `<button class="fab-add" onclick="openPersonaForm()">＋ Agregar persona</button>`;
+    }
+
+    function openPersonaForm(id) {
+      const p = id ? PERSONAS.find(x => x.id === id) : null;
+      document.getElementById('formSheet').innerHTML = `
+        <h2 style="margin-top:0;">${p ? 'Editar persona' : 'Nueva persona'}</h2>
+        <div class="form-group"><label>Nombre</label><input class="form-input" id="pe_nombre" value="${p ? p.nombre.replace(/"/g,'&quot;') : ''}"></div>
+        <div class="form-group"><label>Teléfono (opcional)</label><input class="form-input" id="pe_telefono" placeholder="+569..." value="${p ? (p.telefono||'') : ''}"></div>
+        ${p ? `<div class="form-group"><label>Estado</label>
+          <select class="form-select" id="pe_activo">
+            <option value="true" ${p.activo ? 'selected' : ''}>Activo</option>
+            <option value="false" ${!p.activo ? 'selected' : ''}>Inactivo</option>
+          </select>
+        </div>` : ''}
+        <div class="form-actions">
+          <button class="admin-btn-secondary" style="margin:0;" onclick="closeForm()">Cancelar</button>
+          <button class="admin-btn-primary" onclick="savePersona('${p ? p.id : ''}')">${p ? 'Guardar cambios' : 'Agregar persona'}</button>
+        </div>
+      `;
+      openForm();
+    }
+
+    async function savePersona(id) {
+      const nombre = document.getElementById('pe_nombre').value.trim();
+      if (!nombre) { showToast('El nombre es obligatorio.'); return; }
+      const telefono = document.getElementById('pe_telefono').value.trim();
+      const pass = getAdminPassword();
+
+      let res;
+      if (id) {
+        const activo = document.getElementById('pe_activo').value === 'true';
+        res = await sb.rpc('admin_editar_persona', { p_password: pass, p_id: id, p_nombre: nombre, p_telefono: telefono, p_activo: activo });
+      } else {
+        res = await sb.rpc('admin_crear_persona', { p_password: pass, p_nombre: nombre, p_telefono: telefono });
+      }
+
+      if (res.error) { showToast('Error: ' + res.error.message); return; }
+      showToast(id ? 'Persona actualizada.' : 'Persona agregada.');
+      closeForm();
+      await loadAllData();
+      renderAdminPersonas();
+    }
+
+    function confirmDeletePersona(id) {
+      if (!confirm('¿Borrar esta persona del catálogo?')) return;
+      deletePersona(id);
+    }
+    async function deletePersona(id) {
+      const pass = getAdminPassword();
+      const { error } = await sb.rpc('admin_borrar_persona', { p_password: pass, p_id: id });
+      if (error) { showToast('Error: ' + error.message); return; }
+      showToast('Persona eliminada.');
+      await loadAllData();
+      renderAdminPersonas();
+    }
+
+    // ---------- FORM OVERLAY HELPERS ----------
+    function openForm() { document.getElementById('formOverlay').style.display = 'flex'; }
+    function closeForm() { document.getElementById('formOverlay').style.display = 'none'; }
+
+  </script>
+</body>
+</html>
